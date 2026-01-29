@@ -1,6 +1,6 @@
 // ==========================================
-// BOMBASZ - Exploding Sphere Navigation v9
-// Better mobile visibility
+// BOMBASZ - Exploding Navigation v24
+// IMPROVEMENTS: Linear nav, proper scroll, back to intro
 // ==========================================
 
 // --- KATEGÓRIÁK ADATAI ---
@@ -12,27 +12,27 @@ const categories = [
             { name: "Könyvek", icon: "fa-book-open", url: "konyv.html" },
             { name: "Vids", icon: "fa-play", url: "vids.html" },
             { name: "UNCS (régi)", icon: "fa-check-double", url: "uncs.html" },
-            { name: "UNCS (nagyon régi)", icon: "fa-check-double", url: "old.html" },
+            { name: "UNCS (ős)", icon: "fa-check-double", url: "old.html" },
             { name: "Történelem", icon: "fa-landmark", url: "tori.html" },
-            { name: "CBZ", icon: "fa-book-open", url: "cbz.html" },
+            { name: "CBZ Olvasó", icon: "fa-book-open", url: "cbz.html" },
         ]
     },
     {
         name: "JÁTÉKOK",
         items: [
             { name: "Mikulás", icon: "fa-gamepad", url: "mikulas.html" },
-            { name: "FPS Shooter", icon: "fa-gamepad", url: "fps.html" },
-            { name: "UFO Játék", icon: "fa-gamepad", url: "jatek.html" },
+            { name: "FPS Shooter", icon: "fa-crosshairs", url: "fps.html" },
+            { name: "UFO Játék", icon: "fa-rocket", url: "jatek.html" },
         ]
     },
     {
         name: "LETÖLTÉSEK",
         items: [
             { name: "Chat Setup", icon: "fa-download", url: "egyeb/Bombasz Chat Setup 1.0.1.exe", download: true },
-            { name: "Chat Portable", icon: "fa-comments", url: "https://drive.google.com/file/d/1xuKcJ2v9WyYMUw6O1AZQhTnJWcihYFgV/view", external: true },
+            { name: "Chat Portable", icon: "fa-box-archive", url: "https://drive.google.com/file/d/1xuKcJ2v9WyYMUw6O1AZQhTnJWcihYFgV/view", external: true },
             { name: "Zene Letöltő", icon: "fa-music", url: "https://drive.google.com/file/d/1Ly64r0g0RMKuSsabj9iegmRgCB5U_8Ea/view", external: true },
             { name: "SRT Időzítő", icon: "fa-clock", url: "egyeb/sub.py", download: true },
-            { name: "CBZ Tool", icon: "fa-chevron-up", url: "egyeb/cbz.py", download: true },
+            { name: "CBZ Tool", icon: "fa-file-zipper", url: "egyeb/cbz.py", download: true },
         ]
     }
 ];
@@ -41,12 +41,14 @@ const categories = [
 const isMobile = window.innerWidth < 768;
 
 // --- ÁLLAPOT ---
-let currentLevel = 0;
+let currentLevel = 0; // 0: Intro, 1: Menu (linear), 2: SubItems
 let currentCategory = 0;
+let targetCategory = 0;
 let hoveredItem = -1;
+
 let isAnimating = false;
 let scrollAccumulator = 0;
-const SCROLL_THRESHOLD = isMobile ? 30 : 60;
+const SCROLL_THRESHOLD = isMobile ? 40 : 60;
 
 // --- THREE.JS SETUP ---
 const canvas = document.getElementById('hero-canvas');
@@ -56,6 +58,11 @@ renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
 
 const scene = new THREE.Scene();
 const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+
+// Raycaster a kattintáshoz
+const raycaster = new THREE.Raycaster();
+const mouse = new THREE.Vector2();
+
 camera.position.z = isMobile ? 12 : 10;
 
 // --- ANIMATION PARAMS ---
@@ -64,72 +71,79 @@ let targetMainExplosion = 0;
 let subExplosion = 0;
 let targetSubExplosion = 0;
 
-const LERP_SLOW = 0.06;
-const LERP_MED = 0.1;
+// Lassabb lerp = simább animáció
+const LERP_SLOW = 0.03;
+const LERP_MED = 0.08;
 const LERP_FAST = 0.15;
 
-// --- GÖMB GEOMETRIA ---
-const sphereRadius = isMobile ? 1.8 : 2.5;
-const baseGeo = new THREE.IcosahedronGeometry(sphereRadius, 2);
+// --- HÁTTÉR GÖMB ---
+const sphereRadius = isMobile ? 2.0 : 2.5;
+const baseGeo = new THREE.IcosahedronGeometry(sphereRadius, 2); 
 const nonIndexedGeo = baseGeo.toNonIndexed();
 const posAttr = nonIndexedGeo.attributes.position;
-const vertexCount = posAttr.count;
-const triangleCount = vertexCount / 3;
+const triangleCount = posAttr.count / 3;
 
-// --- FRAGMENT CSOPORT ---
-const fragmentGroup = new THREE.Group();
-scene.add(fragmentGroup);
+// --- CSOPORTOK ---
+const backgroundGroup = new THREE.Group();
+const menuGroup = new THREE.Group(); // Lineáris menü (gúlák egymás alatt)
+const subItemGroup = new THREE.Group();
 
-// --- FŐ DARABOK (GÚLÁK) ---
+scene.add(backgroundGroup);
+scene.add(menuGroup);
+scene.add(subItemGroup);
+
+// --- KATEGÓRIA GÚLÁK (LINEAR MENU) ---
 const mainFragments = [];
-const mainFragmentGroup = new THREE.Group();
-scene.add(mainFragmentGroup);
+const VERTICAL_SPACING = isMobile ? 4.0 : 5.5; // Távolság a gúlák között (megnövelve)
 
 categories.forEach((cat, idx) => {
-    const pyramidGeo = new THREE.TetrahedronGeometry(isMobile ? 0.35 : 0.5, 0);
-    const pyramidMat = new THREE.MeshBasicMaterial({
-        color: 0xffffff,
+    const pyramidGeo = new THREE.TetrahedronGeometry(isMobile ? 0.8 : 0.7, 0);
+    const pyramidMat = new THREE.MeshBasicMaterial({ 
+        color: 0xffffff, 
         wireframe: true,
-        transparent: true,
-        opacity: 0
+        transparent: true, 
+        opacity: 0,
+        side: THREE.DoubleSide
     });
-    const pyramid = new THREE.Mesh(pyramidGeo, pyramidMat);
     
-    const angle = (idx / categories.length) * Math.PI * 2;
-    const explosionDir = new THREE.Vector3(
-        Math.cos(angle) * 0.8,
-        Math.sin(angle) * 0.5,
-        (Math.random() - 0.5) * 0.3
-    ).normalize();
+    const fillGeo = new THREE.TetrahedronGeometry(isMobile ? 0.75 : 0.65, 0);
+    const hitMesh = new THREE.Mesh(fillGeo, new THREE.MeshBasicMaterial({ visible: false }));
+    
+    const pyramid = new THREE.Mesh(pyramidGeo, pyramidMat);
+    pyramid.add(hitMesh);
+    
+    // Vertikális pozíció - középső elem (idx=1 ha 3 kategória) van középen
+    const centerIdx = Math.floor(categories.length / 2);
+    const yPos = (centerIdx - idx) * VERTICAL_SPACING;
+    
+    // Cikk-cakk vízszintes eltolás (bal-jobb váltakozás)
+    const zigzagOffset = isMobile ? 1.5 : 2.5;
+    const xPos = (idx % 2 === 0) ? -zigzagOffset : zigzagOffset;
+    
+    pyramid.position.set(xPos, yPos, 0);
+    pyramid.lookAt(camera.position);
     
     mainFragments.push({
         mesh: pyramid,
-        explosionDir,
-        // KISEBB távolság mobilon
-        explosionDistance: isMobile ? 4 : 8 + Math.random() * 3,
+        hitMesh: hitMesh,
+        baseY: yPos, // Alaphelyzet Y koordináta
+        baseX: xPos, // Alaphelyzet X koordináta (cikk-cakk)
         rotationAxis: new THREE.Vector3(Math.random(), Math.random(), Math.random()).normalize(),
-        rotationSpeed: 0.008 + Math.random() * 0.008,
+        rotationSpeed: 0.005,
         currentOpacity: 0,
-        targetOpacity: 0,
-        floatOffset: Math.random() * Math.PI * 2,
-        floatSpeed: 0.5 + Math.random() * 0.5,
-        // KISEBB lebegés mobilon
-        floatAmount: isMobile ? 0.1 : 0.3 + Math.random() * 0.2
+        targetOpacity: 0
     });
     
-    mainFragmentGroup.add(pyramid);
+    menuGroup.add(pyramid);
 });
 
-// --- GÖMB DARABOK ---
+// --- HÁTTÉR DARABOK ---
 const fragments = [];
-
 for (let i = 0; i < triangleCount; i++) {
     const idx = i * 3;
-    
     const v1 = new THREE.Vector3(posAttr.getX(idx), posAttr.getY(idx), posAttr.getZ(idx));
     const v2 = new THREE.Vector3(posAttr.getX(idx + 1), posAttr.getY(idx + 1), posAttr.getZ(idx + 1));
     const v3 = new THREE.Vector3(posAttr.getX(idx + 2), posAttr.getY(idx + 2), posAttr.getZ(idx + 2));
-    
     const center = new THREE.Vector3().addVectors(v1, v2).add(v3).divideScalar(3);
     
     const triGeo = new THREE.BufferGeometry();
@@ -140,49 +154,36 @@ for (let i = 0; i < triangleCount; i++) {
     ]);
     triGeo.setAttribute('position', new THREE.BufferAttribute(vertices, 3));
     
-    const pyramidGeo = new THREE.TetrahedronGeometry(isMobile ? 0.08 : 0.1, 0);
-    
-    const material = new THREE.MeshBasicMaterial({
-        color: 0xffffff,
-        wireframe: true,
-        transparent: true,
-        opacity: 0.2,
-        side: THREE.DoubleSide
+    const pyramidGeo = new THREE.TetrahedronGeometry(isMobile ? 0.06 : 0.08, 0);
+    const material = new THREE.MeshBasicMaterial({ 
+        color: 0xffffff, 
+        wireframe: true, 
+        transparent: true, 
+        opacity: 0.2, 
+        side: THREE.DoubleSide 
     });
-    
     const mesh = new THREE.Mesh(triGeo, material);
     mesh.position.copy(center);
-    
-    const originalRotation = mesh.rotation.clone();
-    
-    const explosionDir = center.clone().normalize();
-    explosionDir.x += (Math.random() - 0.5) * 0.5;
-    explosionDir.y += (Math.random() - 0.5) * 0.5;
-    explosionDir.z += (Math.random() - 0.5) * 0.5;
-    explosionDir.normalize();
     
     fragments.push({
         mesh,
         triGeo,
         pyramidGeo,
         originalPos: center.clone(),
-        originalRotation,
-        explosionDir,
-        // KISEBB robbanás távolság mobilon
-        explosionDistance: isMobile ? 2.5 + Math.random() * 2 : 4 + Math.random() * 5,
+        originalRotation: mesh.rotation.clone(),
+        explosionDir: center.clone().normalize(),
+        explosionDistance: isMobile ? 5.5 : 8.0, // Megnövelve a távolságot (szabadabb elrendezés)
         rotationAxis: new THREE.Vector3(Math.random(), Math.random(), Math.random()).normalize(),
-        rotationSpeed: (Math.random() - 0.5) * 0.015,
+        rotationSpeed: (Math.random()-0.5)*0.015,
         currentGeometry: 'tri',
-        floatOffset: Math.random() * Math.PI * 2,
-        floatSpeed: 0.3 + Math.random() * 0.4,
-        // KISEBB lebegés mobilon
-        floatAmount: isMobile ? 0.05 : 0.15 + Math.random() * 0.1
+        floatPhase: Math.random() * Math.PI * 2,
+        floatSpeed: 0.1 + Math.random() * 0.2,
+        floatVector: new THREE.Vector3(Math.random()-0.5, Math.random()-0.5, Math.random()-0.5).normalize()
     });
-    
-    fragmentGroup.add(mesh);
+    backgroundGroup.add(mesh);
 }
 
-// --- KATEGÓRIA SUB-DARABOK ---
+// --- ALOLDALAK (SUB-ITEMS) ---
 const categorySubFragments = [];
 const labelsContainer = document.getElementById('labels-container');
 
@@ -191,451 +192,656 @@ categories.forEach((cat, catIdx) => {
     const itemCount = cat.items.length;
     
     cat.items.forEach((item, itemIdx) => {
-        const angle = (itemIdx / itemCount) * Math.PI * 2 - Math.PI / 2;
+        let targetX, targetY, targetZ;
         
-        const subGeo = new THREE.TetrahedronGeometry(isMobile ? 0.12 : 0.18, 0);
-        const material = new THREE.MeshBasicMaterial({
-            color: 0xffffff,
-            wireframe: true,
-            transparent: true,
-            opacity: 0
+        if (isMobile) {
+            const spacing = 1.3;
+            const totalHeight = (itemCount - 1) * spacing;
+            const startY = totalHeight / 2;
+            targetX = 0; 
+            targetY = startY - (itemIdx * spacing); 
+            targetZ = 2.0; 
+        } else {
+            const angleStep = (Math.PI * 2) / itemCount;
+            const angle = -Math.PI / 2 + (itemIdx * angleStep);
+            const radius = 3.2;
+            targetX = Math.cos(angle) * radius; 
+            targetY = Math.sin(angle) * radius; 
+            targetZ = 0;
+        }
+
+        const finalPosition = new THREE.Vector3(targetX, targetY, targetZ);
+        const subGeo = new THREE.TetrahedronGeometry(isMobile ? 0.15 : 0.2, 0);
+        const material = new THREE.MeshBasicMaterial({ 
+            color: 0xffffff, 
+            wireframe: true, 
+            transparent: true, 
+            opacity: 0 
         });
         const mesh = new THREE.Mesh(subGeo, material);
-        
-        const localPos = new THREE.Vector3(
-            Math.cos(angle) * 0.15,
-            Math.sin(angle) * 0.15,
-            0
-        );
-        
-        const explodeDir = new THREE.Vector3(
-            Math.cos(angle),
-            Math.sin(angle),
-            (Math.random() - 0.5) * 0.3
-        ).normalize();
         
         const label = document.createElement('a');
         label.className = 'item-label';
         label.innerHTML = `<i class="fa-solid ${item.icon}"></i><span>${item.name}</span>`;
         label.href = item.url;
-        if (item.download) label.setAttribute('download', '');
-        else label.setAttribute('target', '_blank');
+        if (item.download) {
+            label.setAttribute('download', '');
+        } else if (!item.external) {
+            // Belső linkek - smooth transition
+            label.addEventListener('click', (e) => {
+                e.preventDefault();
+                smoothPageTransition(item.url);
+            });
+        } else {
+            // Külső linkek - target blank marad
+            label.setAttribute('target', '_blank');
+        }
+        
         label.style.opacity = '0';
         label.style.pointerEvents = 'none';
         
         label.addEventListener('mouseenter', () => { hoveredItem = itemIdx; });
         label.addEventListener('mouseleave', () => { if (hoveredItem === itemIdx) hoveredItem = -1; });
-        label.addEventListener('touchstart', (e) => { 
-            hoveredItem = itemIdx; 
-        }, { passive: true });
+        label.addEventListener('touchstart', () => { hoveredItem = itemIdx; }, { passive: true });
         
         labelsContainer.appendChild(label);
         
         subFrags.push({
-            mesh,
-            localPos,
-            explodeDir,
-            // KISEBB item robbanás mobilon
-            explosionDistance: isMobile ? 1.2 : 2 + Math.random() * 0.5,
-            itemData: item,
+            mesh, 
+            finalPosition, 
             label,
             rotationAxis: new THREE.Vector3(Math.random(), Math.random(), Math.random()).normalize(),
-            rotationSpeed: 0.015 + Math.random() * 0.01,
+            rotationSpeed: 0.04,
             currentOpacity: 0
         });
-        
-        scene.add(mesh);
+        subItemGroup.add(mesh);
     });
-    
     categorySubFragments.push(subFrags);
 });
 
-// --- HÁTTÉR RÉSZECSKÉK ---
-const particleCount = isMobile ? 800 : 2500;
+// --- PORSZEMEK ---
+const particleCount = isMobile ? 1500 : 4000;
 const pPositions = new Float32Array(particleCount * 3);
 const pVelocities = [];
-
 for (let i = 0; i < particleCount; i++) {
-    pPositions[i * 3] = (Math.random() - 0.5) * 150;
-    pPositions[i * 3 + 1] = (Math.random() - 0.5) * 150;
-    pPositions[i * 3 + 2] = (Math.random() - 0.5) * 150;
-    pVelocities.push({
-        x: (Math.random() - 0.5) * 0.03,
-        y: (Math.random() - 0.5) * 0.03,
-        z: (Math.random() - 0.5) * 0.03
+    const spread = isMobile ? 90 : 150;
+    pPositions[i*3] = (Math.random()-0.5) * spread;
+    pPositions[i*3+1] = (Math.random()-0.5) * spread;
+    pPositions[i*3+2] = (Math.random()-0.5) * spread;
+    pVelocities.push({ 
+        x: (Math.random()-0.5)*0.02, 
+        y: (Math.random()-0.5)*0.02, 
+        z: (Math.random()-0.5)*0.02 
     });
 }
-
 const pGeometry = new THREE.BufferGeometry();
 pGeometry.setAttribute('position', new THREE.BufferAttribute(pPositions, 3));
-const pMaterial = new THREE.PointsMaterial({
-    color: 0xffffff,
-    size: isMobile ? 0.03 : 0.02,
-    transparent: true,
-    opacity: 0.5,
-    blending: THREE.AdditiveBlending
+const pMaterial = new THREE.PointsMaterial({ 
+    color: 0xffffff, 
+    size: isMobile ? 0.03 : 0.02, 
+    transparent: true, 
+    opacity: 0.6 
 });
 const particles = new THREE.Points(pGeometry, pMaterial);
 scene.add(particles);
 
 // --- HELPER ---
-function worldToScreen(pos) {
-    const vector = pos.clone().project(camera);
-    return {
-        x: (vector.x * 0.5 + 0.5) * window.innerWidth,
-        y: (-vector.y * 0.5 + 0.5) * window.innerHeight,
-        z: vector.z
-    };
+let isTransitioning = false;
+
+// ==========================================
+// ÚJ INDULÁSI ANIMÁCIÓ (Quantum Jump)
+// Cseréld le a régi smoothPageTransition függvényt erre az index.html-ben!
+// ==========================================
+
+function smoothPageTransition(url) {
+    if (isTransitioning) return;
+    isTransitioning = true;
+    
+    // Állapot mentése a visszatéréshez
+    sessionStorage.setItem('bombasz_returning', 'true');
+    sessionStorage.setItem('bombasz_level', currentLevel);
+    sessionStorage.setItem('bombasz_category', currentCategory);
+    
+    // 1. FEHÉR VILLANÁS LÉTREHOZÁSA (Warp Tunnel)
+    const overlay = document.createElement('div');
+    overlay.style.cssText = `
+        position: fixed;
+        top: 0; left: 0;
+        width: 100vw; height: 100vh;
+        background: #ffffff;
+        z-index: 9999999;
+        opacity: 0;
+        pointer-events: none;
+        transition: opacity 0.4s cubic-bezier(0.55, 0.085, 0.68, 0.53); /* Gyorsuló görbe */
+        will-change: opacity;
+    `;
+    document.body.appendChild(overlay);
+
+    // 2. CANVAS ANIMÁCIÓ (Csak a mozgás illúziója miatt)
+    // Nem nagyítunk túl nagyot, hogy ne akadjon be a GPU
+    canvas.style.transition = 'transform 0.6s cubic-bezier(0.7, 0, 0.3, 1), filter 0.6s ease';
+    canvas.style.willChange = 'transform, filter';
+    
+    // Elrejtjük a UI elemeket azonnal
+    const labels = document.querySelectorAll('.item-label');
+    labels.forEach(l => l.style.opacity = '0');
+    const catLabel = document.getElementById('category-label');
+    if(catLabel) catLabel.style.opacity = '0';
+
+    requestAnimationFrame(() => {
+        // Indulás!
+        canvas.style.transform = 'scale(3)'; // Mérsékelt zoom, hogy sima maradjon
+        canvas.style.filter = 'blur(10px)';  // A sebesség elmosása
+        
+        // A fehér fény elvakít
+        setTimeout(() => {
+            overlay.style.opacity = '1';
+        }, 50); // Pici késleltetés, hogy a zoom már látszódjon előtte
+
+        // 3. NAVIGÁLÁS
+        // Amikor már tiszta fehér a képernyő, akkor váltunk
+        setTimeout(() => {
+            window.location.href = url;
+        }, 450);
+    });
+}
+// Visszalépés smooth transition
+// ==========================================
+// ÚJ RETURN ANIMÁCIÓ (Quantum Entry)
+// Cseréld le a régi handleBackNavigation függvényt erre!
+// ==========================================
+
+// ==========================================
+// GARANTÁLT ZOOM ARRIVAL (Index.html)
+// Cseréld le a régi handleBackNavigation-t erre!
+// ==========================================
+
+function handleBackNavigation() {
+    if (sessionStorage.getItem('bombasz_returning') === 'true') {
+        sessionStorage.removeItem('bombasz_returning');
+        
+        const savedLevel = parseInt(sessionStorage.getItem('bombasz_level')) || 1;
+        const savedCategory = parseInt(sessionStorage.getItem('bombasz_category')) || 0;
+
+        // 1. Fehér réteg (hogy ne látszódjon a betöltés pillanata)
+        const overlay = document.createElement('div');
+        overlay.style.cssText = `
+            position: fixed; top: 0; left: 0; width: 100vw; height: 100vh;
+            background: #ffffff; z-index: 9999999; opacity: 1;
+            transition: opacity 0.8s ease-out; pointer-events: none;
+        `;
+        document.body.appendChild(overlay);
+
+        // 2. CANVAS KEZDŐÁLLAPOT: HATALMAS (scale 5)
+        // Innen fogunk visszahúzódni normál méretre
+        canvas.style.transition = 'none';
+        canvas.style.transform = 'scale(5)'; 
+        canvas.style.filter = 'blur(0px)'; 
+
+        // Adatok visszaállítása
+        currentLevel = savedLevel;
+        targetMainExplosion = 1; mainExplosion = 1;
+        if (savedLevel === 2) {
+            currentCategory = savedCategory; targetCategory = savedCategory;
+            targetSubExplosion = 1; subExplosion = 1;
+        } else {
+            targetCategory = savedCategory;
+        }
+        updateUI();
+
+        // 3. ANIMÁCIÓ INDÍTÁSA
+        requestAnimationFrame(() => {
+            setTimeout(() => {
+                // Fehérség eltűnik
+                overlay.style.opacity = '0';
+                
+                // Canvas visszahúzódik: scale(5) -> scale(1)
+                // Ez adja az érzést, hogy megérkeztél a zoomolásból
+                canvas.style.transition = 'transform 1s cubic-bezier(0.19, 1, 0.22, 1)';
+                canvas.style.transform = 'scale(1)';
+                
+                // Overlay törlése
+                setTimeout(() => overlay.remove(), 1000);
+            }, 50);
+        });
+    }
 }
 
-// --- UI ---
+// Induláskor ellenőrizzük
+window.addEventListener('load', handleBackNavigation);
+
+// BACK BUTTON létrehozása (ezt rakd a HTML-be vagy hívd meg amikor kell)
+function createBackButton() {
+    // Csak akkor jelenítsük meg, ha az előző oldal index.html volt
+    if (sessionStorage.getItem('bombasz_returning') !== 'true') {
+        return null;
+    }
+    
+    const backBtn = document.createElement('button');
+    backBtn.id = 'bombasz-back-btn';
+    backBtn.innerHTML = '<i class="fa-solid fa-arrow-left"></i> VISSZA';
+    backBtn.style.cssText = `
+        position: fixed;
+        top: 20px;
+        left: 20px;
+        padding: 12px 24px;
+        background: rgba(255, 255, 255, 0.1);
+        border: 1px solid rgba(255, 255, 255, 0.3);
+        color: white;
+        font-family: 'Orbitron', monospace;
+        font-size: 14px;
+        font-weight: 600;
+        cursor: pointer;
+        z-index: 999999;
+        backdrop-filter: blur(10px);
+        border-radius: 8px;
+        transition: all 0.3s ease;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+    `;
+    
+    backBtn.addEventListener('mouseenter', () => {
+        backBtn.style.background = 'rgba(255, 255, 255, 0.2)';
+        backBtn.style.transform = 'translateX(-5px)';
+    });
+    
+    backBtn.addEventListener('mouseleave', () => {
+        backBtn.style.background = 'rgba(255, 255, 255, 0.1)';
+        backBtn.style.transform = 'translateX(0)';
+    });
+    
+    backBtn.addEventListener('click', () => {
+        // Hyperspace jump transition
+        sessionStorage.setItem('bombasz_returning', 'true');
+        sessionStorage.setItem('bombasz_level', '1');
+        sessionStorage.setItem('bombasz_category', '0');
+        
+        const pageContent = document.body;
+        pageContent.style.transition = 'all 0.8s cubic-bezier(0.25, 0.46, 0.45, 0.94)';
+        pageContent.style.transform = 'scale(2.5)';
+        pageContent.style.opacity = '1';
+        
+        setTimeout(() => {
+            pageContent.style.filter = 'blur(5px)';
+        }, 150);
+        
+        setTimeout(() => {
+            pageContent.style.transition = 'all 0.5s cubic-bezier(0.55, 0.085, 0.68, 0.53)';
+            pageContent.style.transform = 'scale(8)';
+            pageContent.style.filter = 'blur(20px)';
+        }, 300);
+        
+        setTimeout(() => {
+            const overlay = document.createElement('div');
+            overlay.style.cssText = `
+                position: fixed;
+                top: 0;
+                left: 0;
+                width: 100vw;
+                height: 100vh;
+                background: radial-gradient(circle, rgba(255,255,255,0.2) 0%, rgba(0,0,0,1) 70%);
+                z-index: 9999999;
+                opacity: 0;
+                pointer-events: none;
+                transition: opacity 0.3s ease-out;
+            `;
+            document.body.appendChild(overlay);
+            
+            requestAnimationFrame(() => {
+                overlay.style.opacity = '1';
+            });
+            
+            setTimeout(() => {
+                window.location.href = 'index.html';
+            }, 300);
+        }, 600);
+    });
+    
+    document.body.appendChild(backBtn);
+    return backBtn;
+}
+
+function worldToScreen(pos) {
+    const vector = pos.clone().project(camera);
+    let x = (vector.x * 0.5 + 0.5) * window.innerWidth;
+    let y = (-vector.y * 0.5 + 0.5) * window.innerHeight;
+    if (isMobile) {
+        const margin = 20; 
+        x = Math.max(margin, Math.min(window.innerWidth - margin, x));
+        y = Math.max(90, Math.min(window.innerHeight - 70, y));
+    }
+    return { x, y };
+}
+
 function updateUI() {
     const heroOverlay = document.getElementById('hero-overlay');
     const categoryLabel = document.getElementById('category-label');
     
     if (currentLevel === 0) {
-        heroOverlay.classList.remove('hidden');
+        heroOverlay.classList.remove('hidden'); 
         categoryLabel.classList.remove('visible');
-    } else {
+    } 
+    else if (currentLevel === 1) {
+        heroOverlay.classList.add('hidden');
+        categoryLabel.textContent = categories[targetCategory].name;
+        categoryLabel.classList.add('visible');
+        categoryLabel.style.opacity = "1";
+    }
+    else if (currentLevel === 2) {
         heroOverlay.classList.add('hidden');
         categoryLabel.textContent = categories[currentCategory].name;
         categoryLabel.classList.add('visible');
     }
 }
 
-// --- KAMERA ---
-let cameraPos = new THREE.Vector3(0, 0, isMobile ? 12 : 10);
-let targetCameraPos = new THREE.Vector3(0, 0, isMobile ? 12 : 10);
-let lookAtPos = new THREE.Vector3(0, 0, 0);
-let targetLookAt = new THREE.Vector3(0, 0, 0);
+// --- LOGIKA: SCROLL & CLICK ---
 
-function updateCamera() {
-    if (currentLevel === 0) {
-        targetCameraPos.set(0, 0, isMobile ? 12 : 10);
-        targetLookAt.set(0, 0, 0);
-    } else {
-        // Mobilon közelebb a kamera
-        const zoomLevel1 = isMobile ? 6 : 6;
-        const zoomLevel2 = isMobile ? 4.5 : 4.5;
-        targetCameraPos.set(0, 0, currentLevel === 1 ? zoomLevel1 : zoomLevel2);
-        targetLookAt.set(0, 0, 0);
-    }
-}
-
-// --- NAVIGÁCIÓ ---
-let navTimeout = null;
-
-function navigate(direction) {
+function handleScroll(delta) {
     if (isAnimating) return;
     
-    if (navTimeout) clearTimeout(navTimeout);
-    isAnimating = true;
-    
+    // Level 0: Le görgetés -> Level 1 (belépés a menübe)
     if (currentLevel === 0) {
-        if (direction > 0) {
+        if (delta > 0) {
             currentLevel = 1;
-            currentCategory = 0;
             targetMainExplosion = 1;
-            updateCamera();
             updateUI();
         }
-    } 
-    else if (currentLevel === 1) {
-        if (direction > 0) {
-            currentLevel = 2;
-            targetSubExplosion = 1;
-            updateCamera();
-            updateUI();
-        } else if (direction < 0) {
-            if (currentCategory > 0) {
-                currentCategory--;
-                updateCamera();
+        return;
+    }
+    
+    // Level 1: LINEAR NAVIGATION
+    // Fel görgetés (delta < 0) = előző kategória
+    // Le görgetés (delta > 0) = következő kategória
+    if (currentLevel === 1) {
+        if (delta < 0) {
+            // Fel görgetés
+            if (targetCategory > 0) {
+                targetCategory--;
                 updateUI();
             } else {
+                // Ha az első elemen vagyunk, vissza az intro-hoz
                 currentLevel = 0;
                 targetMainExplosion = 0;
-                targetSubExplosion = 0;
-                updateCamera();
+                targetCategory = 0;
                 updateUI();
             }
-        }
-    }
-    else if (currentLevel === 2) {
-        if (direction > 0) {
-            if (currentCategory < categories.length - 1) {
-                targetSubExplosion = 0;
-                navTimeout = setTimeout(() => {
-                    currentCategory++;
-                    currentLevel = 1;
-                    updateCamera();
-                    updateUI();
-                }, 250);
+        } else {
+            // Le görgetés
+            if (targetCategory < categories.length - 1) {
+                targetCategory++;
+                updateUI();
             }
-        } else if (direction < 0) {
-            targetSubExplosion = 0;
-            navTimeout = setTimeout(() => {
-                if (currentCategory > 0) {
-                    currentCategory--;
-                    targetSubExplosion = 1;
-                    updateCamera();
-                    updateUI();
-                } else {
-                    currentLevel = 1;
-                    updateCamera();
-                    updateUI();
-                }
-            }, 250);
+            // Ha az utolsó elemen vagyunk, nem csinálunk semmit (nem körbemegy)
         }
     }
     
-    setTimeout(() => {
-        isAnimating = false;
-    }, 250);
+    // Level 2: Fel vagy Le görgetés -> vissza Level 1-re
+    if (currentLevel === 2) {
+        currentLevel = 1;
+        targetSubExplosion = 0;
+        updateUI();
+        return;
+    }
 }
 
-// --- SCROLL ---
-window.addEventListener('wheel', (e) => {
-    e.preventDefault();
-    scrollAccumulator += e.deltaY;
-    
-    if (Math.abs(scrollAccumulator) > SCROLL_THRESHOLD) {
-        navigate(scrollAccumulator > 0 ? 1 : -1);
-        scrollAccumulator = 0;
-    }
-}, { passive: false });
+function handleClick(event) {
+    mouse.x = (event.clientX / window.innerWidth) * 2 - 1;
+    mouse.y = -(event.clientY / window.innerHeight) * 2 + 1;
 
-// --- TOUCH (javított) ---
+    if (currentLevel === 0) {
+        handleScroll(1);
+        return;
+    }
+
+    if (currentLevel === 1) {
+        raycaster.setFromCamera(mouse, camera);
+        const hitBoxes = mainFragments.map(f => f.hitMesh);
+        const intersects = raycaster.intersectObjects(hitBoxes);
+
+        if (intersects.length > 0) {
+            const clickedMesh = intersects[0].object.parent;
+            const clickedIndex = mainFragments.findIndex(f => f.mesh === clickedMesh);
+
+            if (clickedIndex !== -1) {
+                if (clickedIndex === targetCategory) {
+                    enterCategory(clickedIndex);
+                } else {
+                    // Rákattintás egy másik kategóriára -> oda ugrunk
+                    targetCategory = clickedIndex;
+                    updateUI();
+                }
+            }
+        }
+    }
+}
+
+function enterCategory(index) {
+    if (isAnimating) return;
+    currentCategory = index;
+    currentLevel = 2;
+    targetSubExplosion = 1;
+    updateUI();
+}
+
+// --- EVENT LISTENERS ---
+window.addEventListener('wheel', (e) => {
+    scrollAccumulator += e.deltaY;
+    if (Math.abs(scrollAccumulator) > SCROLL_THRESHOLD) { 
+        handleScroll(scrollAccumulator > 0 ? 1 : -1); 
+        scrollAccumulator = 0; 
+    }
+}, {passive:false});
+
+let touchStartX = 0;
 let touchStartY = 0;
-let touchStartTime = 0;
+let isDragging = false;
+
+window.addEventListener('mousedown', (e) => {
+    touchStartX = e.clientX;
+    touchStartY = e.clientY;
+    isDragging = false;
+});
+
+window.addEventListener('mouseup', (e) => {
+    const dist = Math.abs(e.clientX - touchStartX) + Math.abs(e.clientY - touchStartY);
+    if (dist < 10) {
+        handleClick(e);
+    }
+});
 
 window.addEventListener('touchstart', (e) => {
+    touchStartX = e.touches[0].clientX;
     touchStartY = e.touches[0].clientY;
-    touchStartTime = Date.now();
-}, { passive: true });
+}, {passive: true});
 
 window.addEventListener('touchend', (e) => {
+    const touchEndX = e.changedTouches[0].clientX;
     const touchEndY = e.changedTouches[0].clientY;
-    const touchEndTime = Date.now();
     const deltaY = touchStartY - touchEndY;
-    const deltaTime = touchEndTime - touchStartTime;
+    const deltaX = touchStartX - touchEndX;
     
-    // Swipe - érzékenyebb mobilon
-    if (deltaTime < 400 && Math.abs(deltaY) > 20) {
-        navigate(deltaY > 0 ? 1 : -1);
+    if (Math.abs(deltaY) > 30) {
+        handleScroll(deltaY > 0 ? 1 : -1);
+    } 
+    else if (Math.abs(deltaY) < 10 && Math.abs(deltaX) < 10) {
+        const fakeEvent = {
+            clientX: touchEndX,
+            clientY: touchEndY
+        };
+        handleClick(fakeEvent);
     }
-}, { passive: true });
+}, {passive: true});
 
-// --- KEYBOARD ---
-window.addEventListener('keydown', (e) => {
-    if (e.key === 'ArrowDown' || e.key === ' ') {
-        e.preventDefault();
-        navigate(1);
-    } else if (e.key === 'ArrowUp') {
-        e.preventDefault();
-        navigate(-1);
-    }
-});
-
-// --- EGÉR PARALLAX ---
-let mouseX = 0, mouseY = 0;
-document.addEventListener('mousemove', (e) => {
-    mouseX = (e.clientX / window.innerWidth - 0.5) * 2;
-    mouseY = (e.clientY / window.innerHeight - 0.5) * 2;
-});
-
-// --- IDŐ ---
+// --- ANIMÁCIÓ ---
 let time = 0;
-
-// --- ANIMÁCIÓS LOOP ---
 function animate() {
     requestAnimationFrame(animate);
-    
     time += 0.016;
     
-    mainExplosion += (targetMainExplosion - mainExplosion) * LERP_MED;
-    subExplosion += (targetSubExplosion - subExplosion) * LERP_MED;
-    
-    cameraPos.lerp(targetCameraPos, LERP_SLOW);
-    lookAtPos.lerp(targetLookAt, LERP_SLOW);
-    
-    camera.position.copy(cameraPos);
-    camera.lookAt(lookAtPos);
-    
-    // Parallax
-    if (currentLevel === 0 && !isMobile) {
-        fragmentGroup.rotation.x += (mouseY * 0.15 - fragmentGroup.rotation.x) * 0.02;
-        fragmentGroup.rotation.y += (mouseX * 0.15 - fragmentGroup.rotation.y) * 0.02;
-    }
-    fragmentGroup.rotation.z += 0.0002;
-    
-    // --- GÖMB DARABOK ---
-    fragments.forEach((frag) => {
-        if (mainExplosion > 0.5 && frag.currentGeometry !== 'pyramid') {
-            frag.mesh.geometry = frag.pyramidGeo;
-            frag.currentGeometry = 'pyramid';
-        } else if (mainExplosion <= 0.5 && frag.currentGeometry !== 'tri') {
-            frag.mesh.geometry = frag.triGeo;
-            frag.currentGeometry = 'tri';
+    // Lassabb lerp = simább mozgás
+    mainExplosion += (targetMainExplosion - mainExplosion) * LERP_SLOW;
+    subExplosion += (targetSubExplosion - subExplosion) * LERP_SLOW;
+
+    // 1. Háttér Gömb
+    backgroundGroup.rotation.z += 0.0001;
+    fragments.forEach(frag => {
+        if (mainExplosion > 0.5 && frag.currentGeometry !== 'pyramid') { 
+            frag.mesh.geometry = frag.pyramidGeo; 
+            frag.currentGeometry = 'pyramid'; 
+        }
+        else if (mainExplosion <= 0.5 && frag.currentGeometry !== 'tri') { 
+            frag.mesh.geometry = frag.triGeo; 
+            frag.currentGeometry = 'tri'; 
         }
         
-        let targetPos = frag.originalPos.clone().add(
+        let tPos = frag.originalPos.clone().add(
             frag.explosionDir.clone().multiplyScalar(frag.explosionDistance * mainExplosion)
         );
-        
         if (mainExplosion > 0.5) {
-            targetPos.x += Math.sin(time * frag.floatSpeed + frag.floatOffset) * frag.floatAmount;
-            targetPos.y += Math.cos(time * frag.floatSpeed * 0.7 + frag.floatOffset) * frag.floatAmount;
-            targetPos.z += Math.sin(time * frag.floatSpeed * 0.5 + frag.floatOffset) * frag.floatAmount * 0.5;
+            tPos.add(
+                frag.floatVector.clone().multiplyScalar(
+                    Math.sin(time * frag.floatSpeed + frag.floatPhase) * 0.3
+                )
+            );
         }
         
-        frag.mesh.position.lerp(targetPos, LERP_MED);
-        
+        frag.mesh.position.lerp(tPos, LERP_MED);
         if (mainExplosion < 0.1) {
-            frag.mesh.rotation.x += (frag.originalRotation.x - frag.mesh.rotation.x) * LERP_MED;
-            frag.mesh.rotation.y += (frag.originalRotation.y - frag.mesh.rotation.y) * LERP_MED;
-            frag.mesh.rotation.z += (frag.originalRotation.z - frag.mesh.rotation.z) * LERP_MED;
+            frag.mesh.rotation.copy(frag.originalRotation);
         } else {
             frag.mesh.rotateOnAxis(frag.rotationAxis, frag.rotationSpeed * mainExplosion);
         }
-        
-        const targetOpacity = mainExplosion > 0.3 ? 0.1 : 0.25;
-        frag.mesh.material.opacity += (targetOpacity - frag.mesh.material.opacity) * LERP_FAST;
+        frag.mesh.material.opacity += ((mainExplosion > 0.3 ? 0.15 : 0.3) - frag.mesh.material.opacity) * LERP_FAST;
     });
+
+    // 2. LINEAR MENU (Gúlák egymás alatt)
+    // A menuGroup Y pozícióját állítjuk, hogy a targetCategory legyen középen
+    const targetGroupY = mainFragments[targetCategory].baseY;
+    menuGroup.position.y += (-targetGroupY - menuGroup.position.y) * LERP_SLOW;
     
-    // --- FŐ DARABOK ---
     mainFragments.forEach((frag, idx) => {
-        const isActive = idx === currentCategory;
+        let tScale = 1;
+        let tOpacity = 0;
         
-        let targetPos;
         if (currentLevel === 0) {
-            targetPos = new THREE.Vector3(0, 0, 0);
-            frag.targetOpacity = 0;
-        } else if (isActive) {
-            targetPos = new THREE.Vector3(0, 0, 0);
-            frag.targetOpacity = 0.9;
-        } else {
-            const basePos = frag.explosionDir.clone().multiplyScalar(frag.explosionDistance);
-            targetPos = basePos.clone();
-            targetPos.x += Math.sin(time * frag.floatSpeed + frag.floatOffset) * frag.floatAmount;
-            targetPos.y += Math.cos(time * frag.floatSpeed * 0.8 + frag.floatOffset) * frag.floatAmount;
-            targetPos.z += Math.sin(time * frag.floatSpeed * 0.6 + frag.floatOffset) * frag.floatAmount * 0.5;
-            frag.targetOpacity = 0.25;
+            tOpacity = 0;
+        } 
+        else if (currentLevel === 1) {
+            // Középső (targetCategory) teljes fényerővel
+            if (idx === targetCategory) {
+                tOpacity = 1;
+            } else {
+                // Többi halvány
+                tOpacity = 0.3;
+            }
+            tScale = 1;
+            
+            // Kis lebegés cikk-cakk pozícióval
+            const floatX = Math.sin(time * 0.8 + idx * 0.5) * 0.15;
+            const floatY = Math.sin(time * 1.0 + idx) * 0.2;
+            frag.mesh.position.x = frag.baseX + floatX;
+            frag.mesh.position.y = frag.baseY + floatY;
+            
+            // Forgás
+            frag.mesh.rotation.y += 0.005;
+            frag.mesh.rotation.x += 0.002;
+        } 
+        else if (currentLevel === 2) {
+            if (idx === currentCategory) {
+                // Shatter
+                tScale = 1 - subExplosion; 
+                tOpacity = tScale; 
+            } else {
+                tOpacity = 0.1;
+                tScale = 1;
+            }
         }
         
-        frag.mesh.position.lerp(targetPos, LERP_MED);
-        frag.currentOpacity += (frag.targetOpacity - frag.currentOpacity) * LERP_FAST;
+        frag.currentOpacity += (tOpacity - frag.currentOpacity) * LERP_MED;
         frag.mesh.material.opacity = frag.currentOpacity;
-        
-        if (frag.currentOpacity > 0.05) {
-            frag.mesh.rotateOnAxis(frag.rotationAxis, frag.rotationSpeed);
-        }
+        frag.mesh.scale.setScalar(tScale);
     });
     
-    // --- SUB-FRAGMENT-EK ---
+    menuGroup.scale.setScalar(mainExplosion);
+
+    // 3. SubItems (Shatter Effect)
     categorySubFragments.forEach((subFrags, catIdx) => {
         const isActiveCategory = catIdx === currentCategory;
-        const shouldShow = isActiveCategory && currentLevel === 2;
-        const mainPos = new THREE.Vector3(0, 0, 0);
+        const shouldShow = isActiveCategory && (currentLevel === 2 || subExplosion > 0.01);
         
         subFrags.forEach((sub, itemIdx) => {
-            let pos = mainPos.clone().add(sub.localPos);
+            let currentTarget = new THREE.Vector3(0, 0, 0);
             
             if (shouldShow) {
-                const explodeOffset = sub.explodeDir.clone().multiplyScalar(sub.explosionDistance * subExplosion);
-                pos.add(explodeOffset);
+                currentTarget.copy(sub.finalPosition).multiplyScalar(subExplosion);
+                
+                let tOp = (itemIdx === hoveredItem) ? 1 : 0.9;
+                sub.currentOpacity += (tOp - sub.currentOpacity) * 0.2;
+                
+                let scale = Math.min(1, subExplosion * 1.2);
+                sub.mesh.scale.setScalar(scale);
+                
+                const spinFactor = (1 - subExplosion) * 20;
+                sub.mesh.rotation.x += sub.rotationSpeed + (spinFactor * 0.02);
+                sub.mesh.rotation.y += sub.rotationSpeed + (spinFactor * 0.02);
+            } else {
+                sub.currentOpacity = 0;
+                sub.mesh.scale.setScalar(0.01);
             }
             
-            sub.mesh.position.lerp(pos, LERP_MED);
-            
-            let targetOpacity = 0;
-            if (shouldShow && subExplosion > 0.3) {
-                targetOpacity = itemIdx === hoveredItem ? 1 : 0.7;
-            }
-            sub.currentOpacity += (targetOpacity - sub.currentOpacity) * LERP_FAST;
+            sub.mesh.position.lerp(currentTarget, LERP_MED);
             sub.mesh.material.opacity = sub.currentOpacity;
             
-            if (sub.currentOpacity > 0.05) {
-                sub.mesh.rotateOnAxis(sub.rotationAxis, sub.rotationSpeed);
-            }
-            
-            const screenPos = worldToScreen(sub.mesh.position);
-            sub.label.style.left = screenPos.x + 'px';
-            sub.label.style.top = screenPos.y + 'px';
-            
             if (shouldShow && subExplosion > 0.5) {
+                const sPos = worldToScreen(sub.mesh.position);
+                sub.label.style.left = sPos.x + 'px';
+                sub.label.style.top = sPos.y + 'px';
                 sub.label.style.opacity = sub.currentOpacity;
-                sub.label.style.pointerEvents = sub.currentOpacity > 0.3 ? 'auto' : 'none';
+                sub.label.style.pointerEvents = 'auto';
                 sub.label.classList.toggle('active', itemIdx === hoveredItem);
             } else {
-                sub.label.style.opacity = '0';
+                sub.label.style.opacity = '0'; 
                 sub.label.style.pointerEvents = 'none';
-                sub.label.classList.remove('active');
             }
         });
     });
     
-    // --- HÁTTÉR RÉSZECSKÉK ---
+    // Részecskék
     const partPos = pGeometry.attributes.position.array;
     for (let i = 0; i < particleCount; i++) {
-        partPos[i * 3] += pVelocities[i].x;
-        partPos[i * 3 + 1] += pVelocities[i].y;
-        partPos[i * 3 + 2] += pVelocities[i].z;
-        
-        const bound = 75;
-        if (partPos[i * 3] > bound || partPos[i * 3] < -bound) {
-            partPos[i * 3] = (Math.random() - 0.5) * bound * 2;
-        }
-        if (partPos[i * 3 + 1] > bound || partPos[i * 3 + 1] < -bound) {
-            partPos[i * 3 + 1] = (Math.random() - 0.5) * bound * 2;
-        }
-        if (partPos[i * 3 + 2] > bound || partPos[i * 3 + 2] < -bound) {
-            partPos[i * 3 + 2] = (Math.random() - 0.5) * bound * 2;
-        }
+        partPos[i*3] += pVelocities[i].x; 
+        partPos[i*3+1] += pVelocities[i].y; 
+        partPos[i*3+2] += pVelocities[i].z;
+        const bound = isMobile ? 50 : 80;
+        if (Math.abs(partPos[i*3]) > bound) partPos[i*3] *= -0.9;
+        if (Math.abs(partPos[i*3+1]) > bound) partPos[i*3+1] *= -0.9;
+        if (Math.abs(partPos[i*3+2]) > bound) partPos[i*3+2] *= -0.9;
     }
     pGeometry.attributes.position.needsUpdate = true;
-    
+
     renderer.render(scene, camera);
 }
-
 animate();
 
-// --- RESIZE ---
 window.addEventListener('resize', () => {
     camera.aspect = window.innerWidth / window.innerHeight;
     camera.updateProjectionMatrix();
     renderer.setSize(window.innerWidth, window.innerHeight);
+    location.reload(); 
 });
 
-// --- ÓRA ---
-function updateClock() {
+setInterval(() => {
     const el = document.getElementById('real-time-clock');
-    if (el) {
-        el.textContent = new Intl.DateTimeFormat('hu-HU', {
-            timeZone: 'Europe/Budapest',
-            hour: '2-digit',
-            minute: '2-digit',
-            second: '2-digit',
-            hour12: false
-        }).format(new Date());
-    }
-}
-setInterval(updateClock, 1000);
-updateClock();
+    if(el) el.textContent = new Intl.DateTimeFormat('hu-HU', {
+        timeZone:'Europe/Budapest', 
+        hour:'2-digit', 
+        minute:'2-digit', 
+        second:'2-digit'
+    }).format(new Date());
+}, 1000);
 
-// --- AUTH UI ---
-window.showUserUI = function(user, isAdmin) {
-    const container = document.getElementById('auth-section');
-    if (!container) return;
-    const name = user.displayName || user.email.split('@')[0];
-    container.innerHTML = `
-        <span class="header-auth">${name} ${isAdmin ? '<span style="opacity:0.5">[ADMIN]</span>' : ''}</span>
-        ${isAdmin ? '<a href="admin.html" style="color:#fff;text-decoration:none;font-size:14px;"><i class="fa-solid fa-gear"></i></a>' : ''}
-        <button class="btn-header" onclick="logoutUser()">KILÉPÉS</button>
-    `;
-};
-
-window.showGuestUI = function() {
-    const container = document.getElementById('auth-section');
-    if (!container) return;
-    container.innerHTML = `<a href="login.html" style="text-decoration:none"><button class="btn-header">BELÉPÉS</button></a>`;
-};
+window.showUserUI = (u,a) => document.getElementById('auth-section').innerHTML = 
+    `<span class="header-auth">${u.displayName||u.email.split('@')[0]} ${a?'[A]':''}</span><button class="btn-header" onclick="logoutUser()">KILÉPÉS</button>`;
+window.showGuestUI = () => document.getElementById('auth-section').innerHTML = 
+    `<a href="login.html"><button class="btn-header">BELÉPÉS</button></a>`;
