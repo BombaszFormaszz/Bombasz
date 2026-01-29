@@ -1,0 +1,435 @@
+<!DOCTYPE html>
+<html lang="hu">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>UNCS Terminál Chat</title>
+
+<!-- Auth rendszer -->
+<script type="module" src="auth.js"></script>
+<script src="user-ui.js"></script>
+<style>
+  :root{ --crt-green:#a9ff8b; --crt-dim:#6bd05a; --bg:#050705; }
+  *{box-sizing:border-box;margin:0;padding:0}
+  html,body{height:100%}
+  body{
+    background:var(--bg); color:var(--crt-green);
+    font-family:"IBM Plex Mono",ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;
+    font-size:150%; overflow:hidden;
+    text-shadow:0 0 5px var(--crt-green), 0 0 12px rgba(169,255,139,.35);
+  }
+  ::selection{background:#fff;color:#000} ::-moz-selection{background:#fff;color:#000}
+  body::before{
+    content:"";position:fixed;inset:0;pointer-events:none;opacity:.28;
+    background:repeating-linear-gradient(to bottom,rgba(0,0,0,.25) 0px,rgba(0,0,0,.25) 1px,transparent 2px,transparent 3px);
+  }
+  body::after{content:"";position:fixed;inset:0;pointer-events:none;box-shadow:inset 0 0 140px rgba(0,0,0,.9), inset 0 0 320px rgba(0,0,0,.55)}
+
+  /* Shell */
+  #app{height:100dvh;display:flex;align-items:stretch}
+  #chat{width:100vw;height:100%;display:flex;flex-direction:column}
+  #out{
+    flex:1 1 auto;overflow:auto;padding:18px;display:flex;flex-direction:column;gap:6px;align-items:flex-start;
+    -ms-overflow-style:none; scrollbar-width:none;
+  }
+  #out::-webkit-scrollbar{width:0;height:0;display:none}
+
+  .line{display:block;max-width:100%;line-height:1.35;word-wrap:break-word;overflow-wrap:anywhere}
+  .meta{font-size:.8rem;color:var(--crt-dim);opacity:.9;margin-left:.5ch}
+  mark.mention{background:rgba(169,255,139,.18);padding:0 .2em;border:1px solid #24402f;border-radius:2px}
+
+  /* Alsó beviteli sor – mindig legalul */
+  #promptRow{
+    display:flex;align-items:flex-start;gap:.5ch;margin-top:6px;
+    position:sticky; bottom:0; /* lentre tapad */
+    background:transparent;
+    padding-top:4px;
+  }
+  .prompt{color:var(--crt-dim);white-space:pre;user-select:none}
+  #in{
+    flex:1 1 auto;min-height:1.2em;outline:none;white-space:pre-wrap;word-break:break-word;
+    caret-color:var(--crt-green);
+  }
+
+  /* Sarok státusz */
+  #status{position:fixed;left:8px;bottom:8px;font-size:.7rem;opacity:.7}
+  #status.err{color:#ffb4b4;text-shadow:none}
+</style>
+</head>
+<body>
+<div id="app">
+  <main id="chat">
+    <div id="out" aria-live="polite">
+      <!-- a promptRow mindig az utolsó elem -->
+      <div id="promptRow">
+        <span class="prompt" id="promptText">&gt; </span>
+        <div id="in" contenteditable="true" role="textbox" aria-label="Terminál bevitel"></div>
+      </div>
+    </div>
+    <div id="status"></div>
+  </main>
+</div>
+
+<script>
+/* ===== Alap UI ===== */
+const $ = (s, r=document)=>r.querySelector(s);
+const out = $('#out');
+const statusBox = $('#status');
+const promptRow = $('#promptRow');
+const promptTextEl = $('#promptText');
+const inputEl = $('#in');
+
+function setStatus(msg, isErr=false){
+  statusBox.textContent = msg || '';
+  statusBox.classList.toggle('err', !!isErr);
+}
+function scrollBottom(){ out.scrollTop = out.scrollHeight; }
+
+/* Csak tiszta szöveget írunk ki (HTML nélkül) */
+function printText(text){
+  const d = document.createElement('div');
+  d.className = 'line';
+  d.textContent = text;
+  out.insertBefore(d, promptRow); // mindig a beviteli sor fölé
+  scrollBottom();
+  return d;
+}
+
+/* Üzenet: Név + szöveg + idő, mentions kiemeléssel */
+function printMessage(name, text, time){
+  const d = document.createElement('div');
+  d.className = 'line';
+  const safeName = (name||'').replace(/[&<>]/g, s=>({ '&':'&amp;','<':'&lt;','>':'&gt;' }[s]));
+  const safeText = (text||'').replace(/[&<>]/g, s=>({ '&':'&amp;','<':'&lt;','>':'&gt;' }[s]));
+  const withMentions = safeText.replace(/@(\w+)/g,'<mark class="mention">@$1</mark>');
+  d.innerHTML = `<strong>${safeName}</strong>: ${withMentions}${time?` <span class="meta">[${time}]</span>`:''}`;
+  out.insertBefore(d, promptRow);
+  scrollBottom();
+  return d;
+}
+
+function setPrompt(str){ promptTextEl.textContent = str; }
+function focusInput(){
+  inputEl.focus();
+  const range = document.createRange();
+  range.selectNodeContents(inputEl);
+  range.collapse(false);
+  const sel = window.getSelection();
+  sel.removeAllRanges(); sel.addRange(range);
+}
+function clearInput(){ inputEl.textContent = ''; }
+
+/* ESC = teljes RESET (mint friss megnyitás) */
+function resetApp(){
+  // töröljük a képernyőt (a promptRow-t meghagyjuk)
+  Array.from(out.querySelectorAll('.line')).forEach(n=>n.remove());
+  window._stream = false;
+  menuShown = false;
+  S.state = AuthState.MENU;
+  setPrompt('> ');
+  showMenu();     // egyszer írjuk ki
+  focusInput();
+}
+
+document.addEventListener('click', ()=> focusInput());
+window.addEventListener('keydown', (e)=>{
+  if(e.key==='Escape'){ e.preventDefault(); resetApp(); }
+  if(e.key==='`' || e.key==='~'){ e.preventDefault(); focusInput(); }
+});
+
+/* ===== Menürendszer és állapot ===== */
+const AuthState = {
+  MENU:'menu',
+  LOGIN_EMAIL:'login_email',
+  LOGIN_PASS:'login_pass',
+  REG_NAME:'reg_name',
+  REG_EMAIL:'reg_email',
+  REG_PASS:'reg_pass',
+  VERIFY:'verify',
+  RESET:'reset',
+  CHAT:'chat'
+};
+const S = { state:AuthState.MENU, email:'', pass:'', unameRaw:'', uname:'' };
+let menuShown = false;
+
+function showMenu(){
+  if(menuShown){ setPrompt('> '); focusInput(); return; }   // <-- duplázás ellen védelem
+  printText('b = bejelentkezés | r = regisztráció ');
+  menuShown = true;
+  setPrompt('> ');
+  focusInput();
+}
+
+function normalizeUsername(s=''){
+  return s.normalize('NFD').replace(/[\u0300-\u036f]/g,'')
+          .toLowerCase().replace(/[^a-z0-9]+/g,'').slice(0,20);
+}
+
+/* ===== Firebase betöltés ===== */
+let fb = { ready:false };
+
+(async function loadFirebase(){
+  try{
+    const { initializeApp } = await import('https://www.gstatic.com/firebasejs/12.4.0/firebase-app.js');
+    const authMod = await import('https://www.gstatic.com/firebasejs/12.4.0/firebase-auth.js');
+    const dbMod   = await import('https://www.gstatic.com/firebasejs/12.4.0/firebase-database.js');
+
+    const app = initializeApp({
+      apiKey: "AIzaSyAwRrAtHaNRh2DLwVkryA3wSf86h7aQCaI",
+      authDomain: "konyv-93c63.firebaseapp.com",
+      projectId: "konyv-93c63",
+      storageBucket: "konyv-93c63.firebasestorage.app",
+      messagingSenderId: "349471560585",
+      appId: "1:349471560585:web:55c6e78499ebbca0540758",
+      measurementId: "G-NF07N36ETJ",
+    });
+
+    const auth = authMod.getAuth(app);
+    const db   = dbMod.getDatabase(app);
+
+    fb = {
+      ready:true, app, auth, db,
+      signInWithEmailAndPassword: authMod.signInWithEmailAndPassword,
+      createUserWithEmailAndPassword: authMod.createUserWithEmailAndPassword,
+      fetchSignInMethodsForEmail: authMod.fetchSignInMethodsForEmail,
+      sendPasswordResetEmail: authMod.sendPasswordResetEmail,
+      onAuthStateChanged: authMod.onAuthStateChanged,
+      updateProfile: authMod.updateProfile,
+      sendEmailVerification: authMod.sendEmailVerification,
+      ref: dbMod.ref, set: dbMod.set, get: dbMod.get,
+      runTransaction: dbMod.runTransaction, onChildAdded: dbMod.onChildAdded,
+      push: dbMod.push, serverTimestamp: dbMod.serverTimestamp
+    };
+
+    fb.onAuthStateChanged(fb.auth, (user)=>{
+      if(user){
+        if(user.emailVerified){
+          printText(`Bejelentkezve: ${(user.displayName || user.email.split('@')[0])}`);
+          enterChat();
+        }else{
+          printText('A fiók nincs megerősítve. Parancsok: v = ellenőrzés | k = újraküldés | b = vissza');
+          S.state=AuthState.VERIFY; setPrompt('verify> '); focusInput();
+        }
+      }else{
+        // nincs user -> reset és főmenü
+        resetApp();
+      }
+    });
+
+    // ha valamiért nem jön auth state gyorsan, 600ms után kirakjuk a menüt egyszer
+    setTimeout(()=>{ if(!menuShown) showMenu(); }, 600);
+
+    setStatus('');
+  }catch(e){
+    setStatus('Firebase nem elérhető – offline mód (gépelés ok, auth/chat később)', true);
+    // offline módban is adjunk menüt, de csak egyszer
+    setTimeout(()=>{ if(!menuShown) showMenu(); }, 200);
+  }
+})();
+
+/* ===== Enter – nincs echo, a stream jelenít meg ===== */
+inputEl.addEventListener('keydown', async (e)=>{
+  if(e.key === 'Enter' && !e.shiftKey){
+    e.preventDefault();
+    const text = inputEl.innerText.trim();
+    if(!text) return;
+    clearInput();
+    handleLine(text);
+  }
+});
+
+/* ===== Folyamatkezelés ===== */
+function showErrorAndRefocus(msg, promptStr){
+  printText('Hiba: ' + msg);
+  if(promptStr) setPrompt(promptStr);
+  focusInput();
+}
+
+function enterChat(){
+  S.state = AuthState.CHAT;
+  // Üzenetfolyam egyszer:
+  if(!window._stream && fb.ready){
+    window._stream = true;
+    const r = fb.ref(fb.db,'chat');
+    fb.onChildAdded(r,(snap)=>{
+      const m = snap.val();
+      const name = m.user || 'Névtelen';
+      const time = m.time || '';
+      const text = m.text || '';
+      // <<< NÉV + SZÖVEG + IDŐ
+      printMessage(name, text, time);
+    });
+  }
+  setPrompt('> ');
+  focusInput();
+}
+
+function showMenuAgain(){ S.state=AuthState.MENU; menuShown=false; showMenu(); }
+
+/* Fő parancsértelmező */
+async function handleLine(raw){
+  const t = (raw||'').trim();
+
+  // OFFLINE fallback
+  if(!fb.ready){
+    if(S.state===AuthState.MENU){
+      const k=t.toLowerCase();
+      if(!k){ return showMenuAgain(); }
+      if(k==='b'||k==='bejelentkezés'){ printText('Bejelentkezés (offline demo)'); S.state=AuthState.LOGIN_EMAIL; setPrompt('E-mail cím: '); return focusInput(); }
+      if(k==='r'||k==='regisztráció'){ printText('Regisztráció (offline demo)'); S.state=AuthState.REG_NAME; setPrompt('Felhasználónév: '); return focusInput(); }
+      if(k==='j'){ printText('Jelszó visszaállítás (offline demo)'); S.state=AuthState.RESET; setPrompt('E-mail cím: '); return focusInput(); }
+      printText('Ismeretlen parancs.'); setPrompt('> '); return focusInput();
+    }
+    if(S.state===AuthState.CHAT){
+      // offline: megjelenítjük lokálisan is, név+idővel
+      printMessage('te', t, 'local');
+      setPrompt('> '); return focusInput();
+    }
+    return showMenuAgain();
+  }
+
+  try{
+    switch(S.state){
+      case AuthState.MENU:{
+        const k=t.toLowerCase();
+        if(!k){ return showMenuAgain(); }
+        if(k==='b'||k==='bejelentkezés'){ printText('Bejelentkezés'); S.state=AuthState.LOGIN_EMAIL; setPrompt('E-mail cím: '); return focusInput(); }
+        if(k==='r'||k==='regisztráció'){ printText('Regisztráció'); S.state=AuthState.REG_NAME; setPrompt('Felhasználónév: '); return focusInput(); }
+        if(k==='j'||k==='jelszó'||k==='jelszóváltoztatás'){ printText('Jelszó megváltoztatása'); S.state=AuthState.RESET; setPrompt('E-mail cím: '); return focusInput(); }
+        printText('Ismeretlen parancs.'); setPrompt('> '); return focusInput();
+      }
+
+      case AuthState.LOGIN_EMAIL:{
+        if(!t) return showErrorAndRefocus('Adj meg egy e-mail címet!', 'E-mail cím: ');
+        S.email=t; S.state=AuthState.LOGIN_PASS; setPrompt('Jelszó: '); return focusInput();
+      }
+
+      case AuthState.LOGIN_PASS:{
+        if(!t) return showErrorAndRefocus('Adj meg egy jelszót!', 'Jelszó: ');
+        S.pass=t;
+        try{
+          const cred = await fb.signInWithEmailAndPassword(fb.auth, S.email, S.pass);
+          if(!cred.user.emailVerified){
+            printText('A fiók még nincs megerősítve. Parancsok: v = ellenőrzés | k = újraküldés | b = vissza');
+            S.state=AuthState.VERIFY; setPrompt('verify> '); return focusInput();
+          }
+          printText(`Sikeres bejelentkezés: ${(cred.user.displayName || cred.user.email.split('@')[0])}`);
+          enterChat();
+        }catch(err){
+          setStatus(err.message,true);
+          showErrorAndRefocus('Hibás e-mail vagy jelszó.', 'E-mail cím: ');
+          S.state=AuthState.LOGIN_EMAIL;
+        }
+        return;
+      }
+
+      case AuthState.REG_NAME:{
+        if(!t) return showErrorAndRefocus('Adj meg egy felhasználónevet!', 'Felhasználónév: ');
+        const uname = normalizeUsername(t);
+        if(uname.length<3) return showErrorAndRefocus('Túl rövid (min. 3, ékezet nélkül).', 'Felhasználónév: ');
+        S.unameRaw=t; S.uname=uname; S.state=AuthState.REG_EMAIL; setPrompt('E-mail cím: '); return focusInput();
+      }
+
+      case AuthState.REG_EMAIL:{
+        if(!t) return showErrorAndRefocus('Adj meg egy e-mail címet!', 'E-mail cím: ');
+        S.email=t; S.state=AuthState.REG_PASS; setPrompt('Új jelszó: '); return focusInput();
+      }
+
+      case AuthState.REG_PASS:{
+        if(!t || t.length<6) return showErrorAndRefocus('A jelszónak min. 6 karakter.', 'Új jelszó: ');
+        S.pass=t;
+        try{
+          const cred = await fb.createUserWithEmailAndPassword(fb.auth, S.email, S.pass);
+          // username foglalás
+          const unameRef = fb.ref(fb.db,'usernames/'+S.uname);
+          const res = await fb.runTransaction(unameRef, cur => cur===null ? { uid: cred.user.uid, displayName:S.unameRaw } : undefined);
+          if(!res.committed){
+            S.state=AuthState.REG_NAME;
+            return showErrorAndRefocus('Közben lefoglalták a nevet, válassz másikat.', 'Felhasználónév: ');
+          }
+          try{ await fb.updateProfile(cred.user, { displayName:S.unameRaw }); }catch{}
+          await fb.set(fb.ref(fb.db,'users/'+cred.user.uid), { displayName:S.unameRaw, username:S.uname, email:S.email, createdAt: fb.serverTimestamp() });
+          try{ await fb.sendEmailVerification(cred.user); }catch{}
+          printText('✅ Regisztráció sikeres! Küldtünk megerősítő e-mailt.');
+          printText('Parancsok: v = ellenőrzés | k = újraküldés | b = vissza');
+          S.state=AuthState.VERIFY; setPrompt('verify> '); focusInput();
+        }catch(err){
+          setStatus(err.message,true);
+          let msg='Regisztráció sikertelen.';
+          if(err?.code==='auth/email-already-in-use') msg='Ez az e-mail már használatban van.';
+          if(err?.code==='auth/invalid-email') msg='Érvénytelen e-mail cím.';
+          if(err?.code==='auth/weak-password') msg='Gyenge jelszó (min. 6).';
+          S.state=AuthState.REG_EMAIL;
+          showErrorAndRefocus(msg, 'E-mail cím: ');
+        }
+        return;
+      }
+
+      case AuthState.VERIFY:{
+        const k=t.toLowerCase();
+        if(k==='v'||k==='verify'){
+          try{ await fb.auth.currentUser?.reload(); }catch{}
+          if(fb.auth.currentUser?.emailVerified){
+            printText('✅ E-mail megerősítve. Belépés a chatbe…');
+            enterChat();
+          }else{
+            showErrorAndRefocus('Még nincs megerősítve. Nézd meg a leveleid/spam mappát.', 'verify> ');
+          }
+        }else if(k==='k'||k==='resend'){
+          try{ await fb.sendEmailVerification(fb.auth.currentUser); printText('Megerősítő e-mail újraküldve.'); }
+          catch{ printText('Hiba: nem sikerült újraküldeni.'); }
+          setPrompt('verify> '); focusInput();
+        }else if(k==='b'){
+          showMenuAgain();
+        }else{
+          printText('Parancsok: v = ellenőrzés | k = újraküldés | b = vissza');
+          setPrompt('verify> '); focusInput();
+        }
+        return;
+      }
+
+      case AuthState.RESET:{
+        if(!t) return showErrorAndRefocus('Adj meg egy e-mail címet!', 'E-mail cím: ');
+        try{
+          const methods = await fb.fetchSignInMethodsForEmail(fb.auth, t);
+          if(!methods || methods.length===0){
+            showMenuAgain();
+            return printText('Hiba: ezzel az e-maillel nincs fiók.');
+          }
+          await fb.sendPasswordResetEmail(fb.auth, t);
+          printText(`Jelszóváltoztatási e-mail elküldve: ${t}`);
+          showMenuAgain();
+        }catch(err){
+          setStatus(err.message,true);
+          showErrorAndRefocus('Visszaállítás nem sikerült.', 'E-mail cím: ');
+        }
+        return;
+      }
+
+      case AuthState.CHAT:{
+        if(!t){ setPrompt('> '); return focusInput(); }
+        await fb.push(fb.ref(fb.db,'chat'), {
+          uid: fb.auth.currentUser.uid,
+          user: fb.auth.currentUser.displayName || fb.auth.currentUser.email.split('@')[0],
+          text: t,
+          mentions: (t.match(/@(\w+)/g)||[]).map(m=>m.slice(1)),
+          time: new Date().toLocaleTimeString('hu-HU',{hour:'2-digit',minute:'2-digit'})
+        });
+        setPrompt('> '); return focusInput();
+      }
+    }
+  }catch(err){
+    setStatus(err.message,true);
+    focusInput();
+  }
+}
+
+/* induló menü (ha auth nem szólal meg időben, egyszer kirakjuk) */
+setTimeout(()=>{ if(!menuShown) showMenu(); }, 600);
+
+/* hibák a státuszba */
+window.addEventListener('error', e => setStatus(e.message||'hiba', true));
+window.addEventListener('unhandledrejection', e => setStatus((e.reason&&e.reason.message)||'promise hiba', true));
+</script>
+</body>
+</html>

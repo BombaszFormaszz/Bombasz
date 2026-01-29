@@ -1,0 +1,31 @@
+*{
+    cursor: crosshair !important;
+}
+body {
+    background-image: url("src/hatter1.jpg");
+    overflow: hidden;
+    user-select: none;
+    background-size: cover;
+    -webkit-user-select: none;
+}
+
+img {
+    -webkit-user-drag: none;
+}
+
+div {
+    color: white;
+    font-size: xx-large;
+}
+
+h1 {
+    color: white;
+}
+
+#gomb {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    z-index: 9999;
+  }

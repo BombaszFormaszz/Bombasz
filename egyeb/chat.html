@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="hu">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Közösségi Chat • UNCS</title>
+  
+  <!-- Auth rendszer -->
+  <script type="module" src="auth.js"></script>
+  <script src="user-ui.js"></script>
+
+  
+  <!-- Font + ikonok, mint a főoldalon -->
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700;900&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+
+  <!-- Stílus -->
+  <link rel="stylesheet" href="chat.css" />
+</head>
+<body>
+
+  <!-- AURORA háttér (ugyanaz a nyelv, sötét témára hangolva) -->
+  <div class="aurora-bg">
+    <span class="blob blob-a"></span>
+    <span class="blob blob-b"></span>
+    <span class="blob blob-c"></span>
+    <span class="blob blob-d"></span>
+  </div>
+
+  <!-- Középre igazított üveg dobozok -->
+  <section id="auth-section" class="container">
+    <div class="auth-box glass">
+
+      <h1><p class="muted">Jelentkezz be a chat használatához</p></h1>
+      <p id="auth-message" class="form-msg" aria-live="polite"></p>
+
+      <label class="field">
+        <span>E-mail cím</span>
+        <input type="email" id="email" placeholder="valaki@pelda.hu" autocomplete="email" required>
+      </label>
+
+      <label class="field">
+        <span>Jelszó</span>
+        <input type="password" id="password" placeholder="••••••••" autocomplete="current-password" required>
+      </label>
+
+      <div class="row">
+        <button id="login-btn" class="btn fill pill"><i class="fa-solid fa-right-to-bracket"></i>&nbsp; Bejelentkezés</button>
+        <button id="reset-password-btn" class="btn ghost pill" style="display:none"><i class="fa-solid fa-key"></i>&nbsp; Jelszó visszaállítása</button>
+      </div>
+    </div>
+  </section>
+
+  <section id="app-section" class="container" style="display:none">
+    <main id="chat-container" class="glass">
+      <header class="chat-head">
+        <h3><i class="fa-solid fa-comments"></i> Bombasz Chat</h3>
+      </header>
+
+      <!-- Görgethető üzenőfal -->
+      <div id="chat-box" class="messages"></div>
+
+      <!-- Fix alsó beviteli sáv -->
+      <form class="chat-input" onsubmit="return false;">
+        <textarea id="chat-message" placeholder="Írj üzenetet… (Enter = küldés, Shift+Enter = új sor)" rows="1" autocomplete="off"></textarea>
+        <button type="submit" id="send-message-btn" class="btn-icon" aria-label="Küldés">
+          <i class="fa-solid fa-paper-plane"></i>
+        </button>
+      </form>
+    </main>
+  </section>
+
+  <!-- Toast -->
+  <div id="toast"></div>
+
+  <!-- JS -->
+  <script type="module" src="chat.js"></script>
+</body>
+</html>

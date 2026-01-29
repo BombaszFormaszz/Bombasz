@@ -1,0 +1,524 @@
+#chat-box, #chat-box * {
+  white-space: pre-wrap;  /* sortörés engedélyezése */
+  word-break: break-word;  /* hosszú szavak törése */
+}
+
+body {
+    font-family: "Segoe UI", Roboto, Arial, sans-serif;
+    font-size: 18px;
+    line-height: 1.6;
+    margin: 0;
+    padding: 1rem;
+    max-width: 700px;
+    margin-left: auto;
+    margin-right: auto;
+    background-color: #121212;
+    color: #eee;
+}
+
+header { text-align: center; margin-bottom: 1rem; }
+select {
+  width: 100%;
+  padding: 0.5rem;
+  margin-bottom: 2rem; /* növeltem az alatti margót */
+  background-color: #1e1e1e;
+  color: #eee;
+  border: 1px solid #555;
+}
+
+
+/* Progress bar */
+#progress-bar {
+    position: fixed;
+    top: 0;
+    left: 0;
+    height: 4px;
+    background-color: #2196f3;
+    width: 0%;
+    z-index: 30;
+}
+
+/* Kiemelt szó */
+mark {
+    background-color: #ffffff49;
+    color: #000;
+    border-radius: 3px;
+    padding: 0 2px;
+}
+#book-selector-section {
+  width: 100%;
+  padding: 0.5rem;
+  margin-bottom: 2rem;
+  background-color: #1e1e1e;
+  color: #eee;
+  border: 1px solid #555;
+}
+
+
+
+/* Könyvjelző gombok */
+#bookmark-btn, #goto-bookmark-btn {
+    position: fixed;
+    bottom: 20px;
+    width: 60px;
+    height: 60px;
+    font-size: 26px;
+    border: none;
+    border-radius: 50%;
+    color: white;
+    cursor: pointer;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.3);
+}
+
+#bookmark-btn { right: 20px; background-color: #585858; }
+#bookmark-btn:hover { background-color: #005fa3; }
+
+#goto-bookmark-btn { right: 90px; background-color: #585858; }
+#goto-bookmark-btn:hover { background-color: #1e7e34; }
+
+/* Toast */
+#toast {
+    visibility: hidden;
+    min-width: 200px;
+    background-color: #333;
+    color: white;
+    text-align: center;
+    border-radius: 6px;
+    padding: 10px;
+    position: fixed;
+    left: 50%;
+    bottom: 90px;
+    transform: translateX(-50%);
+    font-size: 16px;
+    z-index: 40;
+}
+
+#toast.show {
+    visibility: visible;
+    animation: fadein 0.4s, fadeout 0.4s 2.2s;
+}
+
+@keyframes fadein { from { bottom: 60px; opacity: 0; } to { bottom: 90px; opacity: 1; } }
+@keyframes fadeout { from { bottom: 90px; opacity: 1; } to { bottom: 60px; opacity: 0; } }
+#auth-section {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+  }
+  #login-btn {
+    cursor: pointer;
+  }
+
+  #reset-password-btn{
+    cursor: pointer;
+  }
+  .popup {
+    position: fixed;
+    top: 0; left: 0; right: 0; bottom: 0;
+    background: rgba(0,0,0,0.5);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 1000;
+  }
+  
+  .popup-content {
+    background: #fff;
+    padding: 20px;
+    border-radius: 10px;
+    width: 300px;
+    text-align: center;
+  }
+  
+  .popup-content input {
+    width: 90%;
+    margin-bottom: 10px;
+    padding: 5px;
+  }
+  /* ===== CHATFAL ELRENDEZÉS ===== */
+  #app-section {
+    display: flex;
+    flex-direction: row;
+    align-items: flex-start;
+    justify-content: center;
+    gap: 20px;
+    padding: 10px;
+    max-width: 1300px;
+    margin: 0 auto;
+  }
+  
+  /* Bal oldal: könyv */
+  #main-area {
+    flex: 2;
+  }
+  
+  /* Jobb oldal: chat */
+  #chat-section {
+    width: 100%;
+    max-height: 800px;
+    overflow-y: auto;
+    background-color: #1e1e1e;
+    color: #eee;
+    padding: 10px;
+    box-sizing: border-box;
+    border-bottom: 2px solid #333;
+  }
+  
+  #chat-box {
+    max-height: 350px;
+    overflow-y: auto;
+    margin-bottom: 10px;
+  }
+  
+  #chat-input-area {
+    display: flex;
+    gap: 5px;
+  }
+  
+  #chat-input-area input {
+    flex: 1;
+    padding: 5px;
+    border: 1px solid #555;
+    border-radius: 4px;
+    background-color: #121212;
+    color: #eee;
+  }
+  
+  #chat-input-area button {
+    padding: 5px 10px;
+    background-color: #0078d7;
+    border: none;
+    border-radius: 4px;
+    color: #fff;
+    cursor: pointer;
+  }
+  
+  #chat-input-area button:hover {
+    background-color: #005fa3;
+  }
+  #updateDisplayNameBtn {
+    margin-top: 2rem; /* vagy akár több */
+    cursor: pointer;
+}
+
+  #scrollToTop-btn {
+    position: fixed;
+    bottom: 20px;
+    right: 160px; /* a másik két gomb mellett, kicsit balra */
+    width: 60px;
+    height: 60px;
+    font-size: 26px;
+    border: none;
+    border-radius: 50%;
+    color: white;
+    cursor: pointer;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.3);
+    background-color: #585858; /* például narancssárga */
+    transition: background-color 0.3s ease;
+}
+
+#scrollToTop-btn:hover {
+    background-color: #ad1d1d;
+}
+#profile-section {
+  display: none;
+  background-color: #222;
+  padding: 10px;
+  border-radius: 6px;
+  color: #eee;
+}
+#profile-edit-btn {
+  font-size: 14px;       /* kisebb betűméret */
+  font-weight: normal;   /* nem vastag */
+  padding: 6px 12px;     /* kisebb padding */
+  /* vagy egyéb finomítások */
+}
+#comic-container img {
+  display: block;
+  width: 100%;
+  margin-bottom: 10px;
+  border-radius: 8px;
+}
+#comic-container {
+  text-align: center;
+}
+/* Alapértelmezett (nem CBZ) */
+#controls {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+}
+
+/* CBZ mód */
+.cbz-mode #controls {
+  flex-direction: column;  /* függőleges elrendezés */
+  position: fixed;
+  right: 15px;
+  bottom: 50px;
+  gap: 8px;
+}
+
+/* CBZ gombok */
+/* CBZ gombok kisebbre */
+.cbz-mode #controls button {
+  font-size: 6px;        /* kisebb betűméret */
+  padding: 2px 3px;       /* kisebb belső margó */
+  width: 15px;             /* kisebb szélesség */
+  height: 15px;            /* kisebb magasság */
+}
+#cbzSelector {
+  width: 100%;
+  padding: 0.5rem;
+  margin-bottom: 2rem;
+  background-color: #1e1e1e;
+  color: #eee;
+  border: 1px solid #555;
+}
+/* ✅ Ha CBZ módban vagy, csak a vissza az oldal tetejére gomb látszódjon */
+.cbz-mode #bookmark-btn,
+.cbz-mode #goto-bookmark-btn {
+  display: none !important;
+}
+
+.cbz-mode #scrollToTop-btn {
+  display: block !important;
+}
+/* ✅ CBZ módban csak a vissza az oldal tetejére gomb látszódjon */
+.cbz-mode #bookmark-btn,
+.cbz-mode #goto-bookmark-btn {
+  display: none !important;
+}
+
+/* ✅ CBZ módban a vissza az oldal tetejére gomb legyen teljesen jobb oldalon */
+.cbz-mode #scrollToTop-btn {
+  display: block !important;
+  position: fixed;
+  bottom: 20px;
+  right: 15px;        /* teljesen a jobb szélhez */
+  width: 60px;
+  height: 60px;
+  font-size: 26px;
+  border-radius: 50%;
+  background-color: #585858;
+  color: white;
+  box-shadow: 0 4px 10px rgba(0,0,0,0.3);
+  cursor: pointer;
+  z-index: 100;       /* mindig látható maradjon */
+  transition: background-color 0.3s ease;
+}
+
+.cbz-mode #scrollToTop-btn:hover {
+  background-color: #8f1d1d;
+}
+#cbzPartSelector {
+  width: 100%;
+  padding: 0.5rem;
+  margin-bottom: 2rem;
+  background-color: #1e1e1e;
+  color: #eee;
+  border: 1px solid #555;
+}
+.chat-msg mark.mention {
+  background-color: #ff9800;  /* narancssárga */
+  color: #000;
+  padding: 0 3px;
+  border-radius: 4px;
+}
+/* ===== AMOLED TÉMA MÓDOSÍTÁSOK ===== */
+
+body {
+    background-color: #000000; /* Tiszta fekete */
+    color: #ffffff;           /* Hófehér a jobb kontrasztért */
+}
+
+/* Kártyák, legördülők és panelek sötétítése */
+select, 
+#book-selector-section, 
+#cbzSelector, 
+#cbzPartSelector, 
+#chat-section, 
+#profile-section, 
+.popup-content {
+    background-color: #000000 !important;
+    border: 1px solid #333 !important; /* Finom keret, hogy elváljanak az elemek */
+    color: #eee;
+}
+
+/* Chat üzenetküldő sáv */
+#chat-input-area input {
+    background-color: #121212; /* Nagyon sötét szürke, hogy látsszon az input mező */
+    border: 1px solid #444;
+}
+
+/* Popuphoz különleges igazítás, hogy ne legyen teljesen láthatatlan */
+.popup-content {
+    background-color: #000000;
+    border: 1px solid #2196f3; /* Egy kis kék szegély a figyelemfelkeltésért */
+}
+
+/* Scrollbar (csúszka) testreszabása az AMOLED élményért */
+::-webkit-scrollbar {
+    width: 8px;
+}
+
+::-webkit-scrollbar-track {
+    background: #000000;
+}
+
+::-webkit-scrollbar-thumb {
+    background: #333;
+    border-radius: 10px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background: #444;
+}
+#book-content {
+    text-align: justify;       /* Sorkizárt szöveg */
+    text-justify: inter-word;  /* Szebb elosztás a szavak között */
+    hyphens: auto;             /* Automatikus szóelválasztás (böngészőfüggő) */
+    -webkit-hyphens: auto;
+    -ms-hyphens: auto;
+    padding-bottom: 100px;     /* Hogy az utolsó sor ne legyen takarásban a gombok miatt */
+}
+
+/* Ha a könyv tartalma p tageken belül van, azokat is érdemes igazítani */
+#book-content p {
+    text-align: justify;
+    margin-bottom: 1.2rem;     /* Bekezdések közötti távolság */
+}
+body {
+    padding: 1.5rem;           /* Kicsit több hely a széleken */
+    max-width: 800px;          /* Optimális olvasási szélesség */
+    margin: 0 auto;
+}
+/* ===== AUTOMATIKUS ELTŰNÉS STÍLUSAI (JAVÍTOTT) ===== */
+
+/* ==========================================================
+   MODERN AMOLED GOMBOK (4 Gomb elrendezés)
+========================================================== */
+
+#bookmark-btn, #goto-bookmark-btn, #scrollToTop-btn, #fullscreen-btn {
+    width: 55px;  /* Kicsit kisebb, hogy elférjenek */
+    height: 55px;
+    border-radius: 50%;
+    border: 1px solid rgba(255, 255, 255, 0.15); 
+    background-color: #000000;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.8);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    z-index: 100;
+    position: fixed; 
+    bottom: 30px;
+    transition: background-color 0.3s ease, transform 0.2s ease, border-color 0.3s ease;
+    transform: scale(1);
+}
+
+/* Ikonok alapmérete */
+#bookmark-btn i, #goto-bookmark-btn i, #scrollToTop-btn i, #fullscreen-btn i {
+    font-size: 22px;
+    filter: drop-shadow(0 0 5px rgba(255, 255, 255, 0.3));
+    transition: filter 0.3s ease;
+}
+
+/* ===== POZÍCIÓK ÉS SZÍNEK ===== */
+
+/* 1. Teljes képernyő (Kék - bal szélső) */
+#fullscreen-btn {
+    right: 230px; /* Legbalrább */
+    color: #2979ff;
+}
+
+/* 2. Fel (Lila) */
+#scrollToTop-btn {
+    right: 160px;
+    color: #e040fb; 
+}
+
+/* 3. Ugrás (Türkiz) */
+#goto-bookmark-btn {
+    right: 90px;
+    color: #00e5ff; 
+}
+
+/* 4. Mentés (Arany - jobb szélső) */
+#bookmark-btn {
+    right: 20px;
+    color: #ffca28; 
+}
+
+
+/* HOVER ÉS ACTIVE EFFEKTEK (Ugyanaz mint eddig) */
+#bookmark-btn:hover, #goto-bookmark-btn:hover, #scrollToTop-btn:hover, #fullscreen-btn:hover {
+    background-color: #1a1a1a;
+    border-color: rgba(255, 255, 255, 0.3);
+}
+
+#fullscreen-btn:hover i { filter: drop-shadow(0 0 8px #2979ff); }
+#scrollToTop-btn:hover i { filter: drop-shadow(0 0 8px #e040fb); }
+#goto-bookmark-btn:hover i { filter: drop-shadow(0 0 8px #00e5ff); }
+#bookmark-btn:hover i { filter: drop-shadow(0 0 8px #ffca28); }
+
+#bookmark-btn:active, #goto-bookmark-btn:active, #scrollToTop-btn:active, #fullscreen-btn:active {
+    background-color: #333;
+    transform: scale(0.95);
+}
+
+/* Rejtés */
+.ui-hidden {
+    opacity: 0 !important;
+    pointer-events: none !important;
+    transform: translateY(30px) !important; 
+}
+
+/* ===== EGYEDI SZÍNEK ===== */
+
+/* 1. Könyvjelző (Arany) */
+#bookmark-btn {
+    right: 20px;
+    color: #ffca28; /* Elegánsabb arany szín */
+}
+
+/* 2. Ugrás (Türkiz/Cyan - modernebb, mint a sima zöld) */
+#goto-bookmark-btn {
+    right: 90px;
+    color: #00e5ff; 
+}
+
+/* 3. Fel (Magenta/Lila) */
+#scrollToTop-btn {
+    right: 160px;
+    color: #e040fb; 
+}
+
+/* ===== HOVER (RÁMUTATÁS) ===== */
+#bookmark-btn:hover,
+#goto-bookmark-btn:hover,
+#scrollToTop-btn:hover {
+    background-color: #1a1a1a; /* Sötétszürke háttér */
+    border-color: rgba(255, 255, 255, 0.3);
+    transform: scale(1); /* Nincs méretváltozás */
+}
+
+/* ===== KATTINTÁS (Active) ===== */
+#bookmark-btn:active,
+#goto-bookmark-btn:active,
+#scrollToTop-btn:active {
+    background-color: #333;
+    transform: scale(0.95);
+}
+
+/* ===== REJTETT ÁLLAPOT ===== */
+.ui-hidden {
+    opacity: 0 !important;
+    pointer-events: none !important;
+    transform: translateY(30px) !important; 
+}

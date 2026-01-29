@@ -1,0 +1,117 @@
+<!--
+<!DOCTYPE html>
+<html lang="hu">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CBZ Olvasó – Scroll Manga</title>
+    <style>
+        body {
+            font-family: sans-serif;
+            margin: 0;
+            padding: 0;
+            background: #111;
+            color: #fff;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        #comic-container {
+            width: 100%;
+            max-width: 600px;
+            margin: 20px 0;
+        }
+        img {
+            width: 100%;
+            margin-bottom: 10px;
+            border-radius: 8px;
+        }
+        h2 {
+            text-align: center;
+            margin: 40px 0 20px;
+            font-size: 1.2em;
+            color: #aaa;
+        }
+    </style>
+</head>
+<body>
+    <div id="comic-container"></div>
+
+    <script src="https://cdn.jsdelivr.net/npm/jszip@3.10.1/dist/jszip.min.js"></script>
+    <script>
+    const cbzFiles = [
+        '/comics/Magik 001 (2025) (Digital) (Kileko-Empire).cbz',
+        '/comics/Magik 002 (2025) (Digital) (Kileko-Empire).cbz',
+        '/comics/Magik 003 (2025) (Digital) (Kileko-Empire).cbz',
+        '/comics/Magik 004 (2025) (Digital) (Kileko-Empire).cbz',
+        '/comics/Magik 005 (2025) (Digital) (Kileko-Empire).cbz',
+        '/comics/Magik 006 (2025) (Digital) (Kileko-Empire).cbz',
+        '/comics/Magik 007 (2025) (Digital) (Kileko-Empire).cbz',
+        '/comics/Magik 008 (2025) (Digital) (Kileko-Empire).cbz',
+        '/comics/Magik 009 (2025) (Digital) (Kileko-Empire).cbz',
+        '/comics/Magik 010 (2025) (Digital) (Kileko-Empire).cbz'
+    ];
+
+    let currentFileIndex = 0;
+    const container = document.getElementById("comic-container");
+
+    async function loadCBZfromServer(url) {
+        try {
+            const response = await fetch(url);
+            if (!response.ok) return;
+            const blob = await response.blob();
+            await loadCBZ(blob, url);
+        } catch (err) {
+            console.error("Hiba történt a CBZ betöltése közben:", err);
+        }
+    }
+
+    async function loadCBZ(file, url) {
+        const zip = await JSZip.loadAsync(file);
+        const imageFiles = Object.keys(zip.files)
+                                 .filter(name => /\.(jpe?g|png|gif)$/i.test(name))
+                                 .sort((a,b) => a.localeCompare(b, undefined, {numeric: true}));
+
+        // új szekció az adott kötethez
+        const section = document.createElement("div");
+        section.classList.add("comic-volume");
+
+        const title = document.createElement("h2");
+        title.textContent = url.split('/').pop().replace(/\.\w+$/, '');
+        section.appendChild(title);
+
+        for (const name of imageFiles) {
+            const blob = await zip.files[name].async("blob");
+            const imgURL = URL.createObjectURL(blob);
+            const img = document.createElement("img");
+            img.src = imgURL;
+            section.appendChild(img);
+        }
+
+        container.appendChild(section);
+
+        // ha ez volt az utolsó kép, figyeljük, mikor kell a következőt betölteni
+        observeScroll(section.lastElementChild);
+    }
+
+    // automatikus betöltés a következő CBZ-hez
+    function observeScroll(lastImg) {
+        if(!lastImg) return;
+        const observer = new IntersectionObserver(async (entries) => {
+            if(entries[0].isIntersecting){
+                observer.disconnect();
+                if(currentFileIndex < cbzFiles.length - 1){
+                    currentFileIndex++;
+                    await loadCBZfromServer(cbzFiles[currentFileIndex]);
+                }
+            }
+        }, { threshold: 0.5 });
+        observer.observe(lastImg);
+    }
+
+    // első fájl betöltése
+    loadCBZfromServer(cbzFiles[currentFileIndex]);
+    </script>
+</body>
+</html>
+-->

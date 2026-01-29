@@ -1,0 +1,418 @@
+<!DOCTYPE html>
+<html lang="hu">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>UFO HUNTER - FULL VS CODE HIGHLIGHT</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;600&family=Orbitron:wght@400;700&display=swap');
+
+        :root {
+    --bg: #000000;
+    --panel: #0a0a0a;
+    --text: #e0e0e0;
+    --keyword: #569cd6;
+    --variable: #9cdcfe;
+    --string: #ce9178;
+    --number: #b5cea8;
+    --function: #dcdcaa;
+    --operator: #d4d4d4;
+    --comment: #6a9955;
+    --accent: #ffffff;          /* ← neon zöldből tiszta fehér lett */
+    --neon-pink: #ffffff;       /* ← rózsaszín is fehér lesz, ha később használod */
+}
+
+        body {
+            background-color: var(--bg);
+            color: var(--text);
+            font-family: 'Fira Code', monospace;
+            margin: 0;
+            padding: 20px;
+            display: flex;
+            justify-content: center;
+        }
+
+        .container { width: 100%; max-width: 1200px; }
+        header {
+    text-align: center;
+    padding: 25px;
+    border: 2px solid var(--accent);                    /* most fehér keret */
+    background: #050505;
+    border-radius: 12px;
+    margin-bottom: 40px;
+    box-shadow: 
+        0 0 25px rgba(255, 255, 255, 0.25),             /* fehér külső izzás */
+        inset 0 0 10px rgba(255, 255, 255, 0.08);       /* belső fehér fény */
+}
+
+        h1 { font-family: 'Orbitron', sans-serif; color: var(--accent); font-size: 1.8rem; margin: 0; letter-spacing: 3px; text-shadow: 0 0 10px rgba(0, 255, 65, 0.5); }
+        h2 {
+    font-family: 'Orbitron', sans-serif;
+    color: #ffffff;                  /* ← ezt változtattuk */
+    border-bottom: 1px solid #222;
+    padding-bottom: 8px;
+    margin-top: 50px;
+    font-size: 1.3rem;
+    text-shadow: 0 0 12px rgba(255, 255, 255, 0.25);   /* finom fehér izzás */
+}
+
+        .row {
+            display: grid;
+            grid-template-columns: 1fr 1.2fr;
+            gap: 20px;
+            background: var(--panel);
+            margin-bottom: 12px;
+            padding: 18px;
+            border-radius: 8px;
+            border: 1px solid #151515;
+            border-left: 5px solid transparent;
+            align-items: center;
+            transition: 0.3s;
+        }
+
+        .row:hover { 
+            border-left-color: var(--keyword); 
+            background: #111; 
+            transform: scale(1.01);
+            box-shadow: 0 0 15px rgba(86, 156, 214, 0.15);
+        }
+
+        .code-part {
+            background: #000000; /* Kódblokk is AMOLED fekete */
+            padding: 15px;
+            border-radius: 6px;
+            font-size: 0.9rem;
+            white-space: pre-wrap;
+            word-break: break-all;
+            line-height: 1.6;
+            color: var(--text);
+            border: 1px solid #1a1a1a;
+        }
+
+        /* VS Code Szintaxis színek */
+        .k { color: var(--keyword); }    
+        .v { color: var(--variable); }   
+        .s { color: var(--string); }     
+        .n { color: var(--number); }     
+        .f { color: var(--function); }   
+        .o { color: var(--operator); }
+        .c { color: var(--comment); font-style: italic; }
+
+        .desc-part { color: #888; font-size: 0.95rem; line-height: 1.6; }
+        .empty-row { height: 25px; border: none; background: transparent; }
+        strong { color: #fff; border-bottom: 1px solid var(--accent); }
+
+        @media (max-width: 900px) { .row { grid-template-columns: 1fr; } }
+        h1 {
+    color: #ffffff;
+    text-shadow: 
+        0 0 10px #fff,
+        0 0 20px #fff,
+        0 0 30px #fff,
+        0 0 40px rgba(255,255,255,0.6);
+}
+
+header {
+    box-shadow: 
+        0 0 35px rgba(255,255,255,0.3),
+        inset 0 0 15px rgba(255,255,255,0.1);
+}
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <header><h1>UFO HUNTER FEJLESZTŐI DOKUMENTÁCIÓ</h1></header>
+
+    <h2>I. Globális állapot (1–4. sor)</h2>
+    <div class="row">
+        <div class="code-part"><span class="k">let</span> <span class="v">ufos</span> <span class="o">=</span> [];</div>
+        <div class="desc-part">Létrehozunk egy globális hatókörű tömböt az UFO objektumok tárolására.</div>
+    </div>
+    <div class="row">
+        <div class="code-part"><span class="k">let</span> <span class="v">score</span> <span class="o">=</span> <span class="n">0</span>;</div>
+        <div class="desc-part">Deklarálunk egy változót a pontszámnak, amely a játék során folyamatosan változik.</div>
+    </div>
+    <div class="row">
+        <div class="code-part"><span class="k">let</span> <span class="v">level</span> <span class="o">=</span> <span class="n">1</span>;</div>
+        <div class="desc-part">Inicializáljuk a szintet jelző változót a nehézségi számításokhoz.</div>
+    </div>
+    <div class="row">
+        <div class="code-part"><span class="k">let</span> <span class="v">speed</span> <span class="o">=</span> <span class="n">3</span>;</div>
+        <div class="desc-part">Beállítjuk a kezdősebességet (pixel/frissítés).</div>
+    </div>
+
+    <h2>II. Inicializáció és Időzítők (5–12. sor)</h2>
+    <div class="row">
+        <div class="code-part"><span class="v">document</span>.<span class="f">addEventListener</span>(<span class="s">"DOMContentLoaded"</span>, () <span class="k">=></span> {</div>
+        <div class="desc-part">Eseményfigyelő: Csak akkor fut le, ha a teljes HTML feldolgozása befejeződött.</div>
+    </div>
+    <div class="row">
+        <div class="code-part">  <span class="v">document</span>.<span class="f">querySelector</span>(<span class="s">"h1"</span>).<span class="v">textContent</span> <span class="o">=</span> <span class="s">"Level 1"</span>;</div>
+        <div class="desc-part">Megkeresi az első h1 taget és beállítja a kezdő szintszöveget.</div>
+    </div>
+    <div class="row">
+        <div class="code-part">  <span class="f">updateScore</span>();</div>
+        <div class="desc-part">Meghívjuk a pontszám-kijelző függvényt az induláshoz.</div>
+    </div>
+    <div class="row">
+        <div class="code-part">  <span class="f">updateBackground</span>();</div>
+        <div class="desc-part">Beállítjuk a szintnek megfelelő háttérképet.</div>
+    </div>
+    <div class="row empty-row"></div>
+    <div class="row">
+        <div class="code-part">  <span class="f">setInterval</span>(<span class="v">spawnUFO</span>, <span class="n">800</span>);</div>
+        <div class="desc-part">0,8 másodpercenként új UFO-t generál a játékba.</div>
+    </div>
+    <div class="row">
+        <div class="code-part">  <span class="f">setInterval</span>(<span class="v">moveAll</span>, <span class="n">10</span>);</div>
+        <div class="desc-part">10 ms-onként frissíti az összes elem pozícióját a sima mozgásért.</div>
+    </div>
+    <div class="row">
+        <div class="code-part">});</div>
+        <div class="desc-part">A betöltési eseménykezelő blokk lezárása.</div>
+    </div>
+
+    <h2>III. Háttérképkezelés (13–21. sor)</h2>
+    <div class="row">
+        <div class="code-part"><span class="k">function</span> <span class="f">updateBackground</span>() {</div>
+        <div class="desc-part">Deklaráljuk a függvényt, amely a vizuális környezetért felel.</div>
+    </div>
+    <div class="row">
+        <div class="code-part">  <span class="k">if</span> (<span class="v">level</span> <span class="o">===</span> <span class="n">1</span>) {</div>
+        <div class="desc-part">Szigorú egyenlőségvizsgálat: ha az 1. szinten vagyunk.</div>
+    </div>
+    <div class="row">
+        <div class="code-part">    <span class="v">document</span>.<span class="v">body</span>.<span class="v">style</span>.<span class="v">backgroundImage</span> <span class="o">=</span> <span class="s">"url('src/hatter1.jpg')"</span>;</div>
+        <div class="desc-part">A CSS background-image tulajdonág módosítása az 1. képre.</div>
+    </div>
+    <div class="row">
+        <div class="code-part">  } <span class="k">else if</span> (<span class="v">level</span> <span class="o">===</span> <span class="n">2</span>) {</div>
+        <div class="desc-part">Ha a szint értéke 2.</div>
+    </div>
+    <div class="row">
+        <div class="code-part">    <span class="v">document</span>.<span class="v">body</span>.<span class="v">style</span>.<span class="v">backgroundImage</span> <span class="o">=</span> <span class="s">"url('src/hatter2.jpg')"</span>;</div>
+        <div class="desc-part">A második szint hátterének beállítása.</div>
+    </div>
+    <div class="row">
+        <div class="code-part">  } <span class="k">else if</span> (<span class="v">level</span> <span class="o">===</span> <span class="n">3</span>) {</div>
+        <div class="desc-part">Ha a szint értéke 3.</div>
+    </div>
+    <div class="row">
+        <div class="code-part">    <span class="v">document</span>.<span class="v">body</span>.<span class="v">style</span>.<span class="v">backgroundImage</span> <span class="o">=</span> <span class="s">"url('src/hatter3.webp')"</span>;</div>
+        <div class="desc-part">A harmadik szint (webp) hátterének beállítása.</div>
+    </div>
+    <div class="row">
+        <div class="code-part">  }</div>
+        <div class="desc-part">Az ágazatok lezárása.</div>
+    </div>
+    <div class="row">
+        <div class="code-part">}</div>
+        <div class="desc-part">A függvény vége.</div>
+    </div>
+
+    <h2>IV. Szintléptetési logika (22–36. sor)</h2>
+    <div class="row">
+        <div class="code-part"><span class="k">function</span> <span class="f">updateLevel</span>() {</div>
+        <div class="desc-part">A nehézségi szintek számításáért felelős logika.</div>
+    </div>
+    <div class="row">
+        <div class="code-part">  <span class="k">let</span> <span class="v">newLevel</span> <span class="o">=</span> <span class="n">1</span>;</div>
+        <div class="desc-part">Lokális segédváltozó inicializálása.</div>
+    </div>
+    <div class="row">
+        <div class="code-part">  <span class="k">if</span> (<span class="v">score</span> <span class="o">>=</span> <span class="n">20</span>) { <span class="v">newLevel</span> <span class="o">=</span> <span class="n">3</span>; }</div>
+        <div class="desc-part">Ha elértük a 20 pontot, a 3. szintre ugrunk.</div>
+    </div>
+    <div class="row">
+        <div class="code-part">  <span class="k">else if</span> (<span class="v">score</span> <span class="o">>=</span> <span class="n">10</span>) { <span class="v">newLevel</span> <span class="o">=</span> <span class="n">2</span>; }</div>
+        <div class="desc-part">10 pont felett a 2. szint aktív.</div>
+    </div>
+    <div class="row">
+        <div class="code-part">  <span class="k">if</span> (<span class="v">newLevel</span> <span class="o">!==</span> <span class="v">level</span>) {</div>
+        <div class="desc-part">Vizsgálat: történt-e valódi szintváltás?</div>
+    </div>
+    <div class="row">
+        <div class="code-part">    <span class="v">level</span> <span class="o">=</span> <span class="v">newLevel</span>;</div>
+        <div class="desc-part">A globális szintváltozó frissítése.</div>
+    </div>
+    <div class="row">
+        <div class="code-part">    <span class="v">document</span>.<span class="f">querySelector</span>(<span class="s">"h1"</span>).<span class="v">textContent</span> <span class="o">=</span> <span class="s">`Level ${level}`</span>;</div>
+        <div class="desc-part">A fejléc frissítése az új szintszámmal.</div>
+    </div>
+    <div class="row">
+        <div class="code-part">    <span class="v">speed</span> <span class="o">=</span> <span class="n">3</span> <span class="o">+</span> (<span class="v">level</span> <span class="o">-</span> <span class="n">1</span>) <span class="o">*</span> <span class="n">2</span>;</div>
+        <div class="desc-part">Sebességképlet: Level 1=3, Level 2=5, Level 3=7.</div>
+    </div>
+    <div class="row">
+        <div class="code-part">    <span class="f">updateBackground</span>();</div>
+        <div class="desc-part">A vizuális háttér frissítése.</div>
+    </div>
+    <div class="row">
+        <div class="code-part">  }</div>
+        <div class="desc-part">Belső if lezárása.</div>
+    </div>
+    <div class="row">
+        <div class="code-part">}</div>
+        <div class="desc-part">Függvény lezárása.</div>
+    </div>
+
+    <h2>V. UFO létrehozása (37–50. sor)</h2>
+    <div class="row">
+        <div class="code-part"><span class="k">function</span> <span class="f">spawnUFO</span>() {</div>
+        <div class="desc-part">Az UFO-kat legyártó függvény.</div>
+    </div>
+    <div class="row">
+        <div class="code-part">  <span class="k">let</span> <span class="v">ufo</span> <span class="o">=</span> <span class="v">document</span>.<span class="f">createElement</span>(<span class="s">"img"</span>);</div>
+        <div class="desc-part">Új &lt;img&gt; elem létrehozása a memóriában.</div>
+    </div>
+    <div class="row">
+        <div class="code-part">  <span class="v">ufo</span>.<span class="v">src</span> <span class="o">=</span> <span class="s">"src/ufo.gif"</span>;</div>
+        <div class="desc-part">A képforrás (GIF) hozzárendelése.</div>
+    </div>
+    <div class="row">
+        <div class="code-part">  <span class="v">ufo</span>.<span class="v">style</span>.<span class="v">position</span> <span class="o">=</span> <span class="s">"absolute"</span>;</div>
+        <div class="desc-part">CSS pozicionálás beállítása a szabad mozgatáshoz.</div>
+    </div>
+    <div class="row">
+        <div class="code-part">  <span class="v">ufo</span>.<span class="v">style</span>.<span class="v">top</span> <span class="o">=</span> (<span class="v">window</span>.<span class="v">innerHeight</span> <span class="o">-</span> <span class="n">200</span>) <span class="o">*</span> <span class="v">Math</span>.<span class="f">random</span>() <span class="o">+</span> <span class="s">"px"</span>;</div>
+        <div class="desc-part">Véletlenszerű függőleges koordináta generálása.</div>
+    </div>
+    <div class="row">
+        <div class="code-part">  <span class="v">ufo</span>.<span class="v">style</span>.<span class="v">left</span> <span class="o">=</span> <span class="s">"-200px"</span>;</div>
+        <div class="desc-part">Kezdőpont a képernyőn kívül, bal oldalon.</div>
+    </div>
+    <div class="row">
+        <div class="code-part">  <span class="v">document</span>.<span class="v">body</span>.<span class="f">appendChild</span>(<span class="v">ufo</span>);</div>
+        <div class="desc-part">Az UFO hozzáadása a látható HTML dokumentumhoz.</div>
+    </div>
+    <div class="row">
+        <div class="code-part">  <span class="v">ufos</span>.<span class="f">push</span>(<span class="v">ufo</span>);</div>
+        <div class="desc-part">Eltároljuk a tömbben a későbbi mozgatáshoz.</div>
+    </div>
+    <div class="row">
+        <div class="code-part">  <span class="v">ufo</span>.<span class="f">addEventListener</span>(<span class="s">"click"</span>, <span class="v">boom</span>);</div>
+        <div class="desc-part">Kattintás esemény hozzárendelése a találathoz.</div>
+    </div>
+    <div class="row">
+        <div class="code-part">}</div>
+        <div class="desc-part">Spawn függvény vége.</div>
+    </div>
+
+    <h2>VI. Találat és Robbanás (51–68. sor)</h2>
+    <div class="row">
+        <div class="code-part"><span class="k">function</span> <span class="f">boom</span>(<span class="v">event</span>) {</div>
+        <div class="desc-part">A sikeres találatot kezelő függvény.</div>
+    </div>
+    <div class="row">
+        <div class="code-part">  <span class="k">let</span> <span class="v">ufo</span> <span class="o">=</span> <span class="v">event</span>.<span class="v">target</span>;</div>
+        <div class="desc-part">A konkrét UFO elem lekérése, amire kattintottak.</div>
+    </div>
+    <div class="row">
+        <div class="code-part">  <span class="v">score</span><span class="o">++</span>; <span class="f">updateScore</span>(); <span class="f">updateLevel</span>();</div>
+        <div class="desc-part">Pontszám növelés és a UI állapotának frissítése.</div>
+    </div>
+    <div class="row">
+        <div class="code-part">  <span class="k">let</span> <span class="v">bumm</span> <span class="o">=</span> <span class="v">document</span>.<span class="f">createElement</span>(<span class="s">"img"</span>);</div>
+        <div class="desc-part">Robbanás effekt létrehozása.</div>
+    </div>
+    <div class="row">
+        <div class="code-part">  <span class="v">bumm</span>.<span class="v">src</span> <span class="o">=</span> <span class="s">"src/bumm.gif?"</span> <span class="o">+</span> <span class="v">Math</span>.<span class="f">random</span>();</div>
+        <div class="desc-part">Cache-busting a GIF újraindításához.</div>
+    </div>
+    <div class="row">
+        <div class="code-part">  <span class="v">bumm</span>.<span class="v">style</span>.<span class="v">left</span> <span class="o">=</span> <span class="v">event</span>.<span class="v">clientX</span> <span class="o">-</span> <span class="n">100</span> <span class="o">+</span> <span class="s">"px"</span>;</div>
+        <div class="desc-part">Vízszintes pozicionálás a kattintás helyére.</div>
+    </div>
+    <div class="row">
+        <div class="code-part">  <span class="v">new</span> <span class="v">Audio</span>(<span class="s">"src/explosion.mp3"</span>).<span class="f">play</span>().<span class="f">catch</span>(() <span class="k">=></span> {});</div>
+        <div class="desc-part">Hanghatás lejátszása hibaellenőrzéssel.</div>
+    </div>
+    <div class="row">
+        <div class="code-part">  <span class="f">removeUFO</span>(<span class="v">ufo</span>);</div>
+        <div class="desc-part">Az elpusztított UFO törlése.</div>
+    </div>
+    <div class="row">
+        <div class="code-part">  <span class="f">setTimeout</span>(() <span class="k">=></span> <span class="v">bumm</span>.<span class="f">remove</span>(), <span class="n">700</span>);</div>
+        <div class="desc-part">A robbanás képének törlése 0,7 másodperc után.</div>
+    </div>
+    <div class="row">
+        <div class="code-part">}</div>
+        <div class="desc-part">Boom függvény vége.</div>
+    </div>
+
+    <h2>VII. Mozgás és Takarítás (69–82. sor)</h2>
+    <div class="row">
+        <div class="code-part"><span class="k">function</span> <span class="f">moveAll</span>() {</div>
+        <div class="desc-part">Minden UFO-t mozgató ciklus.</div>
+    </div>
+    <div class="row">
+        <div class="code-part">  <span class="k">for</span> (<span class="k">let</span> <span class="v">i</span> <span class="o">=</span> <span class="v">ufos</span>.<span class="v">length</span> <span class="o">-</span> <span class="n">1</span>; <span class="v">i</span> <span class="o">>=</span> <span class="n">0</span>; <span class="v">i</span><span class="o">--</span>) {</div>
+        <div class="desc-part">Biztonságos visszafelé haladó ciklus a tömbmódosításhoz.</div>
+    </div>
+    <div class="row">
+        <div class="code-part">    <span class="k">let</span> <span class="v">left</span> <span class="o">=</span> <span class="f">parseFloat</span>(<span class="v">ufos</span>[<span class="v">i</span>].<span class="v">style</span>.<span class="v">left</span>);</div>
+        <div class="desc-part">Aktuális pozíció kinyerése és számmá alakítása.</div>
+    </div>
+    <div class="row">
+        <div class="code-part">    <span class="v">ufos</span>[<span class="v">i</span>].<span class="v">style</span>.<span class="v">left</span> <span class="o">=</span> <span class="v">left</span> <span class="o">+</span> <span class="v">speed</span> <span class="o">+</span> <span class="s">"px"</span>;</div>
+        <div class="desc-part">Léptetés a sebességgel jobbra.</div>
+    </div>
+    <div class="row">
+        <div class="code-part">    <span class="k">if</span> (<span class="v">left</span> <span class="o">></span> <span class="v">window</span>.<span class="v">innerWidth</span>) {</div>
+        <div class="desc-part">Képernyőelhagyás vizsgálata.</div>
+    </div>
+    <div class="row">
+        <div class="code-part">      <span class="f">removeUFO</span>(<span class="v">ufos</span>[<span class="v">i</span>]);</div>
+        <div class="desc-part">Elszökött UFO törlése.</div>
+    </div>
+    <div class="row">
+        <div class="code-part">      <span class="v">score</span> <span class="o">=</span> <span class="v">Math</span>.<span class="f">max</span>(<span class="n">0</span>, <span class="v">score</span> <span class="o">-</span> <span class="n">1</span>); <span class="f">updateScore</span>();</div>
+        <div class="desc-part">Büntetés: Pontlevonás, de nem megy 0 alá.</div>
+    </div>
+    <div class="row">
+        <div class="code-part">    }</div>
+        <div class="desc-part">Feltétel vége.</div>
+    </div>
+    <div class="row">
+        <div class="code-part">  }</div>
+        <div class="desc-part">Ciklus vége.</div>
+    </div>
+    <div class="row">
+        <div class="code-part">}</div>
+        <div class="desc-part">Függvény vége.</div>
+    </div>
+
+    <h2>VIII. Segédfüggvények (83–89. sor)</h2>
+    <div class="row">
+        <div class="code-part"><span class="k">function</span> <span class="f">removeUFO</span>(<span class="v">ufo</span>) {</div>
+        <div class="desc-part">Univerzális törlő függvény.</div>
+    </div>
+    <div class="row">
+        <div class="code-part">  <span class="k">if</span> (<span class="v">ufo</span>.<span class="v">parentNode</span>) <span class="v">ufo</span>.<span class="f">remove</span>();</div>
+        <div class="desc-part">Eltávolítja az elemet a HTML-ből (DOM).</div>
+    </div>
+    <div class="row">
+        <div class="code-part">  <span class="v">ufos</span> <span class="o">=</span> <span class="v">ufos</span>.<span class="f">filter</span>(<span class="v">x</span> <span class="k">=></span> <span class="v">x</span> <span class="o">!==</span> <span class="v">ufo</span>);</div>
+        <div class="desc-part">Kiszűri az adott UFO-t a memóriából (tömbből).</div>
+    </div>
+    <div class="row">
+        <div class="code-part">}</div>
+        <div class="desc-part">Függvény lezárása.</div>
+    </div>
+    <div class="row">
+        <div class="code-part"><span class="k">function</span> <span class="f">updateScore</span>() {</div>
+        <div class="desc-part">A UI pontszám-frissítője.</div>
+    </div>
+    <div class="row">
+        <div class="code-part">  <span class="v">document</span>.<span class="f">querySelector</span>(<span class="s">"div"</span>).<span class="v">textContent</span> <span class="o">=</span> <span class="s">`Pontok: ${score}`</span>;</div>
+        <div class="desc-part">Frissíti a kijelző div tartalmát a template literal segítségével.</div>
+    </div>
+    <div class="row">
+        <div class="code-part">}</div>
+        <div class="desc-part">Dokumentáció vége.</div>
+    </div>
+</div>
+
+</body>
+</html>

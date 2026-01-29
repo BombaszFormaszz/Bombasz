@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html lang="hu">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>UNCS Főoldal</title>
+
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet" />
+
+    <!-- Saját CSS -->
+    <link rel="stylesheet" href="old.css">
+
+    <!-- Favicon -->
+    <link rel="icon" type="image/x-icon" href="adamimg/favicon.ico">
+</head>
+
+<body>
+    <!-- ===================== -->
+    <!-- CANVAS HÁTTÉR -->
+    <!-- ===================== -->
+    <canvas id="bg-circles"></canvas>
+
+    <!-- ===================== -->
+    <!-- HEADER -->
+    <!-- ===================== -->
+    <header>
+        <div class="logo">U N C S</div>
+        <div class="hamburger" id="hamburger"><span></span><span></span><span></span></div>
+        <nav id="nav-menu">
+            <a href="#home">Főoldal</a>
+            <a href="#about">Rólunk</a>
+            <a href="#team">Csapat</a>
+            <a href="#contact">Kapcsolat</a>
+            <a href="egyeb.html">‎  </a>
+        </nav>
+    </header>
+
+    <!-- ===================== -->
+    <!-- MAIN SECTION -->
+    <!-- ===================== -->
+    <main id="home">
+        <div class="logo-container"><img src="adamimg/unnamed (1) (1).jpg" alt="Cég logó" /></div>
+        <h1 class="company-name">U N C S</h1>
+        <div id="real-time-clock"></div>
+        <p class="tagline">Dedicated for you!</p>
+
+        <div class="download-buttons-container">
+            <a href="Setup.exe" class="download-button" download>SRT. Időzítő letöltése</a>
+        </div>
+    </main>
+
+    <!-- ===================== -->
+    <!-- ABOUT SECTION -->
+    <!-- ===================== -->
+    <section id="about">
+        <h2>Rólunk</h2>
+        <p>Mi vagyunk a piacvezetők a kék gömbös hátterű weboldalak terén.</p>
+    </section>
+
+    <!-- ===================== -->
+    <!-- TEAM SECTION -->
+    <!-- ===================== -->
+    <section id="team">
+        <h2>Csapat</h2>
+        <div class="team-grid">
+            <!-- Member Card 1 -->
+            <div class="member-card">
+                <div class="member-toggle">
+                    <div class="member-name">Ádám</div>
+                    <div class="member-arrow">▼</div>
+                </div>
+                <div class="member-extra">
+                    <div class="member-role">Fejlesztő</div>
+                    <div class="member-description">Profi ChatGPT használó.</div>
+                </div>
+            </div>
+            <!-- Member Card 2 -->
+            <div class="member-card">
+                <div class="member-toggle">
+                    <div class="member-name">Bálint</div>
+                    <div class="member-arrow">▼</div>
+                </div>
+                <div class="member-extra">
+                    <div class="member-role">Designer</div>
+                    <div class="member-description">Grafikai tervezés és UI/UX szakértő.</div>
+                </div>
+            </div>
+            <!-- Member Card 3 -->
+            <div class="member-card">
+                <div class="member-toggle">
+                    <div class="member-name">Zsolt</div>
+                    <div class="member-arrow">▼</div>
+                </div>
+                <div class="member-extra">
+                    <div class="member-role">Fejlesztő</div>
+                    <div class="member-description">Frontend/Backend specialista.</div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ===================== -->
+    <!-- CONTACT SECTION -->
+    <!-- ===================== -->
+    <section id="contact">
+        <h2>Kapcsolat</h2>
+    </section>
+
+    <!-- ===================== -->
+    <!-- SLIDESHOW SECTION -->
+    <!-- ===================== -->
+    <div class="slideshow-wrapper">
+        <div class="slideshow-container">
+            <div class="slide active"><img src="adamimg/unnamed (1) (1).jpg" alt="Slide 1"></div>
+            <div class="slide"><img src="adamimg/140622-BLUE-LANDSCAPE-PC-HD.png" alt="Slide 2"></div>
+            <div class="slide"><img src="adamimg/abstract-blue-wave-background-digital-art-4k-wallpaper-uhdpaper.com-486@0@f.jpg" alt="Slide 3"></div>
+            <a class="prev">&#10094;</a>
+            <a class="next">&#10095;</a>
+        </div>
+        <div class="dots"></div>
+    </div>
+
+    <!-- ===================== -->
+    <!-- CHAT BOX -->
+    <!-- ===================== -->
+    <div id="chat-box">
+        <header>Név - Nem Elemző</header>
+        <div id="chat-messages"></div>
+        <div id="chat-input-wrapper">
+            <input type="text" id="chat-input" placeholder="Írj be egy nevet (pl. Péter, Anna)..." />
+            <button id="send-chat">Elemzés</button>
+        </div>
+    </div>
+
+    <!-- ===================== -->
+    <!-- FOOTER -->
+    <!-- ===================== -->
+    <footer>
+       
+        
+    </footer>
+
+    <!-- ===================== -->
+    <!-- FIXED ACTION BUTTONS -->
+    <!-- ===================== -->
+    <button id="toggle-slideshow">Slideshow</button>
+    <button id="toggle-chat">Név AI</button>
+
+    <!-- ===================== -->
+    <!-- JAVASCRIPT -->
+    <!-- ===================== -->
+    <script src="old.js"></script>
+</body>
+
+</html>

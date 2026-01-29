@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="hu">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Panel • BOMBASZ</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&family=Orbitron:wght@700;900&display=swap" rel="stylesheet">
+    <style>
+        :root { --bg: #000; --card: #111; --text: #fff; --dim: #888; --green: #00ff00; }
+        body { font-family: 'Poppins', sans-serif; background: var(--bg); color: var(--text); margin: 0; padding: 20px; display: none; }
+        .container { max-width: 900px; margin: 0 auto; }
+        .header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 30px; }
+        h1, h2 { font-family: 'Orbitron'; letter-spacing: 1px; }
+        h2 { font-size: 1rem; color: var(--dim); margin-top: 40px; border-left: 3px solid #fff; padding-left: 10px; }
+        
+        .btn { cursor: pointer; border: 1px solid #333; background: transparent; color: #fff; padding: 8px 15px; font-family: 'Orbitron'; font-size: 0.7rem; }
+        .btn:hover { background: #fff; color: #000; }
+        
+        table { width: 100%; border-collapse: collapse; background: var(--card); margin-top: 10px; border: 1px solid #222; }
+        th { text-align: left; padding: 12px; color: var(--dim); font-size: 0.7rem; text-transform: uppercase; border-bottom: 1px solid #222; }
+        td { padding: 12px; border-bottom: 1px solid #222; font-size: 0.9rem; }
+        
+        .user-info { display: flex; align-items: center; gap: 10px; }
+        .avatar { width: 30px; height: 30px; background: #222; display: flex; align-items: center; justify-content: center; font-weight: bold; clip-path: polygon(0% 0%, 100% 0%, 100% 70%, 70% 100%, 0% 100%); }
+        .avatar.is-admin { background: #fff; color: #000; }
+
+        .status-dot { width: 8px; height: 8px; background: #333; border-radius: 50%; display: inline-block; margin-right: 5px; }
+        .status-dot.active { background: var(--green); box-shadow: 0 0 8px var(--green); }
+        .online-text { color: var(--green); font-weight: bold; font-size: 0.75rem; text-transform: uppercase; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1 onclick="window.open('index.html', '_blank')" style="cursor:pointer">⚙ ADMIN PANEL</h1>
+            <div id="admin-status-info" style="font-family:'Orbitron'; font-size:0.7rem; color:var(--dim);">
+                BOMBASZ.HU RENDSZERFELÜGYELET
+            </div>
+        </div>
+
+        <h2>> Jelenleg Online (<span id="count">0</span>)</h2>
+        <table>
+            <thead><tr><th>Felhasználó</th><th>E-mail</th><th>Státusz</th></tr></thead>
+            <tbody id="online-list"></tbody>
+        </table>
+
+        <h2>> Adminisztrátorok Állapota</h2>
+        <table>
+            <thead><tr><th>Admin neve</th><th>E-mail</th><th>Jelenlét</th></tr></thead>
+            <tbody id="admin-list"></tbody>
+        </table>
+    </div>
+
+<script type="module">
+    import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js';
+    import { getAuth, onAuthStateChanged } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js';
+    import { getDatabase, ref, onValue } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js';
+
+    const firebaseConfig = {
+        apiKey: "AIzaSyAwRrAtHaNRh2DLwVkryA3wSf86h7aQCaI",
+        authDomain: "konyv-93c63.firebaseapp.com",
+        databaseURL: "https://konyv-93c63-default-rtdb.firebaseio.com",
+        projectId: "konyv-93c63"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const auth = getAuth(app);
+    const db = getDatabase(app);
+    const ADMIN_EMAILS = ["bartaadikonyv@gmail.com", "balazs.hajdu00@gmail.com", "hajdub@kkszki.hu", "adam070702@gmail.com"];
+
+    function monitor() {
+        onValue(ref(db, 'users'), (uSnap) => {
+            const allUsers = uSnap.val() || {};
+            onValue(ref(db, 'status'), (sSnap) => {
+                const onlineIds = sSnap.val() ? Object.keys(sSnap.val()) : [];
+                
+                // 1. ONLINE LISTA FRISSÍTÉSE
+                const onlineTable = document.getElementById('online-list');
+                document.getElementById('count').innerText = onlineIds.length;
+                onlineTable.innerHTML = "";
+
+                onlineIds.forEach(uid => {
+                    const u = allUsers[uid] || { username: "Vendég", email: "Ismeretlen" };
+                    onlineTable.innerHTML += `
+                        <tr>
+                            <td><div class="user-info"><div class="avatar">${u.username[0].toUpperCase()}</div>${u.username}</div></td>
+                            <td>${u.email}</td>
+                            <td><span class="online-text">● Aktív</span></td>
+                        </tr>`;
+                });
+
+                // 2. ADMIN LISTA FRISSÍTÉSE
+                const adminTable = document.getElementById('admin-list');
+                adminTable.innerHTML = "";
+
+                ADMIN_EMAILS.forEach(adminEmail => {
+                    // Megkeressük az admint az összes regisztrált user között az email alapján
+                    const adminUserEntry = Object.entries(allUsers).find(([id, data]) => data.email?.toLowerCase() === adminEmail.toLowerCase());
+                    const adminName = adminUserEntry ? adminUserEntry[1].username : adminEmail.split('@')[0];
+                    const isOnline = adminUserEntry ? onlineIds.includes(adminUserEntry[0]) : false;
+
+                    adminTable.innerHTML += `
+                        <tr>
+                            <td><div class="user-info"><div class="avatar is-admin">A</div>${adminName}</div></td>
+                            <td>${adminEmail}</td>
+                            <td>
+                                <span class="status-dot ${isOnline ? 'active' : ''}"></span>
+                                <span style="font-size:0.8rem; color:${isOnline ? 'var(--green)' : '#444'}">
+                                    ${isOnline ? 'ONLINE' : 'OFFLINE'}
+                                </span>
+                            </td>
+                        </tr>`;
+                });
+            });
+        });
+    }
+
+    onAuthStateChanged(auth, (user) => {
+        if (user && ADMIN_EMAILS.includes(user.email.toLowerCase())) {
+            document.body.style.display = "block";
+            monitor();
+        } else {
+            window.location.href = "index.html";
+        }
+    });
+</script>
+</body>
+</html>

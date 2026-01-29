@@ -1,0 +1,252 @@
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    scroll-behavior: smooth; /* Smooth scroll hozzáadva */
+}
+
+body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    line-height: 1.6;
+    background-color: #1a1a1a;
+    color: #ffffff;
+}
+
+header {
+    background: #0a0a0a;
+    color: #ffffff;
+    padding: 1rem 0;
+    position: fixed;
+    width: 100%;
+    top: 0;
+    z-index: 1000;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+}
+
+nav {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 20px;
+}
+
+.logo {
+    font-size: 1.5rem;
+    font-weight: bold;
+    color: #ff6f61;
+}
+
+.nav-links {
+    list-style: none;
+    display: flex;
+}
+
+.nav-links li {
+    margin-left: 20px;
+}
+
+.nav-links a {
+    color: #ffffff;
+    text-decoration: none;
+    font-size: 1rem;
+    transition: color 0.3s ease;
+}
+
+.nav-links a:hover {
+    color: #ff6f61;
+}
+
+.burger {
+    display: none;
+    flex-direction: column;
+    cursor: pointer;
+}
+
+.burger div {
+    width: 25px;
+    height: 3px;
+    background-color: #ffffff;
+    margin: 4px;
+    transition: all 0.3s ease;
+}
+
+.hero {
+    height: 100vh;
+    position: relative;
+    overflow: hidden;
+    margin-bottom: 80px; /* Térköz a hero és az alábbi szekciók között */
+}
+
+.slideshow {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 1;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background-color: #1a1a1a; /* Háttérszín az SVG-ekhez */
+}
+
+.bombasz-text {
+    width: 100%;
+    height: 100%;
+    animation: floatText 4s ease-in-out infinite; /* Lassabb animáció */
+}
+
+@keyframes floatText {
+    0%, 100% {
+        transform: translateY(0);
+        opacity: 1;
+    }
+    50% {
+        transform: translateY(-20px); /* Lebegés hatása */
+        opacity: 0.8; /* Átlátszóság változása */
+    }
+}
+
+.hero-content {
+    position: relative;
+    z-index: 2;
+    text-align: center;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    height: 100%;
+    color: #ffffff;
+    padding: 0 20px;
+}
+
+.hero-content h1 {
+    font-size: 3rem;
+    animation: fadeIn 2s ease-in-out;
+    color: #ff6f61;
+}
+
+.hero-content p {
+    font-size: 1.5rem;
+    margin: 20px 0;
+    animation: fadeIn 3s ease-in-out;
+}
+
+.cta {
+    background: #ff6f61;
+    color: #ffffff;
+    padding: 10px 20px;
+    text-decoration: none;
+    border-radius: 5px;
+    animation: fadeIn 4s ease-in-out;
+    transition: background 0.3s ease;
+}
+
+.cta:hover {
+    background: #e65a50;
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+    }
+    to {
+        opacity: 1;
+    }
+}
+
+.about, .services, .contact {
+    padding: 80px 20px; /* Térköz növelve */
+    text-align: center;
+    background-color: #262626;
+    margin: 40px 0; /* Térköz növelve */
+    border-radius: 10px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+}
+
+.service-item {
+    margin: 30px 0; /* Térköz növelve */
+    padding: 30px; /* Térköz növelve */
+    background: #333333;
+    border-radius: 10px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+    animation: slideUp 1s ease-in-out;
+    transition: transform 0.3s ease;
+}
+
+.service-item:hover {
+    transform: translateY(-10px);
+}
+
+@keyframes slideUp {
+    from {
+        transform: translateY(50px);
+        opacity: 0;
+    }
+    to {
+        transform: translateY(0);
+        opacity: 1;
+    }
+}
+
+footer {
+    background: #0a0a0a;
+    color: #ffffff;
+    text-align: center;
+    padding: 40px 0; /* Térköz növelve */
+    margin-top: 80px; /* Térköz növelve */
+    box-shadow: 0 -4px 12px rgba(0, 0, 0, 0.3);
+}
+
+@media (max-width: 768px) {
+    .nav-links {
+        position: absolute;
+        right: 0;
+        height: 100vh;
+        top: 8vh;
+        background-color: #0a0a0a;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        width: 50%;
+        transform: translateX(100%);
+        transition: transform 0.5s ease-in;
+    }
+
+    .nav-links li {
+        opacity: 0;
+    }
+
+    .burger {
+        display: flex;
+    }
+
+    .nav-active {
+        transform: translateX(0%);
+    }
+
+    @keyframes navLinkFade {
+        from {
+            opacity: 0;
+            transform: translateX(50px);
+        }
+        to {
+            opacity: 1;
+            transform: translateX(0px);
+        }
+    }
+
+    .hero-content h1 {
+        font-size: 2rem; /* Kisebb betűméret mobil eszközökön */
+    }
+
+    .hero-content p {
+        font-size: 1.2rem; /* Kisebb betűméret mobil eszközökön */
+    }
+
+    .bombasz-text {
+        font-size: 30px; /* Kisebb betűméret mobil eszközökön */
+    }
+}

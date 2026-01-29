@@ -1,0 +1,1192 @@
+<!DOCTYPE html>
+<html lang="hu">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>UNCS</title>
+
+
+  <!-- Fonts & Icons -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700;900&display=swap" rel="stylesheet" />
+
+  <!-- Style -->
+  <style>
+    /* =========================================================
+   UNCS — Aurora Glass (2025)
+   – Világos UI, nagy színes “blob” háttér
+   – Glassmorphism kártyák, pill gombok
+   – Reszponzív: mobilon 1 oszlop, bottom FAB-ok
+   ========================================================= */
+
+/* === Tokens === */
+:root{
+    --bg:#F1F3FF;              /* oldalfal */
+    --ink:#0E1225;             /* szöveg */
+    --ink-2:#2F3855;           /* tompa */
+    --line:rgba(20,25,50,.12); /* üveg keret */
+  
+    --glass:rgba(255,255,255,.45);
+    --blur:18px;
+  
+    --primary:#6B8BFF;         /* kék-lila */
+    --secondary:#22E4C6;       /* menta */
+    --accent:#FFC84D;          /* sárga highlight */
+  
+    --radius:22px;
+    --radius-sm:14px;
+  
+    --shadow:0 12px 28px rgba(21,27,56,.15);
+    --shadow-strong:0 18px 48px rgba(21,27,56,.22);
+  }
+  
+  /* === Base === */
+  *{box-sizing:border-box;margin:0;padding:0}
+  html,body{height:100%}
+  html{scroll-behavior:smooth}
+  body{
+    font-family:'Poppins',system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif;
+    color:var(--ink);
+    background:var(--bg);
+    overflow-x:hidden;
+  }
+  
+  /* link/fókusz */
+  a{color:var(--primary);text-decoration:none}
+  a:focus-visible,button:focus-visible{outline:3px solid rgba(34,228,198,.5);outline-offset:2px}
+  
+  /* === Aurora háttér === */
+  .aurora-bg{position:fixed; inset:0; z-index:-1; overflow:hidden}
+  .blob{position:absolute; filter:blur(32px); opacity:.9}
+  .blob-a{width:44vw;height:44vw;left:-12vw;top:-8vw;background:radial-gradient(closest-side,#FF6BCD,transparent 70%)}
+  .blob-b{width:40vw;height:40vw;right:-8vw;top:-10vw;background:radial-gradient(closest-side,#7C5CFF,transparent 70%)}
+  .blob-c{width:42vw;height:42vw;right:-12vw;bottom:-12vw;background:radial-gradient(closest-side,#22E4C6,transparent 70%)}
+  .blob-d{width:36vw;height:36vw;left:-10vw;bottom:-8vw;background:radial-gradient(closest-side,#FFC84D,transparent 70%)}
+  
+  /* === Üveg alap === */
+  .glass{
+    background:var(--glass);
+    backdrop-filter: blur(var(--blur));
+    -webkit-backdrop-filter: blur(var(--blur));
+    border:1px solid var(--line);
+    border-radius:var(--radius);
+    box-shadow:var(--shadow);
+  }
+  
+  /* === Topbar === */
+  .topbar{
+    position:sticky; top:14px; margin:14px auto; width:min(1200px,92vw);
+    display:grid; grid-template-columns:auto 1fr auto; align-items:center; gap:16px;
+    padding:12px 14px;
+  }
+  .topbar .brand{
+    font-weight:900; letter-spacing:.18em; padding:8px 10px; border-radius:12px;
+    background:linear-gradient(90deg,#ffffffaa,#ffffff66);
+  }
+  .topbar .top-links{display:flex; gap:12px; align-items:center}
+  .topbar .top-links a{
+    color:var(--ink-2); font-weight:800; font-size:.92rem; text-transform:uppercase; letter-spacing:.12em;
+    padding:8px 10px; border-radius:10px;
+  }
+  .topbar .top-links a:hover{background:#fff3}
+  .topbar .actions{display:flex; gap:10px; align-items:center}
+  .search{display:flex; align-items:center; gap:8px; padding:8px 10px; border-radius:12px; background:#fff6; border:1px solid var(--line)}
+  .search input{border:none; background:transparent; outline:none; color:var(--ink); width:190px}
+  
+  /* hamburger (mobil) */
+  .hamburger{display:none; position:absolute; right:10px; top:10px; width:36px; height:28px; background:transparent; border:0}
+  .hamburger span{display:block; height:3px; margin:6px 0; border-radius:2px; background:linear-gradient(90deg,var(--primary),var(--secondary))}
+  
+  /* === Side nav === */
+  .side-nav{
+    position:fixed; left:18px; top:50%; transform:translateY(-50%);
+    display:flex; flex-direction:column; gap:12px; z-index:3;
+    background:var(--glass); backdrop-filter: blur(12px); border:1px solid var(--line);
+    border-radius:18px; padding:10px;
+    box-shadow:var(--shadow);
+  }
+  .side-nav a{
+    width:42px; height:42px; display:grid; place-items:center;
+    color:var(--ink-2); background:#fff6; border-radius:12px; border:1px solid var(--line);
+  }
+  .side-nav a.active, .side-nav a:hover{
+    color:#000; background:linear-gradient(180deg,#fff,#f6f7ff);
+    border-color:#fff;
+  }
+  
+  /* === Hero === */
+  .container{width:min(1200px,92vw); margin-inline:auto}
+  .hero{
+    display:grid; grid-template-columns:1.1fr .9fr; gap:28px; padding:28px;
+  }
+  .eyebrow{font-weight:800; text-transform:uppercase; letter-spacing:.14em; color:var(--ink-2); margin-bottom:6px}
+  .display{font-size:clamp(2.2rem,6vw,3.8rem); line-height:1.1; font-weight:900}
+  .display span{background:linear-gradient(90deg,var(--primary),var(--secondary)); -webkit-background-clip:text; background-clip:text; color:transparent}
+  .lead{margin-top:10px; color:#334162; max-width:560px}
+  
+  .clock{margin-top:10px; font-weight:900; color:#223; opacity:.7}
+  
+  .downloads{display:flex; flex-wrap:wrap; gap:10px; margin-top:18px}
+  .credit{display:block; color:#46527A; margin-top:4px}
+  
+  /* Hero art */
+  .hero-right{display:grid; place-items:center}
+  .hero-art{position:relative; aspect-ratio:1/1; width:min(440px, 80%); border-radius:28px; overflow:hidden;
+    background:linear-gradient(180deg,#ffffff80,#ffffff40); border:1px solid var(--line)}
+  .hero-art img{width:100%; height:100%; object-fit:cover}
+  .floating-icons{
+    position:absolute; inset:auto; left:auto; right:10px; top:10px; display:flex; gap:8px; list-style:none
+  }
+  .floating-icons li{
+    width:40px; height:40px; display:grid; place-items:center; color:#1b2242;
+    background:linear-gradient(180deg,#fff,#f4f6ff); border:1px solid var(--line); border-radius:12px;
+  }
+  
+  /* === Button rendszer === */
+  .btn{--in: #fff; --out: #fff0;
+    display:inline-flex; gap:8px; align-items:center; justify-content:center;
+    font-weight:900; border-radius:12px; padding:12px 16px; border:1px solid var(--line); color:var(--ink)
+  }
+  .btn.fill{
+    color:#0E1225; border:0;
+    background:linear-gradient(90deg,var(--primary),var(--secondary));
+    box-shadow:var(--shadow-strong);
+  }
+  .btn.ghost{
+    background:linear-gradient(180deg,#ffffffcc,#ffffff55);
+  }
+  .btn.pill{border-radius:999px}
+  
+  /* === Grid szakaszok (About/Team/Register/Contact) === */
+  .grid{
+    display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:22px; margin:26px auto;
+  }
+  .card{padding:22px}
+  .card h2{
+    display:flex; align-items:center; gap:10px; font-size:1.4rem; margin-bottom:10px
+  }
+  .card h2::before{
+    content:""; width:28px; height:6px; border-radius:6px;
+    background:linear-gradient(90deg,var(--primary),var(--secondary));
+  }
+  
+  /* Team */
+  .team{display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:14px}
+  .member{display:flex; gap:12px; align-items:center; background:#fff6; border:1px solid var(--line); border-radius:14px; padding:10px}
+  .member img{width:56px;height:56px;border-radius:12px;object-fit:cover}
+  .member h3{font-size:1rem}
+  
+  /* Form */
+  .form{display:grid; gap:12px}
+  .form label{display:grid; gap:6px; font-weight:700; color:#2C3657}
+  .form input{
+    padding:12px 14px; border-radius:12px; border:1px solid var(--line);
+    background:linear-gradient(180deg,#ffffffd9,#ffffffb0); color:#0f1530
+  }
+  .form input::placeholder{color:#6B769B}
+  .form .two{display:grid; grid-template-columns:1fr 1fr; gap:12px}
+  .form .form-msg{min-height:1.1rem; font-weight:700}
+  
+  /* Slideshow */
+  .slideshow{padding:18px}
+  .slideshow-container{position:relative; padding-top:56.25%}
+  .slide{position:absolute; inset:0; opacity:0; transition:opacity .25s}
+  .slide.active{opacity:1}
+  .slide img{width:100%;height:100%;object-fit:cover;border-radius:14px}
+  .prev,.next{
+    position:absolute; top:50%; transform:translateY(-50%); z-index:2;
+    width:44px;height:44px;border-radius:999px; display:grid;place-items:center; cursor:pointer;
+    color:#0E1225; background:linear-gradient(180deg,#fff,#f1f4ff); border:1px solid var(--line)
+  }
+  .prev{left:10px} .next{right:10px}
+  .dots{text-align:center; margin-top:10px}
+  .dot{display:inline-block;width:10px;height:10px;border-radius:999px;background:#d7def7;margin:0 4px}
+  .dot.active{background:linear-gradient(90deg,var(--primary),var(--secondary))}
+  
+  /* Chatbox + FAB-ok */
+  .chatbox{position:fixed; right:18px; bottom:18px; width:min(360px,92vw); overflow:hidden}
+  .chatbox header{padding:.6rem .9rem; font-weight:900; background:linear-gradient(90deg,#ffffff99,#ffffff66); border-bottom:1px solid var(--line)}
+  #chat-messages{max-height:42vh; overflow:auto; padding:.6rem}
+  #chat-input-wrapper{display:flex; gap:.5rem; padding:.6rem; background:#fff6; border-top:1px solid var(--line)}
+  #chat-input{flex:1; padding:.6rem .8rem; border-radius:12px; border:1px solid var(--line); background:#fff}
+  .fab{
+    position:fixed; bottom:18px; z-index:5; padding:12px 16px; border-radius:999px; font-weight:900; border:0
+  }
+  .fab.fill{right:18px; background:linear-gradient(90deg,var(--primary),var(--secondary)); color:#0E1225; box-shadow:var(--shadow-strong)}
+  .fab.ghost{left:18px; background:#ffffffb0; border:1px solid var(--line)}
+  
+  /* Footer */
+  .footer{margin:30px auto 50px; text-align:center; color:#ffffff}
+  .footer .social{margin-top:8px}
+  .footer .social a{font-size:1.4rem; color:#ffffff}
+  
+  /* === Responsive === */
+  @media (max-width:1100px){
+    .hero{grid-template-columns:1fr; padding:22px}
+    .hero-right{order:-1}
+  }
+  @media (max-width:900px){
+    .grid{grid-template-columns:1fr}
+    .team{grid-template-columns:1fr 1fr}
+    .side-nav{display:none}
+  }
+  @media (max-width:600px){
+    .form .two{grid-template-columns:1fr}
+    .topbar{grid-template-columns:1fr auto; gap:10px}
+    .topbar .top-links{display:none}
+    .search input{width:120px}
+    .fab{bottom:12px}
+    .fab.fill{right:12px} .fab.ghost{left:12px}
+  }
+  /* ====== QUICK FIX PACK (Aurora Glass) ====== */
+
+/* 1) Világos cián oldalháttér */
+:root{ --bg:#EAFBFF; }
+
+/* 2) Hero-képen lebegő ikonok/gombok KI */
+.floating-icons{ display:none !important; }
+
+/* 3) FAB gombok biztosan kattinthatók minden réteg felett */
+.fab{ z-index: 9999; pointer-events:auto; }
+
+/* 4) Team kártyák: ne lógjon ki a szöveg, tördeljen */
+.team{ align-items:start; }
+.member{
+  align-items:flex-start; gap:12px;
+  padding:12px; min-height:auto;
+}
+.member img{ flex:0 0 56px; }
+.member > div{ flex:1 1 auto; min-width:0; }
+.member h3,.member p{
+  margin:0; line-height:1.35; word-break:break-word; overflow-wrap:anywhere;
+}
+.member p{ color:#2f3d66; }
+
+/* 5) Közreműködő badge a Zene Letöltő gombhoz */
+.btn-with-credit{ display:inline-flex; flex-direction:column; gap:6px; }
+.credit-badge{
+  align-self:flex-start;
+  padding:6px 10px;
+  border-radius:999px;
+  font-weight:800; font-size:.78rem;
+  color:#08313a;
+  background:linear-gradient(90deg,#CFF8FF,#8FF2FF);
+  border:1px solid rgba(15,155,175,.22);
+  box-shadow:0 6px 18px rgba(21,27,56,.15);
+}
+
+/* (opcionális) a downloads sorban a gombok közti függőleges igazítás javítása */
+.downloads .btn{ vertical-align:middle; }
+/* Slideshow vezérlők — kattinthatóság + fókusz */
+.slideshow-container{ position:relative; }
+.prev,.next{ z-index: 5; }
+.dots .dot{
+  border:0; background:rgba(255,255,255,.38); width:12px; height:12px;
+  border-radius:50%; cursor:pointer; padding:0;
+}
+.dots .dot:focus-visible{ outline:2px solid var(--ring); }
+/* — Team szöveg: magyar szóelválasztás + bármilyen törés —
+   (a <html lang="hu"> már rendben van a markupban) */
+   .member h3,
+   .member p {
+     hyphens: auto;
+     overflow-wrap: anywhere;
+     word-break: normal;
+     line-height: 1.4;
+   }
+   
+   /* — FAB gombok mindig a tetején legyenek — */
+   .fab { z-index: 9999; pointer-events: auto; }
+   
+   /* — Slideshow vezérlők kattinthatók/fókuszolhatók — */
+   .slideshow-container { position: relative; }
+   .prev, .next { z-index: 5; }
+   .dots .dot {
+     border: 0;
+     width: 12px; height: 12px;
+     border-radius: 50%;
+     background: #d7def7;
+     cursor: pointer;
+   }
+   .dots .dot:focus-visible { outline: 2px solid rgba(34,228,198,.5); }
+   /* === PATCH: világos cián alap-háttér === */
+:root{ --bg:#DFFAFF; }              /* világos cián */
+body{ background:var(--bg) !important; }
+
+/* Aurora látszódjon, de ne legyen „fehér fátyol” érzés */
+.glass{ background:rgba(255,255,255,.38); } /* kicsit áttetszőbb */
+
+/* === PATCH: Név AI chat: ne nyúljon meg az alsó rész, kisebb input === */
+#chat-box.chatbox{
+  display:flex; flex-direction:column;
+  height:min(420px, 70vh);           /* fix, stabil dobozmagasság */
+  max-height:70vh;                   /* mobilon se feszítse túl */
+  box-sizing:border-box;
+}
+#chat-box.chatbox header{ flex:0 0 auto; }
+#chat-messages{
+  flex:1 1 auto; overflow:auto;      /* a válaszok itt görgetődnek */
+  padding:.6rem;
+}
+#chat-input-wrapper{
+  flex:0 0 auto; display:flex; align-items:center; gap:.5rem;
+  padding:.5rem .6rem; background:#fff6; border-top:1px solid var(--line);
+}
+#chat-input{
+  height:40px;                       /* kisebb, fix magasság */
+  line-height:40px;
+  padding:0 .8rem;
+  border-radius:12px; border:1px solid var(--line); background:#fff;
+  font-size:.95rem;
+}
+#send-chat{
+  height:40px; padding:0 14px; border-radius:999px;
+}
+
+/* Team kártyák: kemény tördelés + kötőjelezés magyarul */
+.member h3, .member p{
+  margin:0; line-height:1.35;
+  overflow-wrap:anywhere; word-break:break-word; hyphens:auto;
+}
+/* ===== DARK THEME OVERRIDES (Aurora Glass – sötét) ===== */
+
+/* Színtokenek – sötét */
+:root{
+    --bg:#0B1020;                 /* oldal háttér (mély, kékes) */
+    --ink:#E9F3FF;                /* fő szöveg */
+    --ink-2:#A9B7D8;              /* tompa szöveg */
+    --line:rgba(255,255,255,.08); /* üveg keret */
+    --glass:rgba(14,20,38,.55);   /* üvegréteg sötét háttéren */
+    --blur:16px;
+  
+    --primary:#6B8BFF;
+    --secondary:#22E4C6;
+    --accent:#FFC84D;
+  
+    --radius:22px;
+    --radius-sm:14px;
+  
+    --shadow:0 12px 28px rgba(0,0,0,.45);
+    --shadow-strong:0 18px 48px rgba(0,0,0,.55);
+  }
+  
+  /* Alap */
+  body{ background:var(--bg) !important; color:var(--ink); }
+  
+  /* Aurora blobok sötét háttérhez (élénkebb, de nem vakít) */
+  .aurora-bg{position:fixed; inset:0; z-index:-1; overflow:hidden}
+  .blob{position:absolute; filter:blur(36px); opacity:.75}
+  .blob-a{width:44vw;height:44vw;left:-12vw;top:-8vw;background:radial-gradient(closest-side,#6B8BFF,transparent 70%)}
+  .blob-b{width:40vw;height:40vw;right:-8vw;top:-10vw;background:radial-gradient(closest-side,#22E4C6,transparent 70%)}
+  .blob-c{width:42vw;height:42vw;right:-12vw;bottom:-12vw;background:radial-gradient(closest-side,#7C5CFF,transparent 70%)}
+  .blob-d{width:36vw;height:36vw;left:-10vw;bottom:-8vw;background:radial-gradient(closest-side,#FFC84D,transparent 70%)}
+  
+  /* Üveg felületek sötéten */
+  .glass{
+    background:var(--glass);
+    backdrop-filter: blur(var(--blur));
+    -webkit-backdrop-filter: blur(var(--blur));
+    border:1px solid var(--line);
+    border-radius:var(--radius);
+    box-shadow:var(--shadow);
+    color:var(--ink);
+  }
+  
+  /* Topbar */
+  .topbar{
+    position:sticky; top:14px; margin:14px auto; width:min(1200px,92vw);
+    display:grid; grid-template-columns:auto 1fr auto; align-items:center; gap:16px;
+    padding:12px 14px;
+  }
+  .topbar .brand{
+    font-weight:900; letter-spacing:.18em; padding:8px 10px; border-radius:12px;
+    background:linear-gradient(90deg,rgba(255,255,255,.08),rgba(255,255,255,.04));
+    color:#fff;
+  }
+  
+  /* NAV linkek sötéten */
+  .topbar .top-links{display:flex; gap:12px; align-items:center}
+  .topbar .top-links a{
+    color:var(--ink-2); font-weight:800; font-size:.92rem; text-transform:uppercase; letter-spacing:.12em;
+    padding:8px 10px; border-radius:10px;
+  }
+  .topbar .top-links a:hover{ background:rgba(255,255,255,.06); color:#fff }
+  
+  /* Kereső teljesen off (ha bárhol bent maradt) */
+  .search{ display:none !important; }
+  
+  /* Akciógombok sötét stílusai */
+  .btn{ color:var(--ink); border:1px solid var(--line) }
+  .btn.ghost{ background:linear-gradient(180deg,rgba(255,255,255,.08),rgba(255,255,255,.04)) }
+  .btn.fill{ color:#0E1225; background:linear-gradient(90deg,var(--primary),var(--secondary)); box-shadow:var(--shadow-strong) }
+  .btn.pill{ border-radius:999px }
+  
+  /* Oldalsó ikon sáv sötéten */
+  .side-nav{
+    background:rgba(14,20,38,.6); border:1px solid var(--line);
+  }
+  .side-nav a{ color:#C9D6F5; background:rgba(255,255,255,.04); border:1px solid var(--line) }
+  .side-nav a.active, .side-nav a:hover{
+    color:#0E1225; background:linear-gradient(180deg,#b9c6ff,#8fded4);
+    border-color:transparent;
+  }
+  
+  /* HERO */
+  .display span{background:linear-gradient(90deg,var(--primary),var(--secondary)); -webkit-background-clip:text; background-clip:text; color:transparent}
+  .lead{ color:#C5D2F0 }
+  .clock{ color:#9FB2E6 }
+  
+  /* Team / kártyák sötét szövegszínei és tördelés */
+  .card h2{ color:#fff }
+  .member{ background:rgba(255,255,255,.04); border:1px solid var(--line) }
+  .member h3{ color:#fff }
+  .member p{ color:#C5D2F0; overflow-wrap:anywhere; word-break:break-word; hyphens:auto }
+  
+  /* Form sötét */
+  .form label{ color:#CFE2FF }
+  .form input{
+    background:linear-gradient(180deg,rgba(255,255,255,.08),rgba(255,255,255,.04));
+    border:1px solid var(--line); color:#EAF2FF;
+  }
+  .form input::placeholder{ color:#9FB2E6 }
+  
+  /* Slideshow sötét gombok */
+  .prev,.next{
+    color:#0E1225; background:linear-gradient(180deg,#cfe1ff,#b2f3e6); border:1px solid rgba(255,255,255,.2)
+  }
+  .dot{ background:rgba(255,255,255,.25) }
+  .dot.active{ background:linear-gradient(90deg,var(--primary),var(--secondary)) }
+  
+  /* Chatbox – sötét, fix alj, kisebb input (nem nyúlik) */
+  #chat-box.chatbox{
+    display:flex; flex-direction:column;
+    height:min(420px, 70vh); max-height:70vh; color:var(--ink);
+  }
+  #chat-box.chatbox header{
+    background:linear-gradient(90deg,rgba(255,255,255,.10),rgba(255,255,255,.06));
+    border-bottom:1px solid var(--line); color:#EAF2FF;
+  }
+  #chat-messages{ flex:1 1 auto; overflow:auto; }
+  #chat-input-wrapper{
+    flex:0 0 auto; display:flex; gap:.5rem; padding:.5rem .6rem;
+    background:rgba(255,255,255,.04); border-top:1px solid var(--line);
+  }
+  #chat-input{
+    height:40px; line-height:40px; padding:0 .8rem; font-size:.95rem;
+    border-radius:12px; border:1px solid var(--line);
+    background:#121a30; color:#EAF2FF;
+  }
+  #send-chat{ height:40px; padding:0 14px; border-radius:999px }
+  
+  /* FAB gombok sötéten és mindig felül */
+  .fab{ z-index:9999; }
+  .fab.ghost{ background:rgba(255,255,255,.08); color:#EAF2FF; border:1px solid var(--line) }
+  
+  /* ===== Mobil menü ===== */
+  .hamburger{
+    display:none; position:absolute; right:10px; top:10px; width:36px; height:28px;
+    background:transparent; border:0; z-index:10001;
+  }
+  .hamburger span{display:block; height:3px; margin:6px 0; border-radius:2px;
+    background:linear-gradient(90deg,var(--primary),var(--secondary))}
+  @media (max-width:900px){
+    .topbar{ grid-template-columns:auto 1fr auto }
+    .topbar .top-links{ 
+      display:none; position:absolute; right:14px; top:calc(100% + 8px);
+      flex-direction:column; gap:6px; padding:10px; width:min(80vw,260px);
+      background:rgba(14,20,38,.9); border:1px solid var(--line); border-radius:14px; box-shadow:var(--shadow-strong);
+    }
+    .topbar .top-links.open{ display:flex; }
+    .hamburger{ display:block; }
+    .actions{ display:none; } /* mobilon helytakarékos */
+  }
+  
+  /* Extra biztos, hogy a régi fehér elemek ne üssenek el */
+  .topbar .top-links a, .btn, .member p, .form input, .chatbox, .glass { color:var(--ink); }
+  /* ===== NAV CLEANUP & MOBILE DOCK ===== */
+
+/* A header már csak a brandet tartalmazza */
+.topbar{
+    grid-template-columns: auto;
+    justify-content: start;
+  }
+  
+  /* Oldalsó üveg sáv (desktop) */
+  .side-nav{
+    position: fixed;
+    left: 18px;
+    top: 50%;
+    transform: translateY(-50%);
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    z-index: 9990;
+    background: rgba(14,20,38,.6);
+    backdrop-filter: blur(12px);
+    border: 1px solid var(--line);
+    border-radius: 18px;
+    padding: 10px;
+    box-shadow: var(--shadow);
+  }
+  .side-nav a{
+    width: 42px; height: 42px; display: grid; place-items: center;
+    color: #C9D6F5; background: rgba(255,255,255,.04);
+    border: 1px solid var(--line); border-radius: 12px;
+  }
+  .side-nav a.active, .side-nav a:hover{
+    color:#0E1225;
+    background: linear-gradient(180deg,#b9c6ff,#8fded4);
+    border-color: transparent;
+  }
+  
+  /* Mobil: ne legyen elrejtve, alul vízszintes dokk legyen */
+  @media (max-width: 900px){
+    .side-nav{
+      top: auto; bottom: 12px; left: 50%; transform: translateX(-50%);
+      flex-direction: row; gap: 10px; padding: 10px 12px;
+      border-radius: 16px;
+    }
+    .side-nav a{ width: 44px; height: 44px; }
+  }
+/* Login kártya – kis segédstílusok */
+.auth-actions{
+    display:flex; align-items:center; justify-content:space-between; gap:12px;
+  }
+  .remember{ display:flex; align-items:center; gap:8px; font-weight:700; color:#C9D6F5; }
+  #login-msg.form-msg.success{ color:#9be79b; }
+  #login-msg.form-msg.error{ color:#ffb4b4; }
+  .form .form-msg{
+    display:block;
+    margin-top:8px;
+    min-height:1.1rem;
+    font-weight:700;
+  }
+  .form .form-msg.success{ color:#9be79b; }
+  .form .form-msg.error{ color:#ffb4b4; }
+      
+ /* --- Pointer kurzor a kattintható elemekre (Főoldal) --- */
+button,
+.btn,
+.fab,
+.download-button,
+.member-toggle,
+.prev,
+.next,
+.dots .dot,
+#toggle-slideshow,
+#toggle-chat,
+.side-nav a {
+  cursor: pointer;
+}
+/* Eszközök article elrendezés */
+.tool-actions{
+    display:flex;
+    gap:10px;
+    flex-wrap:wrap;
+  }
+  
+  /* A tools article legyen teljes szélességű a gridben (ha span-2 van rajta) */
+  .grid .span-2{
+    grid-column: 1 / -1;
+  }
+  
+  /* Biztos pointer a gombokon (site-wide) */
+  button,
+  .btn,
+  .prev,
+  .next,
+  .dots .dot,
+  .side-nav a {
+    cursor: pointer;
+  }
+  /* Eszközök gombsor */
+.tool-actions{
+    display:flex;
+    gap:10px;
+    flex-wrap:wrap;
+  }
+  
+  /* Gombokon mindenhol pointer (főoldal + chat) */
+  button,
+  .btn,
+  .prev,
+  .next,
+  .dots .dot,
+  .side-nav a { cursor: pointer; }
+  
+  /* Asztalin: a Contact és a Tools egy sorban, egymás mellett */
+  @media (min-width: 901px){
+    .grid{ grid-auto-flow: dense; }               /* töltsön vissza üres helyre is */
+    #contact{ grid-column: 1 / span 1; }          /* bal oszlop */
+    #tools  { grid-column: 2 / span 1; }          /* jobb oszlop */
+  }
+  
+  /* Mobilon a grid nálad úgyis 1 oszlop -> alatta lesz automatikusan */
+  
+  
+ /* hidden attribútum fallback */
+.slideshow[hidden] { display: none !important; }
+/* === MOBILE FIX PACK (team + alsó dokk távolság) === */
+
+/* 1) A mobil dokk ne takarja a tartalmat */
+:root{ --dock-h: 72px; }              /* ha nagyobbak az ikonok, emeld */
+@media (max-width: 900px){
+  body{ padding-bottom: calc(var(--dock-h) + env(safe-area-inset-bottom, 0px)); }
+  .side-nav{
+    bottom: 12px; left: 50%; transform: translateX(-50%);
+  }
+}
+
+/* 2) Team: egy oszlop mobilon, normális tördelés */
+@media (max-width: 700px){
+  .team{ grid-template-columns: 1fr !important; gap: 12px; }
+
+  /* kártya: grid elrendezés, balra avatar, jobbra szöveg – ne legyen keskeny oszlop */
+  .member{
+    display: grid !important;
+    grid-template-columns: 56px 1fr;
+    align-items: center;
+    gap: 12px;
+    padding: 14px;
+  }
+  .member img{ width:56px; height:56px; border-radius:12px; }
+  .member > div{ min-width: 0; }   /* engedje a tördelést */
+
+  /* név: NE kötőjelezze szét betűnként */
+  .member h3{
+    font-size: 1.02rem;
+    hyphens: none;
+    word-break: normal;
+    overflow-wrap: anywhere; /* hosszú nevek is elférnek */
+    line-height: 1.25;
+  }
+
+  /* szerep/leírás: lazább tördelés, olvashatóbb */
+  .member p{
+    font-size: .95rem;
+    hyphens: auto;            /* magyar szótagolás, de nem agresszíven */
+    word-break: normal;
+    overflow-wrap: anywhere;
+    line-height: 1.35;
+    color: #C5D2F0;
+  }
+}
+
+/* 3) Biztonsági: a kártyák ne törjék felszabdalva a szöveget desktopon sem */
+.member h3, .member p{ overflow-wrap:anywhere; word-break:normal; }
+  </style>
+  <link rel="icon" type="image/x-icon" href="adamimg/favicon.ico">
+</head>
+<body>
+
+  <!-- A régi hátterek/canvas-ok nem kellenek -->
+
+
+  <!-- AURORA háttér -->
+  <div class="aurora-bg">
+    <span class="blob blob-a"></span>
+    <span class="blob blob-b"></span>
+    <span class="blob blob-c"></span>
+    <span class="blob blob-d"></span>
+  </div>
+
+  <!-- BAL IKONSÁV (mintaképes) -->
+  <aside class="side-nav">
+    <a href="#home"     class="active" title="Főoldal"><i class="fa-solid fa-house"></i></a>
+    <a href="#about"    title="Rólunk"><i class="fa-solid fa-circle-info"></i></a>
+    <a href="#team"     title="Csapat"><i class="fa-solid fa-users"></i></a>
+    <a href="#register" title="Regisztráció"><i class="fa-solid fa-user-plus"></i></a>
+    <a href="#contact"  title="Kapcsolat"><i class="fa-solid fa-envelope"></i></a>
+  
+    <!-- ÚJ: külső oldalak -->
+    <a href="chat2.html"  target="_blank" title="Chat"><i class="fa-solid fa-comments"></i></a>
+    <a href="konyv.html" target="_blank" title="Könyvek"><i class="fa-solid fa-book"></i></a>
+  </aside>
+  
+  <!-- FENTI ÜVEG TOPBAR -->
+
+  
+
+  <!-- FŐ GLASS KÁRTYA (Hero) -->
+  <main id="home" class="container">
+    <section class="glass hero">
+      <div class="hero-left">
+        <p class="eyebrow">we are the</p>
+        <h1 class="display">U N C S<br><span><div id="real-time-clock" class="clock"></div>
+        </span></h1>
+        <p class="lead">Dedicated for you!</p>
+
+        <div class="downloads">
+            <a href="Setup.exe" class="btn pill ghost" download>
+              <i class="fa-solid fa-download"></i> SRT. Időzítő (exe)
+            </a>
+          
+            <a href="bombasz.apk" class="btn pill ghost" download>
+              <i class="fa-solid fa-mobile-screen"></i> BombaszChat (apk)
+            </a>
+          
+            <div class="btn-with-credit">
+              <a href="downloader_app.py" class="btn pill ghost" download>
+                <i class="fa-solid fa-music"></i> Zene Letöltő
+              </a>
+              <span class="credit-badge">
+                
+                Külső Közreműködő:
+                <br>
+                Hajdu Balázs
+              </span>
+            </div>
+          </div>
+          
+
+      </div>
+
+      <div class="hero-right">
+        <div class="hero-art">
+          <img src="adamimg/unnamed (1) (1).jpg" alt="UNCS illusztráció">
+          <ul class="floating-icons">
+            <li><i class="fa-solid fa-cloud-arrow-down"></i></li>
+            <li><i class="fa-solid fa-photo-film"></i></li>
+            <li><i class="fa-solid fa-shapes"></i></li>
+            <li><i class="fa-solid fa-sliders"></i></li>
+          </ul>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <!-- SZEKCIÓ RÁCS – üvegkártyák -->
+  <section id="about" class="container grid">
+    <article class="glass card">
+      <h2>Rólunk</h2>
+      <p>Mi vagyunk a piacvezetők a könnyű, üvegfelületű webes UI-k terén.</p>
+    </article>
+
+    <article id="team" class="glass card">
+      <h2>Csapat</h2>
+      <div class="team">
+        <div class="member">
+          <img src="https://dummyimage.com/160x160/ccd2ff/1a2034.png&text=BA" alt=" Ádám">
+          <div>
+            <h3>Ádám</h3>
+            <p>Fejlesztő – Profi ChatGPT használó.</p>
+          </div>
+        </div>
+        <div class="member">
+          <img src="https://dummyimage.com/160x160/ccd2ff/1a2034.png&text=GB" alt=" Bálint">
+          <div>
+            <h3>Bálint</h3>
+            <p>Designer – Grafikai tervezés és UI/UX.</p>
+          </div>
+        </div>
+        <div class="member">
+          <img src="https://dummyimage.com/160x160/ccd2ff/1a2034.png&text=BZ" alt=" Zsolt">
+          <div>
+            <h3>Zsolt</h3>
+            <p>Fejlesztő – Frontend/Backend specialista.</p>
+          </div>
+        </div>
+      </div>
+    </article>
+    <article id="login" class="glass card">
+        <h2>Bejelentkezés</h2>
+      
+       <form id="login-form" novalidate class="form">
+        
+            <label>
+              E-mail
+              <input type="email" id="loginEmail" placeholder="valaki@pelda.hu" required>
+            </label>
+            <label>
+              Jelszó
+              <input type="password" id="loginPassword" minlength="6" required>
+            </label>
+            <div class="auth-actions">
+              <label class="remember">
+                <input type="checkbox" id="loginRemember"> Emlékezz rám
+              </label>
+              <button type="button" id="reset-password" class="btn ghost pill">Elfelejtett jelszó?</button>
+            </div>
+            <button type="submit" id="login-btn" class="btn pill fill">Belépés</button>
+            
+            <p id="login-msg" class="form-msg" role="status" aria-live="polite"></p>
+          </form>
+          
+      </article>
+      
+    <article id="register" class="glass card">
+      <h2>Regisztráció</h2>
+      <form id="register-form" novalidate class="form">
+        <label>
+          Megjelenő név
+          <input type="text" id="regDisplayName" placeholder="pl. bomboclat">
+        </label>
+        <label>
+          E-mail
+          <input type="email" id="regEmail" placeholder="valaki@pelda.hu" required>
+        </label>
+        <div class="two">
+          <label>
+            Jelszó
+            <input type="password" id="regPassword" minlength="6" placeholder="Legalább 6 karakter" required>
+          </label>
+          <label>
+            Jelszó újra
+            <input type="password" id="regPassword2" minlength="6" required>
+          </label>
+        </div>
+        <button type="submit" id="register-btn" class="btn pill fill">Fiók létrehozása</button>
+        <p id="register-msg" class="form-msg" role="status" aria-live="polite"></p>
+      </form>
+    </article>
+
+   
+    <article id="tools" class="glass card">
+        <h2>Eszközök</h2>
+        <!-- <p class="muted">Slideshow és a Név AI panel.</p> -->
+        <div class="tool-actions">
+          <button id="toggle-slideshow" class="btn pill ghost">Slideshow</button>
+          <button id="toggle-chat" class="btn pill fill">Név&nbsp;AI</button>
+        </div>
+      </article>
+      <article id="contact" class="glass card">
+        <h2>Kapcsolat</h2>
+      </article>
+  </section>
+
+  <!-- SLIDESHOW (meglévő markuppal, csak üveg stílus) -->
+  <section class="container glass slideshow" hidden>
+    <div class="slideshow-container">
+      <div class="slide active"><img src="adamimg/unnamed (1) (1).jpg" alt="Slide 1"></div>
+      <div class="slide"><img src="adamimg/140622-BLUE-LANDSCAPE-PC-HD.png" alt="Slide 2"></div>
+      <div class="slide"><img src="adamimg/abstract-blue-wave-background-digital-art-4k-wallpaper-uhdpaper.com-486@0@f.jpg" alt="Slide 3"></div>
+      <a class="prev">&#10094;</a>
+      <a class="next">&#10095;</a>
+    </div>
+    <div class="dots"></div>
+  </section>
+
+  <!-- CHAT DOBOZ + FIX GOMBOK: ID-k maradnak -->
+  <div id="chat-box" class="glass chatbox">
+    <header>Név – Nem Elemző</header>
+    <div id="chat-messages"></div>
+    <div id="chat-input-wrapper">
+      <input type="text" id="chat-input" placeholder="Írj be egy nevet (pl. Péter, Anna)…" />
+      <button id="send-chat" class="btn pill fill">Elemzés</button>
+    </div>
+  </div>
+
+  <footer class="container footer">
+    <p>&copy; 2025 UNCS. Minden jog fenntartva.</p>
+   
+  </footer>
+  <!-- Firebase REG – VÁLTOZATLAN KÓD -->
+  <script type="module">
+    import { initializeApp, getApps, getApp } from "https://www.gstatic.com/firebasejs/12.4.0/firebase-app.js";
+    import {
+      getAuth, createUserWithEmailAndPassword, updateProfile,
+      sendEmailVerification, deleteUser,
+      setPersistence, browserLocalPersistence, browserSessionPersistence,
+      signInWithEmailAndPassword, sendPasswordResetEmail
+    } from "https://www.gstatic.com/firebasejs/12.4.0/firebase-auth.js";
+    import {
+      getDatabase, ref, set, get, runTransaction, serverTimestamp
+    } from "https://www.gstatic.com/firebasejs/12.4.0/firebase-database.js";
+  
+    // --- Firebase config ---
+    const firebaseConfig = {
+      apiKey: "AIzaSyAwRrAtHaNRh2DLwVkryA3wSf86h7aQCaI",
+      authDomain: "konyv-93c63.firebaseapp.com",
+      projectId: "konyv-93c63",
+      storageBucket: "konyv-93c63.firebasestorage.app",
+      messagingSenderId: "349471560585",
+      appId: "1:349471560585:web:55c6e78499ebbca0540758",
+      measurementId: "G-NF07N36ETJ"
+    };
+  
+    // --- App, Auth, DB ---
+    const app  = getApps().length ? getApp() : initializeApp(firebaseConfig);
+    const auth = getAuth(app);
+    const db   = getDatabase(app);
+  
+    // --- Segédek ---
+    const $ = (sel) => document.querySelector(sel);
+    function revealMsg(node, text, type=""){
+      if(!node) return;
+      node.textContent = text;
+      node.className = "form-msg" + (type ? " " + type : "");
+      node.style.display = "block";
+      try { node.scrollIntoView({ behavior: "smooth", block: "center" }); } catch(_){}
+    }
+    const normalizeUsername = (s="") =>
+      s.normalize("NFD").replace(/[\u0300-\u036f]/g, "")
+       .toLowerCase().replace(/[^a-z0-9]+/g,"").slice(0,20);
+  
+    // ---------- REGISZTRÁCIÓ ----------
+    {
+      const form = $("#register-form");
+      const msg  = $("#register-msg");
+  
+      form?.addEventListener("submit", async (e) => {
+        e.preventDefault(); e.stopPropagation();
+        revealMsg(msg, "");
+  
+        const rawName = $("#regDisplayName").value.trim();
+        const email   = $("#regEmail").value.trim();
+        const pass    = $("#regPassword").value;
+        const pass2   = $("#regPassword2").value;
+  
+        const uname = normalizeUsername(rawName);
+        if(!rawName)                 return revealMsg(msg, "Adj meg egy felhasználónevet.", "error");
+        if(uname.length < 3)         return revealMsg(msg, "A felhasználónév túl rövid (min. 3 karakter, ékezet nélkül).", "error");
+        if(!email || !pass || !pass2)return revealMsg(msg, "Kérlek, tölts ki minden mezőt!", "error");
+        if(pass !== pass2)           return revealMsg(msg, "A két jelszó nem egyezik.", "error");
+        if(pass.length < 6)          return revealMsg(msg, "A jelszónak legalább 6 karakteresnek kell lennie.", "error");
+  
+        try{
+          const unameRef = ref(db, "usernames/" + uname);
+          const pre = await get(unameRef);
+          if(pre.exists()) return revealMsg(msg, "Ez a felhasználónév már foglalt. Válassz másikat.", "error");
+  
+          const cred = await createUserWithEmailAndPassword(auth, email, pass);
+  
+          const claim = await runTransaction(unameRef, (current) => {
+            if(current === null) return { uid: cred.user.uid, displayName: rawName };
+            return; // már foglalt
+          });
+          if(!claim.committed){
+            try { await deleteUser(cred.user); } catch(_){}
+            return revealMsg(msg, "Sajnálom, közben lefoglalták ezt a nevet. Válassz másikat!", "error");
+          }
+  
+          try { await updateProfile(cred.user, { displayName: rawName }); } catch(_){}
+  
+          await set(ref(db, "users/" + cred.user.uid), {
+            displayName: rawName,
+            username: uname,
+            email,
+            createdAt: serverTimestamp()
+          });
+  
+          try { await sendEmailVerification(cred.user); } catch(_){}
+  
+          revealMsg(msg, "✅ Sikeres regisztráció! Ellenőrizd az e-mailed a megerősítéshez.", "success");
+          form.reset();
+        }catch(err){
+          let text = "Hiba történt a regisztráció során.";
+          if (err?.code === "auth/email-already-in-use") text = "Ez az e-mail már használatban van.";
+          if (err?.code === "auth/invalid-email")        text = "Érvénytelen e-mail cím.";
+          if (err?.code === "auth/weak-password")        text = "Gyenge jelszó (min. 6 karakter).";
+          revealMsg(msg, "❌ " + text, "error");
+          console.error(err);
+        }
+      });
+    }
+  
+    // ---------- BEJELENTKEZÉS + JELSZÓ RESET ----------
+    {
+      const form     = $("#login-form");
+      const msg      = $("#login-msg");
+      const resetBtn = $("#reset-password");
+  
+      form?.addEventListener("submit", async (e) => {
+        e.preventDefault(); e.stopPropagation();
+        revealMsg(msg, "");
+  
+        const email = $("#loginEmail").value.trim();
+        const pass  = $("#loginPassword").value;
+        const remember = $("#loginRemember")?.checked;
+  
+        if(!email || !pass) return revealMsg(msg, "Tölts ki minden mezőt!", "error");
+  
+        try{
+          await setPersistence(auth, remember ? browserLocalPersistence : browserSessionPersistence);
+          const cred = await signInWithEmailAndPassword(auth, email, pass);
+          revealMsg(msg, "✅ Sikeres bejelentkezés! Üdv, " + (cred.user.displayName || cred.user.email) + ".", "success");
+          form.reset();
+        }catch(err){
+          let text = "Nem sikerült a bejelentkezés.";
+          if(err?.code === "auth/invalid-credential") text = "Hibás e-mail vagy jelszó.";
+          if(err?.code === "auth/user-not-found")     text = "Nincs ilyen felhasználó.";
+          if(err?.code === "auth/wrong-password")     text = "Hibás jelszó.";
+          if(err?.code === "auth/too-many-requests")  text = "Túl sok próbálkozás. Próbáld később.";
+          revealMsg(msg, "❌ " + text, "error");
+          console.error(err);
+        }
+      });
+  
+      resetBtn?.addEventListener("click", async () => {
+        const email = $("#loginEmail").value.trim();
+        if(!email) return revealMsg(msg, "Írd be az e-mail címed a visszaállításhoz.", "error");
+        try{
+          await sendPasswordResetEmail(auth, email);
+          revealMsg(msg, "📧 Küldtünk egy jelszó-visszaállító e-mailt.", "success");
+        }catch(err){
+          let text = "Nem sikerült elküldeni a visszaállító e-mailt.";
+          if(err?.code === "auth/user-not-found") text = "Nincs ilyen felhasználó.";
+          revealMsg(msg, "❌ " + text, "error");
+          console.error(err);
+        }
+      });
+    }
+  </script>
+  
+  <!-- Saját JS-ed -->
+  <script>
+    /* UNCS – stabil UI JS (Aurora Glass) */
+"use strict";
+
+document.addEventListener("DOMContentLoaded", () => {
+  // ---- Óra ----
+  const clockEl = document.getElementById("real-time-clock");
+  const z = v => String(v).padStart(2,"0");
+  function tick(){
+    if (!clockEl) return;
+    const n = new Date();
+    clockEl.textContent = `${z(n.getHours())}:${z(n.getMinutes())}:${z(n.getSeconds())}`;
+  }
+  tick(); setInterval(tick, 1000);
+
+  // ---- Név AI chat ----
+  const chatBtn      = document.getElementById("toggle-chat");
+  const chatBox      = document.getElementById("chat-box");
+  const chatInput    = document.getElementById("chat-input");
+  const sendBtn      = document.getElementById("send-chat");
+  const chatMessages = document.getElementById("chat-messages");
+
+  if (chatBox && chatBtn) {
+    chatBox.style.display = "none";
+    chatBtn.addEventListener("click", () => {
+      const open = chatBox.style.display !== "none";
+      chatBox.style.display = open ? "none" : "flex";
+      chatBtn.textContent   = open ? "Név AI" : "Bezár";
+      if (!open) chatInput?.focus();
+    });
+  }
+
+  const MALE = new Set(["bence","levente","máté","dániel","dominik","dávid","zsolt","bálint","ádám","péter","attila","zoltán","gábor","istván","tamás","marcell","benedek"]);
+  const FEMALE = new Set(["anna","hanna","réka","luca","lilla","fanni","nóra","zoé","kata","eszter","viktória","kinga","blanka","zsófia","boglárka","laura"]);
+
+  function determineGender(name){
+    const n = name.trim().toLowerCase();
+    if (!n) return "Írj be egy nevet.";
+    if (MALE.has(n))   return `A(z) <strong>${name}</strong> valószínűleg <strong>FÉRFI</strong> név. ♂️`;
+    if (FEMALE.has(n)) return `A(z) <strong>${name}</strong> valószínűleg <strong>NŐI</strong> név. ♀️`;
+    return `A(z) <strong>${name}</strong> nincs a listámban – nem megállapítható. 🤔`;
+  }
+  function appendMsg(html, cls){
+    const el = document.createElement("div");
+    el.className = cls;
+    el.innerHTML = html;
+    chatMessages?.appendChild(el);
+    if (chatMessages) chatMessages.scrollTop = chatMessages.scrollHeight; // mindig a végére ugrik
+  }
+  function processName(){
+    if (!chatInput) return;
+    const val = chatInput.value.trim();
+    if (!val) return;
+    appendMsg(val, "user-msg");
+    chatInput.value = "";
+    appendMsg("Elemzés…", "bot-msg");
+    setTimeout(() => {
+      if (chatMessages?.lastElementChild?.textContent === "Elemzés…") {
+        chatMessages.removeChild(chatMessages.lastElementChild);
+      }
+      appendMsg(determineGender(val), "bot-msg");
+    }, 300);
+  }
+
+  // <<< LÉNYEG: biztos kötés gomb + Enter + delegáció fallback
+  sendBtn?.addEventListener("click", processName);
+  chatInput?.addEventListener("keydown", e => {
+    if (e.key === "Enter") { e.preventDefault(); processName(); }
+  });
+  document.addEventListener("click", e => {
+    const t = e.target;
+    if (t && t.closest && t.closest("#send-chat")) processName();
+  });
+  document.addEventListener("keydown", e => {
+    if (e.key === "Enter" && document.activeElement?.id === "chat-input") {
+      e.preventDefault(); processName();
+    }
+  });
+
+  // ---- Slideshow (ha nem kell, ezt hagyhatod) ----
+  initSlideshow();
+});
+
+/* Egyszerű slideshow init */
+function initSlideshow(){
+  const wrapper   = document.querySelector(".slideshow") || document.querySelector(".slideshow-wrapper");
+  if (!wrapper) return;
+  const container = wrapper.querySelector(".slideshow-container");
+  const slides    = container ? Array.from(container.querySelectorAll(".slide")) : [];
+  const prev      = container?.querySelector(".prev");
+  const next      = container?.querySelector(".next");
+  const dotsBox   = wrapper.querySelector(".dots");
+  if (!slides.length || !dotsBox) return;
+
+  dotsBox.innerHTML = "";
+  slides.forEach((_, i) => {
+    const b = document.createElement("button");
+    b.type = "button"; b.className = "dot"; b.setAttribute("aria-label", `Kép ${i+1}`);
+    b.addEventListener("click", () => { go(i); stop(); });
+    dotsBox.appendChild(b);
+  });
+
+  let idx = Math.max(0, slides.findIndex(s => s.classList.contains("active")));
+  const dots = Array.from(dotsBox.querySelectorAll(".dot"));
+  function render(){ slides.forEach((s,i)=>s.classList.toggle("active", i===idx));
+                     dots.forEach((d,i)=>d.classList.toggle("active",  i===idx)); }
+  function go(n){ idx = (n + slides.length) % slides.length; render(); }
+
+  prev?.addEventListener("click", e => { e.preventDefault(); go(idx-1); stop(); });
+  next?.addEventListener("click", e => { e.preventDefault(); go(idx+1); stop(); });
+
+  let auto=null; const start=()=>{ if(!auto) auto=setInterval(()=>go(idx+1),5000); };
+  const stop =()=>{ if(auto){ clearInterval(auto); auto=null; } };
+  wrapper.addEventListener("mouseenter", stop);
+  wrapper.addEventListener("mouseleave", start);
+  wrapper.addEventListener("touchstart", stop, {passive:true});
+  wrapper.addEventListener("touchend",   start, {passive:true});
+
+  // FAB toggler (ha van)
+  const toggle = document.getElementById("toggle-slideshow");
+  if (toggle) toggle.addEventListener("click", () => {
+    const hidden = wrapper.hasAttribute("hidden");
+    if (hidden) { wrapper.removeAttribute("hidden"); toggle.setAttribute("aria-pressed","true"); }
+    else        { wrapper.setAttribute("hidden","");  toggle.setAttribute("aria-pressed","false"); }
+  });
+
+  if (idx < 0) idx = 0;
+  render(); start();
+}
+// --- Mobil menü (hamburger) ---
+(() => {
+    const burger = document.getElementById('hamburger');
+    const nav    = document.getElementById('main-nav');
+    if (!burger || !nav) return;
+  
+    const toggle = () => {
+      const open = nav.classList.toggle('open');
+      burger.setAttribute('aria-expanded', open ? 'true' : 'false');
+    };
+  
+    burger.addEventListener('click', toggle);
+    // menüpont választás után zárás
+    nav.querySelectorAll('a').forEach(a => a.addEventListener('click', () => {
+      nav.classList.remove('open');
+      burger.setAttribute('aria-expanded','false');
+    }));
+  })();
+  (() => {
+    const burger = document.getElementById('hamburger');
+    const nav    = document.getElementById('main-nav');
+    if (!burger || !nav) return; // nincs már felső menü, kilépünk
+  })();
+    
+  </script>
+  <!-- Ide visszateheted az eddigi Firebase modul scriptet VÁLTOZÁS NÉLKÜL -->
+</body>
+</html>
+

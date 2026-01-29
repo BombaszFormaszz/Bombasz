@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mikulás futtató</title>
+    <style>
+        body{
+    /* background-image: url(img/hatter.jpg); */
+    background-color: rgb(30, 255, 0);
+    background-size: cover;
+
+}
+    </style>
+</head>
+<body>
+    
+
+    <script>
+        function createsanta(event){
+            let santa = document.createElement("img");
+            santa.src = "img/santahood.gif";
+            santa.style.width = "600px";
+            santa.style.height = "250px";
+            santa.style.position = "absolute";
+            santa.style.top = event.clientY-125 + "px";
+            santa.style.left = event.clientX-100 + "px";
+            document.body.appendChild(santa);
+        
+            setInterval(() => {
+                santa.style.left = parseInt(santa.style.left) + 5 + "px";
+                if(parseInt(santa.style.left)===document.body.clientWidth){
+                    document.removeChild(santa);
+                }
+            }, 125);
+        }
+        
+        document.addEventListener("click", createsanta);
+
+
+        function createsanta2(event){
+            let santa2 = document.createElement("img");
+            santa2.src = "img/santahood.gif";
+            santa2.style.width = "600px";
+            santa2.style.height = "250px";
+            santa2.style.position = "absolute";
+            santa2.style.top = event.clientY-125 + "px";
+            santa2.style.left = event.clientX-100 + "px";
+            document.body.appendChild(santa2);
+        
+            setInterval(() => {
+                santa2.style.left = parseInt(santa2.style.left) + 5 + "px";
+                if(parseInt(santa2.style.left)===document.body.clientWidth){
+                    document.removeChild(santa2);
+                }
+            }, 10);
+        }
+        
+        document.addEventListener("click", createsanta2);
+        </script>
+        
+
+    
+</body>
+</html>

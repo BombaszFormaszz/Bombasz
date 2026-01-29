@@ -1,0 +1,598 @@
+<!DOCTYPE html>
+<html lang="hu">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bejelentkezés • BOMBASZ</title>
+    
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;500;600;700;800;900&family=Space+Grotesk:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="icon" href="favicon.ico">
+    
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        :root {
+            --bg: #000;
+            --text: #fff;
+            --gray: #888;
+            --dark: #111;
+        }
+
+        html, body {
+            height: 100%;
+            overflow: hidden;
+        }
+
+        body {
+            font-family: 'Space Grotesk', sans-serif;
+            color: var(--text);
+            background: var(--bg);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        #bg-canvas {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 0;
+            pointer-events: none;
+        }
+
+        .login-container {
+            position: relative;
+            z-index: 1;
+            width: 100%;
+            max-width: 420px;
+            padding: 20px;
+        }
+
+        .main-title {
+            font-family: 'Orbitron', sans-serif;
+            font-size: clamp(2rem, 8vw, 3.5rem);
+            font-weight: 900;
+            color: var(--text);
+            text-align: center;
+            margin-bottom: 2rem;
+            letter-spacing: 0.3em;
+            opacity: 0;
+            animation: titleReveal 1s ease 0.5s forwards;
+        }
+
+        @keyframes titleReveal {
+            from { opacity: 0; transform: translateY(30px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .form-card {
+            background: rgba(255, 255, 255, 0.02);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            padding: 40px 30px;
+            opacity: 0;
+            animation: cardReveal 1s ease 0.8s forwards;
+        }
+
+        @keyframes cardReveal {
+            from { opacity: 0; transform: translateY(40px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .auth-tabs {
+            display: flex;
+            margin-bottom: 30px;
+            border-bottom: 1px solid rgba(255,255,255,0.1);
+        }
+
+        .auth-tab {
+            flex: 1;
+            padding: 15px;
+            border: none;
+            background: transparent;
+            color: var(--gray);
+            font-family: 'Orbitron', sans-serif;
+            font-size: 11px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            border-bottom: 2px solid transparent;
+            margin-bottom: -1px;
+        }
+
+        .auth-tab.active {
+            color: var(--text);
+            border-bottom-color: var(--text);
+        }
+
+        .auth-tab:hover:not(.active) {
+            color: var(--text);
+        }
+
+        .auth-form {
+            display: none;
+        }
+
+        .auth-form.active {
+            display: block;
+            animation: formFade 0.4s ease;
+        }
+
+        @keyframes formFade {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        .form-group {
+            margin-bottom: 25px;
+        }
+
+        .form-group label {
+            display: block;
+            color: var(--gray);
+            font-size: 10px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            margin-bottom: 10px;
+        }
+
+        .form-group input {
+            width: 100%;
+            padding: 15px;
+            background: transparent;
+            border: none;
+            border-bottom: 1px solid rgba(255,255,255,0.2);
+            color: var(--text);
+            font-family: 'Space Grotesk', sans-serif;
+            font-size: 16px;
+            transition: all 0.3s ease;
+        }
+
+        .form-group input:focus {
+            outline: none;
+            border-bottom-color: var(--text);
+        }
+
+        .form-group input::placeholder {
+            color: rgba(255, 255, 255, 0.2);
+        }
+
+        .checkbox-group {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin: 25px 0;
+            cursor: pointer;
+        }
+
+        .checkbox-group input[type="checkbox"] {
+            appearance: none;
+            width: 18px;
+            height: 18px;
+            background: transparent;
+            border: 1px solid rgba(255,255,255,0.3);
+            cursor: pointer;
+            position: relative;
+            transition: all 0.2s ease;
+            flex-shrink: 0;
+        }
+
+        .checkbox-group input[type="checkbox"]:checked {
+            background: var(--text);
+            border-color: var(--text);
+        }
+
+        .checkbox-group input[type="checkbox"]:checked::after {
+            content: '✓';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            color: var(--bg);
+            font-size: 12px;
+            font-weight: bold;
+        }
+
+        .checkbox-group label {
+            color: var(--gray);
+            font-size: 13px;
+            cursor: pointer;
+        }
+
+        .submit-btn {
+            width: 100%;
+            padding: 18px;
+            background: var(--text);
+            color: var(--bg);
+            border: none;
+            font-family: 'Orbitron', sans-serif;
+            font-size: 12px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 3px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin-top: 10px;
+        }
+
+        .submit-btn:hover {
+            background: var(--gray);
+            transform: translateY(-2px);
+        }
+
+        .submit-btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .message {
+            padding: 15px;
+            margin-bottom: 20px;
+            font-size: 13px;
+            font-weight: 500;
+            display: none;
+            border: 1px solid;
+        }
+
+        .message.error {
+            display: block;
+            background: rgba(255, 0, 0, 0.1);
+            border-color: rgba(255, 0, 0, 0.3);
+            color: #ff6b6b;
+        }
+
+        .message.success {
+            display: block;
+            background: rgba(0, 255, 0, 0.1);
+            border-color: rgba(0, 255, 0, 0.3);
+            color: #6bff6b;
+        }
+
+        .forgot-link {
+            display: block;
+            text-align: center;
+            margin-top: 20px;
+            color: var(--gray);
+            text-decoration: none;
+            font-size: 12px;
+            transition: color 0.3s ease;
+        }
+
+        .forgot-link:hover {
+            color: var(--text);
+        }
+
+        .back-link {
+            position: fixed;
+            top: 30px;
+            left: 30px;
+            color: var(--gray);
+            text-decoration: none;
+            font-family: 'Orbitron', sans-serif;
+            font-size: 11px;
+            letter-spacing: 2px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            transition: color 0.3s;
+            z-index: 10;
+        }
+
+        .back-link:hover {
+            color: var(--text);
+        }
+
+        .spinner {
+            width: 20px;
+            height: 20px;
+            border: 2px solid var(--gray);
+            border-top-color: var(--bg);
+            border-radius: 50%;
+            animation: spin 0.8s linear infinite;
+            margin: 0 auto;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        @media (max-width: 480px) {
+            .form-card {
+                padding: 30px 20px;
+            }
+            .back-link {
+                top: 20px;
+                left: 20px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <canvas id="bg-canvas"></canvas>
+
+    <a href="index.html" class="back-link">
+        <i class="fa-solid fa-arrow-left"></i> VISSZA
+    </a>
+
+    <div class="login-container">
+        <h1 class="main-title">BOMBASZ</h1>
+
+        <div class="form-card">
+            <div class="auth-tabs">
+                <button class="auth-tab active" data-tab="login">Bejelentkezés</button>
+                <button class="auth-tab" data-tab="register">Regisztráció</button>
+            </div>
+
+            <div id="message" class="message"></div>
+
+            <form id="login-form" class="auth-form active">
+                <div class="form-group">
+                    <label for="login-email">Email cím</label>
+                    <input type="email" id="login-email" placeholder="pelda@email.com" required>
+                </div>
+                <div class="form-group">
+                    <label for="login-password">Jelszó</label>
+                    <input type="password" id="login-password" placeholder="••••••••" required>
+                </div>
+                <div class="checkbox-group">
+                    <input type="checkbox" id="remember-me" checked>
+                    <label for="remember-me">Emlékezz rám</label>
+                </div>
+                <button type="submit" class="submit-btn">Belépés</button>
+                <a href="#" class="forgot-link" id="forgot-password">Elfelejtetted a jelszavad?</a>
+            </form>
+
+            <form id="register-form" class="auth-form">
+                <div class="form-group">
+                    <label for="register-email">Email cím</label>
+                    <input type="email" id="register-email" placeholder="pelda@email.com" required>
+                </div>
+                <div class="form-group">
+                    <label for="register-password">Jelszó</label>
+                    <input type="password" id="register-password" placeholder="Min. 6 karakter" required minlength="6">
+                </div>
+                <div class="form-group">
+                    <label for="register-password2">Jelszó újra</label>
+                    <input type="password" id="register-password2" placeholder="Jelszó megerősítése" required minlength="6">
+                </div>
+                <button type="submit" class="submit-btn">Regisztráció</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Three.js -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    
+    <script>
+        // Three.js háttér animáció
+        (function() {
+            const canvas = document.getElementById('bg-canvas');
+            if (!canvas || typeof THREE === 'undefined') return;
+
+            const renderer = new THREE.WebGLRenderer({ canvas, alpha: true, antialias: true });
+            renderer.setSize(window.innerWidth, window.innerHeight);
+            renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+
+            const scene = new THREE.Scene();
+            const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+            camera.position.z = 5;
+
+            // Particles
+            const particleCount = 500;
+            const positions = new Float32Array(particleCount * 3);
+
+            for (let i = 0; i < particleCount; i++) {
+                positions[i * 3] = (Math.random() - 0.5) * 20;
+                positions[i * 3 + 1] = (Math.random() - 0.5) * 20;
+                positions[i * 3 + 2] = (Math.random() - 0.5) * 20;
+            }
+
+            const geometry = new THREE.BufferGeometry();
+            geometry.setAttribute('position', new THREE.BufferAttribute(positions, 3));
+
+            const material = new THREE.PointsMaterial({
+                color: 0xffffff,
+                size: 0.02,
+                transparent: true,
+                opacity: 0.4
+            });
+
+            const particles = new THREE.Points(geometry, material);
+            scene.add(particles);
+
+            // Mouse tracking
+            let mouseX = 0, mouseY = 0;
+            document.addEventListener('mousemove', (e) => {
+                mouseX = (e.clientX / window.innerWidth - 0.5) * 2;
+                mouseY = (e.clientY / window.innerHeight - 0.5) * 2;
+            });
+
+            function animate() {
+                requestAnimationFrame(animate);
+                particles.rotation.y += 0.0005;
+                particles.rotation.x += (mouseY * 0.1 - particles.rotation.x) * 0.02;
+                particles.rotation.y += (mouseX * 0.1 - particles.rotation.y) * 0.02;
+                renderer.render(scene, camera);
+            }
+            animate();
+
+            window.addEventListener('resize', () => {
+                camera.aspect = window.innerWidth / window.innerHeight;
+                camera.updateProjectionMatrix();
+                renderer.setSize(window.innerWidth, window.innerHeight);
+            });
+        })();
+    </script>
+
+    <!-- Firebase -->
+    <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+    import {
+        getAuth,
+        signInWithEmailAndPassword,
+        createUserWithEmailAndPassword,
+        onAuthStateChanged,
+        setPersistence,
+        browserLocalPersistence,
+        browserSessionPersistence,
+        sendPasswordResetEmail
+    } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
+
+    const firebaseConfig = {
+        apiKey: "AIzaSyAwRrAtHaNRh2DLwVkryA3wSf86h7aQCaI",
+        authDomain: "konyv-93c63.firebaseapp.com",
+        projectId: "konyv-93c63",
+        storageBucket: "konyv-93c63.firebasestorage.app",
+        messagingSenderId: "308577632498",
+        appId: "1:308577632498:web:yourappid"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const auth = getAuth(app);
+
+    // ────────────────────────────────────────────────
+    //    Ha már be van jelentkezve → redirect
+    // ────────────────────────────────────────────────
+    onAuthStateChanged(auth, (user) => {
+        if (user) {
+            const returnUrl = sessionStorage.getItem('redirectAfterLogin') || 'index.html';
+            sessionStorage.removeItem('redirectAfterLogin');
+            window.location.href = returnUrl;
+        }
+    });
+
+    // Tab váltás
+    const tabs = document.querySelectorAll('.auth-tab');
+    const forms = document.querySelectorAll('.auth-form');
+
+    tabs.forEach(tab => {
+        tab.addEventListener('click', () => {
+            tabs.forEach(t => t.classList.remove('active'));
+            forms.forEach(f => f.classList.remove('active'));
+            tab.classList.add('active');
+            document.getElementById(`${tab.dataset.tab}-form`).classList.add('active');
+            hideMessage();
+        });
+    });
+
+    function showMessage(text, type) {
+        const msg = document.getElementById('message');
+        msg.textContent = text;
+        msg.className = `message ${type}`;
+        msg.style.display = 'block';
+    }
+
+    function hideMessage() {
+        const msg = document.getElementById('message');
+        msg.style.display = 'none';
+    }
+
+    // Login
+    document.getElementById('login-form').addEventListener('submit', async (e) => {
+        e.preventDefault();
+
+        const email = document.getElementById('login-email').value.trim();
+        const password = document.getElementById('login-password').value;
+        const rememberMe = document.getElementById('remember-me').checked;
+        const btn = e.target.querySelector('.submit-btn');
+
+        btn.disabled = true;
+        btn.innerHTML = '<div class="spinner"></div>';
+        hideMessage();
+
+        try {
+            const persistence = rememberMe ? browserLocalPersistence : browserSessionPersistence;
+            await setPersistence(auth, persistence);
+            await signInWithEmailAndPassword(auth, email, password);
+            // Nem kell itt redirect, az onAuthStateChanged elvégzi!
+            showMessage('Sikeres bejelentkezés! Átirányítás...', 'success');
+        } catch (error) {
+            let errorMsg = 'Hiba történt a bejelentkezéskor.';
+            switch (error.code) {
+                case 'auth/user-not-found':      errorMsg = 'Nincs ilyen felhasználó.'; break;
+                case 'auth/wrong-password':      errorMsg = 'Hibás jelszó.'; break;
+                case 'auth/invalid-email':       errorMsg = 'Érvénytelen email cím.'; break;
+                case 'auth/invalid-credential':  errorMsg = 'Hibás email vagy jelszó.'; break;
+                case 'auth/too-many-requests':   errorMsg = 'Túl sok próbálkozás. Próbáld később.'; break;
+                default: errorMsg += ` (${error.code})`;
+            }
+            showMessage(errorMsg, 'error');
+        } finally {
+            btn.disabled = false;
+            btn.textContent = 'Belépés';
+        }
+    });
+
+    // Forgot password
+    document.getElementById('forgot-password').addEventListener('click', async (e) => {
+        e.preventDefault();
+        const email = document.getElementById('login-email').value.trim();
+
+        if (!email) {
+            showMessage('Írd be az email címed!', 'error');
+            return;
+        }
+
+        try {
+            await sendPasswordResetEmail(auth, email);
+            showMessage('Jelszó-visszaállító link elküldve az emailedre!', 'success');
+        } catch (error) {
+            showMessage('Nem sikerült elküldeni a visszaállító linket.', 'error');
+        }
+    });
+
+    // Register
+    document.getElementById('register-form').addEventListener('submit', async (e) => {
+        e.preventDefault();
+
+        const email = document.getElementById('register-email').value.trim();
+        const password = document.getElementById('register-password').value;
+        const password2 = document.getElementById('register-password2').value;
+        const btn = e.target.querySelector('.submit-btn');
+
+        if (password !== password2) {
+            showMessage('A két jelszó nem egyezik!', 'error');
+            return;
+        }
+
+        if (password.length < 6) {
+            showMessage('A jelszónak legalább 6 karakter hosszúnak kell lennie!', 'error');
+            return;
+        }
+
+        btn.disabled = true;
+        btn.innerHTML = '<div class="spinner"></div>';
+        hideMessage();
+
+        try {
+            await setPersistence(auth, browserLocalPersistence);
+            await createUserWithEmailAndPassword(auth, email, password);
+            // Nem kell itt redirect, az onAuthStateChanged elvégzi!
+            showMessage('Sikeres regisztráció! Átirányítás...', 'success');
+        } catch (error) {
+            let errorMsg = 'Hiba történt a regisztrációkor.';
+            switch (error.code) {
+                case 'auth/email-already-in-use': errorMsg = 'Ez az email cím már foglalt.'; break;
+                case 'auth/weak-password':        errorMsg = 'Túl gyenge jelszó (legalább 6 karakter).'; break;
+                case 'auth/invalid-email':        errorMsg = 'Érvénytelen email cím.'; break;
+                default: errorMsg += ` (${error.code})`;
+            }
+            showMessage(errorMsg, 'error');
+        } finally {
+            btn.disabled = false;
+            btn.textContent = 'Regisztráció';
+        }
+    });
+</script>
+</body>
+</html>

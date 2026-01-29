@@ -1,0 +1,1059 @@
+<!DOCTYPE html>
+<html lang="hu">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Történelem Érettségi Tételek</title>
+<style>
+    /* AMOLED (Pure Black) téma beállításai */
+    :root { 
+        --p: #000000;          /* Fejléc is fekete */
+        --a: #00eeff;          /* Marad a cián kiemelés, jól mutat a feketén */
+        --bg: #000000;         /* Tiszta fekete háttér */
+        --card-bg: #000000;    /* Kártyák is feketék legyenek */
+        --text: #ffffff;       /* Hófehér szöveg a maximális kontrasztért */
+        --select-border: #333; /* Finom szürke keret az elemeknek */
+    }
+
+    body { 
+        font-family: 'Segoe UI', sans-serif; 
+        line-height: 1.6; 
+        margin: 0; 
+        background: var(--bg); 
+        color: var(--text); 
+    }
+
+    header { 
+        background: var(--bg); 
+        color: white; 
+        text-align: center; 
+        padding: 1rem; 
+        position: sticky; 
+        top: 0; 
+        z-index: 1000; 
+        /* Egy vékony alsó vonal választja el a fejlécet, mivel minden fekete */
+        border-bottom: 1px solid #222; 
+    }
+
+    .container { max-width: 800px; margin: 20px auto; padding: 0 15px; }
+    
+    select { 
+        width: 100%; 
+        padding: 15px; 
+        border-radius: 8px; 
+        border: 2px solid var(--select-border); 
+        font-size: 1rem; 
+        margin-bottom: 20px; 
+        outline: none; 
+        background: #000000; /* Legördülő háttér is fekete */
+        color: white; 
+    }
+    
+    #content-area { 
+        background: var(--card-bg); 
+        padding: 25px; 
+        border-radius: 12px; 
+        /* Erősebb keret a kártyának, hogy elváljon a háttértől */
+        border: 1px solid #222;
+        display: none; 
+    }
+    
+    h2 { color: #fff; border-bottom: 3px solid var(--a); padding-bottom: 8px; margin-top: 0; }
+    
+    .formatted-text { white-space: pre-wrap; font-size: 1.1rem; word-wrap: break-word; }
+
+    /* Képek AMOLED módhoz */
+    .embedded-img {
+        display: block;
+        max-width: 100%;
+        height: auto;
+        margin: 20px auto;
+        border-radius: 6px;
+        border: 1px solid #333;
+        /* Kicsit sötétítve, hogy ne "égesse" a szemet a fekete háttéren */
+        filter: brightness(0.7); 
+        transition: filter 0.3s;
+    }
+
+    .embedded-img:hover {
+        filter: brightness(1); 
+    }
+
+    /* Görgetősáv (Scrollbar) AMOLED stílusban */
+    ::-webkit-scrollbar { width: 8px; }
+    ::-webkit-scrollbar-track { background: #000; }
+    ::-webkit-scrollbar-thumb { background: #333; border-radius: 10px; }
+    ::-webkit-scrollbar-thumb:hover { background: var(--a); }
+
+    @media (max-width: 600px) { .formatted-text { font-size: 1rem; } }
+</style>
+</head>
+<body>
+
+
+
+<div class="container">
+    <div class="sticky-nav">
+        <select id="selector" onchange="load()">
+            <option value="" disabled selected>Köszönjük szépen, Tanárnő!</option>
+        </select>
+    </div>
+
+    <article id="content-area">
+        <h2 id="title"></h2>
+        <div id="body" class="formatted-text"></div>
+    </article>
+</div>
+
+<script>
+    // IDE MÁSOLD BE A TÉTELEIDET
+    // Használd a ` jelet (AltGr+7) a szöveg elején és végén!
+    const data = [
+        {
+            id: "1",
+            cim: "Anjou (Anzsu) Károly Róbert uralkodása és gazdaságpolitikája",
+            szoveg: `1301-ben III. Andrással kihalt az Árpád-ház. A trónra több európai uralkodócsalád is bejelentette igényét, amely női ágon leszármazottja volt az Árpádoknak. Trónkövetelőként jelentkeztek:
+- a bajor Ottó
+- a cseh Vencel
+- és a nápolyi Anjou-dinasztia tagja, Károly Róbert is. 
+Azért ő lett a legesélyesebb, mert a pápa is pártfogolta. A Károly Róbert 12 évesen jött Magyarországra. 
+Az igazi hatalom azonban a tartományurak, a nagyhatalmú bárók kezében volt. Csák Máté, Aba Amádé, a Kőszegiek, Borsa Kopasz, Kán László kiskirályként uralkodtak óriási birtokaikon, amely több vármegyére is kiterjedt. Pl. Csák Máténak 20 vármegyéje és több mint 50 vára volt. A kiskirályok királyi jogokat gyakoroltak birtokaikon:
+- saját pénzt verettek
+- hatalmas magánhadsereget tartottak fenn
+- önálló külpolitikát folytattak
+- gyakran viseltek magánháborút egymás ellen vagy külföldön
+- saját udvartartásuk, több ezer hűbéresük volt.
+A tartományurak figyelmen kívül hagyták a király parancsait, hatalmukat csak fokozatosan sikerült megtörni.
+
+Károly Róbert mellett állt:
+- az egyház
+- a köznemesek, akik a királytól vártak védelmet a nagyhatalmú bárókkal szemben
+- városok és a falvak lakói, akik békét akartak.
+
+1312-ben Aba Amádé vitába keveredett Kassa városával, a polgárok a királyhoz fordultak segítségért. A rozgonyi csatában legyőzték az Aba nemzetséget, ezzel megkezdődött a tartományúri rendszer felszámolása. Birtokaikat a király elkobozta, és egy részét hűséges embereinek adományozta. Csák Máté birtokait csak halála után sikerült megszereznie.
+
+Erre az új nemesi rétegre támaszkodva szervezte át a király az ország védelmét. Létrejött a banderiális hadsereg (banderia olasz szó, jelentése zászló), amelyet a birtokos a kapott föld nagysága után volt köteles kiállítani, és háború esetén saját zászlója vagy címere alatt vezette harcba. 
+
+Károly Róbert a királyi hatalom megerősítésére új gazdaságpolitikát vezetett be. Még Árpádok korában onnan származtak az uralkodók fő bevételei, hogy ők voltak az ország legnagyobb birtokosai. 
+Károly Róbert jövedelmeit már az egész országban kivetett regálék és adók biztosították. 
+Ilyen – a só és a nemesfém forgalmazásának monopóliuma
+         - bányamonopólium
+         - a pénzverés monopóliuma
+         - a harmincadvám
+         - és a jobbágyok állami adója, a kapuadó.
+
+•	Sómonopólium: Erdélyben hatalmas sóbányák voltak, a kitermelt sót csak a király kereskedői vihették külföldre, így a haszon a kincstárba került.
+•	Bányamonopólium: A korabeli Magyarország világelső az aranykitermelésben (évi 2000 kg arany), 2. helyen állt az ezüstkitermelésben. Az arany- és ezüstbányákat a királynak állt jogában feltáratni. Akié a föld volt, egy azonos nagyságú területet kapott helyette. Így a földesurak eddig nem részesültek a saját birtokaikon levő lelőhelyek jövedelméből, ezért igyekeztek eltitkolni az érclelőhelyeket. Károly R. intézkedései szerint azonban a bányák jövedelméből a birtokos megkapta az aranypénz, az urbura egyharmadát. Ezzel a király érdekeltté tette a főurakat a lelőhelyek feltárásában. 
+•	A pénzverés monopóliuma: csak a király verethetett az országban pénzt. KR az 1330-as években bevezette a firenzei mintára veretett értékálló aranyforintot, amelyet az Anjouk liliomos címere díszített. Ez értékálló, egész Európában keresett pénz lett.
+•	Jelentős bevételei származtak a királynak harmincadvámból, amit a kereskedők fizettek áruik után (az áru értékének 1/30-ad részét).
+•	A jobbágyok első állami adója a kapuadó volt, ezt jobbágyportánként szedték, évente 18 dénárt.
+
+A Károly R. reformjai nyomán fellendült a gazdaság, megélénkült a külkereskedelem. Magyarországról főleg nyersanyagot és élelmiszereket, bort, élőállatot, sót vittek ki. A nyugat felé irányuló kereskedelem hasznát azonban a bécsi kereskedők fölözték le, a város árumegállító joga révén.
+1335-ben a visegrádi királytalálkozón a magyar, a cseh és a lengyel király gazdasági megállapodást kötött, és Bécs megkerülésével új kereskedelmi útvonalat dolgoztak ki.
+
+
+Fejlődött a mezőgazdaság:
+A jobbágyok új területeket tettek termővé: erdőket irtottak ki, mocsarakat csapoltak le. Elterjedt az aszimmetrikus nehézeke, az elvetett mag 3-4-szeresét arathatták le. Nőtt a szőlővel és gyümölcsfákkal beültetett területek nagysága.
+A mezőgazdaság fejlődése azt eredményezte, hogy a jobbágy munkájával már nemcsak családjának és földesurának szükségleteit elégítette ki, hanem egyre több terméket vihetett a piacra. Ezekből a „vásáros helyekből” alakultak ki a mezővárosok. 
+•	Jogot kaptak heti-, sőt néha országos vásár tartására is.
+•	A lakosok főként mezőgazdasági tevékenységet folytattak, de azért több-kevesebb kézműves is élt és dolgozott itt. 
+•	A mezővárosok azért voltak jobb helyzetben a falvaknál, mert adójukat évi egy összegben fizették ki a földesúrnak. Az adó akkor sem emelkedett, ha nőtt a városlakók száma.
+•	Bírót választhattak maguknak.
+A nagyobb mezővárosok legfőbb célja az volt, hogy teljesen kikerüljenek a földesúri hatalom alól, és szabad királyi várossá válhassanak.
+A szabad királyi városok közül Buda emelkedett ki, amelynek kiváltságai mintául szolgáltak a többi város számára is (árumegállító jog, vámmentesség, pallosjog). Egyedül a királynak fizettek adót. Igazgatásukat a „középkor pénzügyminisztere”, a tárnokmester látta el. 
+Az erősödő városokban a 14. század második felétől megjelentek a céhek.
+
+Károly Róbert 1342-ben halt meg, erős és rendezett államot hagyott fiára, Nagy Lajosra.
+`
+        },
+        {
+            id: "2",
+            cim: "A fölrajzi felfedezések",
+            szoveg: `
+
+1, 
+   Európa és Ázsia mindig is kereskedett egymással. Keletről drága fűszereket, selymet, porcelánt, luxuscikkeket hoztak be Európába, az árukért aranypénzzel fizettek. A külkereskedelmi mérleg azonban passzív volt (az ázsiaiak viszonylag keveset vásároltak) így egy idő után nagyon sok aranypénz áramlott ki Európából, "aranyéhség" lépett fel, új lelőhelyekre volt szükség. Ez lesz a földrajzi felfedezések egyik fő ösztönzője, a másik pedig:
+2,
+A Török birodalom terjeszkedése veszélyessé tette a keleti kereskedelmet, az árak megdrágultak, ezért új útvonalakat akartak keresni, a török birodalom kikerülésével akartak eljutni Indiába.
+
+ A technika fejlődése elősegítette a felfedezéseket:
+•	új hajótípus született, a caravella: több árbocos, hátsókormányos, nagyméretű 200-500 tonnás hajó. Ezzel már a nyílt óceánra is kimerészkedtek.
+•	Az iránytű elterjedése
+•	egyre pontosabb térképeket rajzoltak
+•	Portugáliában Tengerész Henrik herceg hajózási akadémiát alapított.
+
+A portugálok fokozatosan haladtak előre Afrika partjai mentén. Áthaladtak az Egyenlítőn (1471), majd Bartolomeo Diaz elérte Afrika legdélebbi pontját, a Jóreménység fokot (1487). Vasco da Gama 1498-ban Afrikát körülhajózva elérte India nyugati partjait. Itt a portugálok kereskedelmi telepeket hoztak létre és a fűszereket 700-800 %-os haszonnal vitték Európába.
+
+A spanyolok más utakkal kísérleteztek. Kolombusz Kristóf genovai hajós felajánlotta szolgálatait a spanyol uralkodó párnak: Kasztíliai Izabellának és Agargóniai Ferdinándnak. Pénzt és 3 hajót kapott tőlük (Nina /Ninnya/, Pinta, Santa Maria) és 1492. augusztos 3-án indult el nyugat felé. 
+Terve az volt: ha a Föld gömb alakú, akkor mindig nyugat felé hajózva keletre kell megérkeznie. Októberben érkezetek Közép- Amerika partvidékére, az első szigetet, ahol partra szálltak a Szent Megváltónak, vagyis San Salvadornak nevezték el. Azt hitték Indiába jutottak. Spanyolországban, valóságos diadalmenetben fogadták a hazatérő Kolombuszt, aki ezután még háromszor járt az Újvilágban, de élete végéig azt hitte, hogy Indiába jutott. Későbbi útjai után egyre több aranyat vártak tőle, mivel a behurcolt kincseket kevésnek találták, kegyvesztettként halt meg.
+
+Az új földrész Ameriggo Vespucciról kapta a nevét, aki firenzei Medici-bankház megbízottjaként több hajóúton vett részt. Az ő beszámolóiból ismerte meg Európa az Újvilágot, és nevezte Ameriggo földjének, Amerikának.
+
+A kor híres utazója Fernandó Magellán a Föld körülhajózására tett kísérletet. 5 hajóval indult el, de csak 1 tudta teljesíteni a feladatot, ő pedig meghalt a Fülöp szigeteknél a bennszülöttekkel vívott harcokban.
+
+Amerikában az európai ember megérkezése előtt 3 nagy civilizáció létezett: Mexikó területén az AZTÉKOK és a MAJÁK Dél-Amerikában pedig az INKA birodalom.
+Nagy városokat, utat, és csatornákat építettek, de nem ismerték a vasat, fejletlen fegyvereik voltak.
+A felfedezők nyomában megjelentek a hódítók, a kincsvadászok, akik kifosztottak ezeket a birodalmakat. A leghírhedtebbek Cortez és Pizarro. (Cortez 500 emberével hódította meg az Azték birodalmat, Pizarro pedig 150 emberrel az inkákat).
+
+A felfedezések következtében: 
+1.  Rövid idő alatt 16 ezer tonna ezüstöt és 200 tonna aranyat hoztak be Európába.
+2.  Új növényeket ismernek meg: kukorica, dohány, burgonya, paprika, paradicsom, kakaó, vanília.
+3.  Az indiánokat bányákban, illetve ültetvényeken dolgoztatták, a túlfeszített munka következtében nagy részük meghalt.
+4.  A kereskedelem központja a Földközi-tengerről áttevődik az Atlanti óceánra.
+5.  Az európai ember vilárképe kitágul, egyre több ismeret birtokába jut a felfedezések által.
+`
+        }
+        ,
+        {
+            id: "3",
+            cim: "A Rákosi korszak",
+            szoveg: `1947-re a hazai kommunisták elérkezettnek látták az időt a hatalomra kerülésre és a demokrácia felszámolására. 
+1. Az első lépés efelé az 1947-ben megtartott választás volt, „a kékcédulás választás”, amit a csalások tettek nevezetessé: 
+- Jogtalanul kizárták vagy „kifelejtették” a szavazók 10%-át, akik nem a kommunistákra szavaztak volna.
+- Aki a választás napján nem tartózkodott a lakóhelyén (pl. vasutasok), az a választási bizottságtól kért igazolással (ez volt a kék cédula) bárhol szavazhatott. A kommunisták ilyen emberekkel jártak faluról falura és azok több helyen is szavaztak.
+- A Magyar Függetlenségi Párt mandátumait (670 ezer szavazatot) megsemmisítették
+Így a választásokat a kommunisták nyerték, és jelöltjük, Dinnyés Lajos lett a miniszterelnök.
+2. Közben a többi párt felszámolására törekedtek, Rákosi ezt nevezte „szalámi-taktiká”-nak.
+- koncepciós pert indítottak a Kisgazda Párt több vezetője ellen, főtitkárukat, Kovács Bélát a nyílt utcán elrabolták, és szovjet munkatáborba vitték.
+- Nagy Ferencet, a párt másik vezetőjét összeesküvésben való részvétellel vádolták, így Svájcban töltött szabadságáról már nem mert hazatérni. 
+- A Szociáldemokrata Pártból kizárták a demokratikus gondolkodású politikusokat (Peyer Károlyt, Kéthly Annát, arra kényszerítették őket, hogy külföldre távozzanak), majd 1948 júniusában kimondták az SZDP és a Kommunista Párt egyesülését. Az új párt neve Magyar Dolgozók Pártja. Főtitkára Rákosi Mátyás. Vezetői: Gerő Ernő, Farkas Mihály, Révai József.
+- 1949-ben létrehozták a Magyar Függetlenségi Népfrontot, amelynek tagjai a fel nem oszlatott pártok, szervezetek voltak. Hitet tettek a szocializmus építése mellett. A ’49-es választásokon már csak a Népfront jelöltjeire lehetett szavazni, ezek már nem tekinthetők demokratikus választásoknak (1990-ig).
+3. Nagyarányú államosítások történtek: 
+- 1947-ben államosították a bankokat és ipari érdekeltségeiket
+- 1948-ban a 100 főnél többet foglalkoztató üzemeket
+- 1949-ben a 10 főnél többet foglalkoztat kis műhelyeket
+4. Mindenben a szovjet példát másolták. 1949. augusztus 20-án elfogadták az új alkotmányt, ami lényegében azonos az 1936-os szovjet alkotmánnyal.
+- Köztársasági elnök helyett megalakult az Elnöki Tanács.
+- 1950-ben tanácsválasztásokat tartottak, amelynek eredményeként a helyi közigazgatás is a kommunisták kezébe került.
+- az egyházi iskolákat államosították. Mindszenty József esztergomi érseket törvénytelenül letartóztatták.
+A politikai rendszer fenntartásának legfőbb eszköze a magfélemlítés volt. Az Államvédelmi Hatóság (rövidítve ÁVH, a köznyelvben „ávó”) törvények feletti hatalom volt, kizárólag a párt vezetőinek (mindenekelőtt Rákosinak és Farkas Mihálynak) volt alárendelve. Főnöke Péter Gábor volt. Az ÁVH minden törvényes eljárást mellőzve letartóztathatott, kivégeztethetett vagy fogva tarthatott bárkit. Mivel a börtönök befogadóképessége kevésnek bizonyult, a szovjet GULAG-ok mintájára munkatáborokat állítottak fel, ahol a foglyokat embertelen körülmények között dolgoztatták. Ilyen tábor működött Recsken, Kazincbarcikán és a Hortobágyon.
+Koncepciós perek indultak, ezek közül kiemelkedett a Mindszenty-per 1949-ben, amelynek célja az egyház lejáratása volt. A bíborost az államrend megdöntésével, hűtlenséggel vádolták, életfogytiglani fegyházbüntetéssel sújtották. Mikor elfogytak az ellenzékiek, már a párton belül keresték az ellenséget. Letartóztatták Rajk László volt belügyminisztert, kémkedéssel és hazaárulással vádolták és kivégezték.
+
+5. Megkezdődött a gazdaság szocialista átszervezése.
+Az 1950-ben indított első ötéves terv célja, hogy Magyarország a vas és acél országává váljék. Megjelentek a szocialista iparvárosok (Sztálinváros, Leninváros), a nehézipar fejlesztésére törekedtek, miközben a lakosság ellátását szolgáló könnyűipar jóval fejletlenebb volt. A szovjet sztahanovista mozgalom mintájára szocialista munkaversenyeket indítottak, ahol a terv 200-300 %-os túlteljesítésére törekedtek. 
+
+ A földeket állami tulajdonba vették, szovjet mintára termelőszövetkezetek kialakítására törekedtek. Mivel a parasztok nem hajlottak arra, hogy önszántukból belépjenek, ezért bevezették a kötelező beszolgáltatás rendszerét. Pontosan előírták, hogy egy meghatározott földterület után mennyi gabonát, burgonyát, csirkét, tojást, tejet, libatollat, stb. kell beadni. Az előírások figyelmen kívül hagyták az időjárást és az adott parasztgazdaság tényleges lehetőségeit (pl. tejet annak is be kellett adnia, akinek nem volt tehene). Ha a parasztember beadási kötelezettségeit nem teljesítette, végrehajtók jelentek meg nála, elvittek mindent, amit a házban találtak. Ez a padlás lesöprések időszaka. A 25 holdnál több földdel rendelkezőket kulákokká nyilvánították, az ő adó és beszolgáltatási terheik óriásiak voltak. 1952-re 1,2 millió parasztcsaládból 800 ezernek nem maradt fogyasztásra és vetésre való gabonája. 
+
+6. Az iskolákban kötelezővé tették az orosz nyelv tanítását, a mozik többségükben szovjet filmeket játszottak, a könyvesboltokat ellepték a szovjet szerzők magyarra fordított könyvei.
+ A sajtó a világban történt eseményekről csak szűkszavú, gyakran hazug tájékoztatás jelentetett meg. 
+Az ország címerét (sarlós-kalapácsos címer) és a katonák egyenruháját is hozzáigazították a szovjet mintához.
+
+7. Rákosi körül személyi kultusz épült ki. Fényképe ott volt minden középület falán. Festmények, szobrok százai készültek róla, a költők verseket írtak dicsőítésére. 60. születésnapja országos ünnepséggé vált.
+
+8. Sportsikerek is a rendszer népszerűsítésére használták fel.
+ Az 1952-es helsinki olimpián a magyar csapat 16 aranyérmet szerzett és a nemzetek ranglistáján a 3. helyre került. 1953-ban épült fel a Népstadion. A magyar labdarúgás ekkor a világ élvonalában volt, a Puskás Öcsi vezényelte aranycsapat összeállítását mindenki ismerte. 
+`
+        },
+        {
+            id: "4",
+            cim: "A középkori városok",
+            szoveg: `Kialakulásuk:
+-	forgalmas utak kereszteződésénél
+-	folyó átkelőhelyeknél
+-	püspöki és földesúri székhelyeken alakultak ki a középkori városok.
+Lakói:
+A városok lakóit polgároknak nevezzük. 
+- A legvagyonosabb rétegük távolsági kereskedelemmel foglalkozott, közülük kerültek ki a város vezetői. Őket patríciusoknak nevezzük.
+- A kézművesek, iparosok saját műhellyel rendelkeztek. 
+- Az alkalmazottak, napszámosok, városi csavargók éltek még itt.
+Minden város célja, hogy megszabaduljon a földesúri uralom alól és szabad királyi város lehessen. 
+Városi kiváltságok:
+-	évi egy összegben fizetik adójukat
+-	vásártartási jog
+-	vámmentesség és árumegállító jog
+
+A nagyobb városok elérik, hogy saját önkormányzatot választhatnak. Saját bírájuk és városi tanácsuk lesz. A város vonzza a környékbeli jobbágyokat is. „A városi levegő szabaddá tesz”, mert itt nem kell robotolniuk, ajándékot adni a földesúrnak. A német jogszokás szerint a jobbágy, ha egy évet és egy napot eltöltött a városban, földesura nem követelhette vissza.
+
+A városok külső képe: 
+A várost védelmére kőfallal vették körül, de ez akadályozta a további terjeszkedést, ezért szűk kis utcák és emeletes házak (alsó szintjük kő, a felső szintek fából) épültek. A higiéniai viszonyok nagyon rosszak, a disznók gyakran az utcára dobott szemétben turkáltak. A zsúfoltság és a szemét miatt gyakoriak a nagy járványok (pestis) és a tűzvészek.
+A városok központja egy négyszög alakú piactér volt, itt állt a templom és a városháza, itt emelkedtek a patríciusok díszes házai. Az iparosok a piactérre torkolló utcákban laktak, egy-egy iparág képviselői többnyire egy utcában tömörültek. Amikor a város már nem tudta befogadni a növekvő lakosságot, a falakon kívül külvárosok keletkeztek. Itt telepedtek le a faluról menekült jobbágyok és a szegényebb lakosok. Később a külvárosokat is újabb falakkal, erődítményekkel övezték.
+Egy-egy városban átlagosan 4-5 ezer ember élt. Itáliában voltak tízezres nagyságúak is, a 40 ezer lakosú London és a százezres Párizs kivételnek számított.
+
+A céhek:
+Az azonos foglalkozást űzők érdekeik védelmében céhekbe tömörültek. A céhmesterek saját műhelyükben, saját szerszámaikkal dolgoztak, 1-2 legényt (segédet) és néhány inast foglalkoztattak. A céhekben nem volt munkamegosztás és kézi erővel dolgoztak. Nagyon jó minőségre törekedtek. Az egymás közötti verseny kiküszöbölésére (hogy senki sem menjen tönkre) szigorú szabályokat állítottak fel:
+-	megszabták az árakat
+-	a napi munkaidőt
+-	azonos nyersanyagból kellett dolgozniuk
+-	megszabták az inasok és legények számát
+-	Tiltották egymás portékájának ócsárlását és a reklámot. 
+Így nem versengtek egymással, arra törekedtek, hogy mind meg tudjanak élni. Szigorúan felléptek viszont a céhen kívüliek, a kontárok ellen.
+Mesterré csak az lehetett, aki a kötelező inas- és legényéveket letöltötte, majd vándorutat tett, ahol más műhelyeket is meglátogatott, új dolgokat tanult. Hazatérve elkészített egy mesterremeket, és ezt a céhmesterek jónak találták, akkor felvették maguk közé.
+
+Távolsági kereskedelem:
+Igazán nagy hasznot a távolsági kereskedelem hozott, ami távoli területeket kapcsolt össze. Legnagyobb ilyen a Földközi-tenger keleti medencéjében bonyolított levantei kereskedelem volt. Selymet és porcelánt Kínából, gyapotot Indiából, fűszereket az Indonéz szigetekről hoztak az arab kereskedők a Fekete-tenger kikötőibe. Tőlük az észak itáliai városok (Velence, Pizza, Genova) kereskedői vásárolták a különleges keleti árucikkeket, és magas áron adták tovább az európai királyi és fejedelmi udvarokba.
+Az Északi- és Balti-tengeri kereskedelmet az észak-német városok bonyolították le. Lübeck és Hamburg kereskedői 1161-ben szövetségbe tömörültek, több kereskedőváros csatlakozott hozzájuk, ebből nőtt ki a Hanza-szövetség, amely Londontól Novgorodig szállította a gabonát, bőrt, fát, mézet, viaszt, francia bort. Közvetítették a levantei luxuscikkeket is.  ezek az észak itáliai városokból az Alpok hágóin át jutottak el az északi kikötőkig. 
+Európa legnagyobb szárazföldi vásárát a champagne-i grófságban (sampányi) tartották.
+`
+        },
+        {
+            id: "5",
+            cim: "A tatárjárás",
+            szoveg: `II. András halála után fia, IV. Béla (1235-70) lett az uralkodó. Ő nagyapját, III. Bélát tekintette példaképének, és hozzáfogott a nagybirtokosok megfékezéséhez, a királyi tekintély visszaállításához:
+•	Már apja idejében nagyon ellenezte a királyi vármegyék eladományozását, most hozzálátott ezek visszaszerzéséhez.
+•	Elrendelte, hogy a király jelenlétében senkinek sem lehet leülni
+•	A nemesek ügyes-bajos dolgaikat nem terjeszthetik közvetlenül az uralkodó elé, hanem írásban a kancelláriára kell benyújtani.
+Mindezek következtében (de főként a birtokok visszavétele miatt) a nemesség jelentős része a király ellen fordult. Még tovább romlott a király és a birtokosok közötti kapcsolat, amikor IV. Béla haderejének megerősítésére befogadta az országba a tatárok elől menekülő kunokat.
+A kunok hatalmas marhacsordáikkal időnként legázolták a magyarok vetését, így a nép is ellenük fordult. A nemesek azt sugallták, hogy a kunok a tatárok kémei, a felbőszült nép meggyilkolta Kötönyt, a kunok vezetőjét. Erre a felháborodott kunok pusztítva kivonultak az országból, pedig haderejükre ekkor lett volna szükség a közelgő tatár támadás miatt.
+Ennek hírét 1237-ben Juliánus barát hozta, aki 4 szerzetestársával indult el a messzi keletre, hogy felkutassa a magyarok egykori szállásterületét, Magna Hungáriát és az ott maradt magyarokat. Második útjáról hazatérve jelenti a királynak a tatár fenyegetést.
+
+A Közép-Ázsia sztyeppéin élő nomád mongol törzseket Dzsingisz kán egyesítette és szervezte katonaállammá. Fő erősségük a könnyűlovasság volt, taktikájuk a cselvetés, nyilazás. Félelmetes harcosok voltak. Meghódították Belső-Ázsiát, majd Kínát, ezután Európa ellen támadtak. 1240-ben elfoglalták a kijevi fejedelemséget, és már közvetlenül Magyarországot fenyegették.
+
+IV. Béla megerősíttette az északkeleti határt, körbe hordatta az országban a véres kardot, de a főurak többsége távol maradt, nem sietett a király segítségére. Elmaradt a várt pápai és császári segítség is. A tatárok 1241-ben 3 irányból támadtak Közép-Európára:
+1.	az egyik sereg Lengyelországba
+2.	a másik Erdélybe tört be
+3.	a fősereg pedig Batu kán vezetésével Magyarországra támadt a Vereckei-hágó irányából
+IV. Béla közel 60 ezres seregével a Sajó mentén Muhinál csapott össze velük 1241. április 11-én. A magyarok helyválasztása nem volt szerencsés, a völgyben helyezkedtek el, a tatárok pedig a magaslaton. Meglepetésszerűen körbezárták a magyar tábort, felgyújtották és nyílzáport zúdítottak rá. Sokan elpusztultak, a király is nehezen tudott elmenekülni. Egy kisebb sereg állandóan a nyomában volt, egészen az Adriai-tengerig, Trau-ig üldözték.
+
+A mongol seregek 1241-ben feldúlták a Tiszántúlt és a Duna-Tisza közét. Sokszor egész falvakat irtottak ki. A lakosság a nádasokba, mocsaras helyekre menekült. 1242 telén átkeltek a befagyott Dunán, és végigpusztították a Dunántúlt is. A szemtanú Rogérius elbeszélése szerint itt a lakosság kővárakba, megerősített helyekre tudott menekülni, így kisebb mértékű volt a pusztítás.
+1242-ben váratlanul kivonultak az országból:
+1.	Ázsiában meghalt a nagykán, és Batu kán hazatért, mert bele akart szólni az új vezető megválasztásába.
+2.	A tatárok taktikájához tartozott, hogy a kiszemelt területet lepusztítják, majd egy második támadás alkalmával hódítják meg véglegesen.
+
+IV. Béla hazatért és hozzálátott az ország újjáépítéséhez:
+-Változtat a tatárjárás előtti politikáján, igyekszik megnyerni a nemeseket, ezért most már adományoz nekik földeket, de azzal a feltétellel, hogy építsenek rajta kővárakat. Ő maga járt elöl jó példával, hozzálát Buda és Visegrád építéséhez. (A kővár védelmet jelent egy újabb tatár támadás esetén, aminek a realitásával sokáig számoltak még.
+          - Az elpusztult lakosság helyére külföldi telepeseket hívott be.
+          - Visszahívta, és az alföldre letelepítette a kunokat.
+          - Kiváltságokkal segítette a városok fejlődését.
+Ezért méltán nevezik második honalapítónak.
+`
+        },
+
+        {
+            id: "6",
+            cim: "Demográfiai változások és a nemzetiségi arányok alakulása Magyarországon a XVIII. századi Habsburg Birodalomban",
+            szoveg: `I.                   Magyarország demográfiai viszonyai a török kiűzése után:
+ 
+Magyarországnak csak Habsburg segítséggel sikerül kiűzni a törököt az országból, így a Habsburg uralkodók az ország területét meghódított területnek tekintették. Magyarország 1699-ben felszabadult a kb. 150 éves török uralom alól. A török által eddig megszállt területek elnéptelenedtek. Magyarországot újra be kellett népesíteni. Ennek módjai: betelepítés, belső vándorlás, bevándorlás.
+Betelepítések: a bécsi kormány és a nagybirtokosok szervezett telepítéseiről van szó. 1720-tól főként a német birodalom déli részéről települtek hazánkba. Kedvezményeket kaptak az idejövők. A főleg katolikus németek előre megépített, szabályos alaprajzú falvakba költöztek. A német telepeseket a köznyelv sváboknak nevezte. Főként Buda környéki falvakba, a Bakonyba, Veszprémbe, Tolnába és Baranyába költöztek.
+Belső vándorlás: ebben magyar és szlovák jobbágyok vettek részt. A sűrűn lakott megyékből érkeztek az elnéptelenedett vidékekre, azaz a Felvidék egyes megyéinek falvaiba, az Alföldre és a Temesközbe.
+Bevándorlás: a Magyarország környékén élő népek beköltözéséről van szó. Legnagyobb tömegben románok jöttek be Erdélybe, az Alföld keleti részébe és a Temesközbe. A szerbek a Délvidéken Bácskába települtek be. Bevándoroltak még a ruszinok, morvák, lengyelek, örmények, görögök is. Soknemzetiségű országgá váltunk, ahol a lakosság 39 %-át teszi ki a magyarság.
+ Magyarország államszervezete a Habsburg Birodalomban:
+Magyarország a Habsburg Birodalom része, de elvben biztosították Magyarország különállását a birodalmon belül. A had-, pénz- és külügy azonban királyi felségjog volt.  Magyarország ügyeiről a kancellária döntött, mely Bécsben volt. A kamara,  Pozsonyban a pénzügyeket intézte. A Helytartótanács először Pozsonyban, majd Budán székelt.  Az országgyűlés kétkamarás: alsó- és felsőtáblából állt. Elnöke a nádor (a király helyettese). A felsőtáblán a főnemesek és a főpapok személyesen jelentek meg. Az alsótáblára a vármegyék küldték követeiket, a szabad királyi városok 1-1 követet küldhettek.  A vármegye a rendiség védőbástyája volt. Ez volt a nemesség szervezete, saját rendelkezéseket alkothatott. Élén a király által kinevezett főispán állt. Itt szavazták meg az országgyűlési követutasításokat is. Minden nemes jelen lehetett.
+ 
+Felvilágosult abszolutizmus a Habsburg Birodalomban: Mária Terézia és II. József
+ 
+MÁRIA TERÉZIA (1740-1780)
+Hatalomra kerülését apjának, III. Károlynak köszönheti, aki 1723-ban elfogadtatja a nőági örökösödést garantáló Pragmatica Sanctiót (törvényes szabályozás). Mária Terézia az osztrák örökösödési háborúban a magyar rendek segítségét kéri, akik „életüket és vérüket ajánlják fel a királynőnek”, megszavazzák az új adókat és a katonaság számára az újoncokat.
+Reformtörekvései: a felvilágosodás jegyében kormányzati és közigazgatási reformokat vezet be. Lényege: a felvilágosodás eszméinek hatására javítani akart birodalma helyzetén, de felülről kezdeményezett óvatos reformokat vezetett be, ezért tekinthető ez a felvilágosult abszolutizmus módszerének.
+ Vámrendeletében (1754) kettős vámrendszert vezetett be a birodalmon belül: belső vámhatárt állított fel a tartományok közé, hogy ne legyen vetélytársa az osztrák és a cseh iparnak, és hogy a magyar nyersanyagok és mezőgazdasági termékek a birodalom határain belül maradjanak.  
+A jobbágykérdés rendezése Urbárium rendeletében történt (1767). Meghatározza a jobbágytelek nagyságát, szabályozza a jobbágyok terheit: heti 1 nap igás, vagy 2 nap gyalogrobotot (ingyenmunkát) végezhetnek a földesúr majorságában.
+Oktatási rendelet (Ratio Educationis) 1777, melyben egységes iskolarendszert vezet be, szabályozza az oktatást, 6-12 kor között lehetőség van iskolába járásra, bevezeti az intézményes tanítóképzést és az anyanyelvi elemi népiskolákat. Korábban létrehozta a Theresianumot a magyar nemesifjak nevelésére és a magyar nemesi testőrséget is, mely a magyar nemesek hivatali és katonai előmenetelét segítette.
+ 
+II. JÓZSEF (1780-1790)
+Mária Terézia fia. Felvilágosult abszolutizmusát, elveit és kormányzási gyakorlatát jozefinizmusnak hívjuk, híveit pedig jozefinistáknak Kalapos király volt, mert nem koronáztatta meg magát: ezzel is jelezte, hogy nem ismeri el a magyar rendek jogait. Rendeletei:  türelmi rendelet – szabad vallásgyakorlatot biztosít az evangélikusok, kálvinisták és a görögkeletiek számára is. A katolikus egyházat pedig az állam alá rendeli (fordított Canossa-járás: a pápa megy II. Józsefhez), a szerzetesrendeket pedig feloszlatja. Gyarapította a plébániák számát és növelte a nép körében tevékenykedő plébánosok jövedelmét. Meg akarja adóztatni a nemesi és az egyházi birtokot, a német nyelvet hivatalos nyelvvé akarta tenni, átszervezi a közigazgatást. Az erdélyi parasztfelkelés hatására jobbágyrendeletében megszünteti a jobbágyok röghöz kötését, azaz szabadon költözködhetnek, eltörölte a jobbágy nevet, védelmébe vette a telki állományt. Népszámlálást  és birtokösszeírást rendelt el  Három rendelet kivételével  minden rendeletét (6000) visszavonta halálos ágyán (1790)
+ 
+`
+        },
+        {
+            id: "7",
+            cim: "Hunyadi Mátyás uralkodása (1458-1490)",
+            szoveg: `I. HATALOMRA JUTÁSA: 
+Mátyás apja a híres törökverő, Hunyadi János volt, aki 1456-ban a nándorfehérvári diadal után meghalt pestisben. Ezután az ellenséges bárók le akartak számolni a Hunyadi családdal.
+V. László király Hunyadi Lászlót (Hunyadi János idősebb fiát) elfogta és lefejeztette, míg a kisebbiket, a 14 éves Mátyást fogságban tartotta és Prágába vitte. 
+1458-ban V. László hirtelen halála miatt a rendek az országgyűlésen új uralkodót választanak. Szilágyi Mihály (Hunyadi János sógora) eléri, hogy Mátyást válasszák meg, aki váltságdíj, és cseh király lányával kötött házassága fejében hazajöhet Magyarországra. 
+
+II. HATALOM MEGSZILÁRDÍTÁSA: 
+Mátyás fiatal kora ellenére határozottan lát az uralkodáshoz: a bárókat háttérbe szorította ( Szilágyi Mihályt sem engedte kormányzóként működni), ezért ők új királyt akarnak, III. Frigyesnek ajánlották fel a trónt. Mátyás azonban megvédte trónját, 1463-ban egyezséget köt III. Frigyessel a Szent Korona visszaadásáról:  Fizet a Koronáért  Ha fiú utód nélkül hal meg Mátyás, akkor Habsburgokra száll a trón. 1464.03.29-ben hivatalosan is megkoronázzák Mátyást.
+
+III. ÁLLAMSZERVEZETI REFORMJAI: 
+Központosított államot hoz létre (ő irányítja az egészet) 
+1. szakképzett, királytól függő, nemesi vagy polgári származású tisztviselőket alkalmaz, pl. Ernuszt Jánost, Kinizsi Pált, Bakócz Tamást.
+2. A pénzügyek inzézésére kincstartóságot szervez, átszervezi a kancelláriát, központi bíróságot hoz létre. 
+
+IV. JÖVEDELMEI: 
+a) ismételten bevezeti a nemesfém monopóliumot 
+b) több régi adót megszüntet, mert sokan mentesülnek alóluk 
+c) bevezeti a füstpénzt: jobbágy-háztartásonként kell fizetni (hasonló a kapuadóhoz, de azt jobbágytelkenként kell fizetni; nem számított, hogy egy telken hány család élt) 
+d) a legnagyobb tételt a rendkívüli hadiadó jelenti. 
+Megnövekedett bevételei teszik lehetővé, hogy jól képzett zsoldossereget tartson fenn. Évi 750 ezer arany Ft. 
+
+
+V. HADSEREGE:  Zsoldosserege  a fekete sereg: háború esetén 15000-20000 főből állt, alapját a husziták adták. Mellettük lengyel, német zsoldosok voltak. 
+-  4 fegyvernem: nehézlovasság, könnyűlovasság, gyalogság, tüzérség. 
+Folytatta a török ellen a déli végvárrendszer kiépítését. 
+
+VI. HARCAI: 
+Török ellen: aktív védekező politika esősorban 
+- Uralma kezdetén visszafoglalja a déli végvárakat 
+-1476-ban visszaszerzi Szabácsot, 
+- 1479-ben Kinizsi Pál Kenyérmezőnél legyőzi a török sereget.  Mátyás felismeri, hogy a Magyar királyság önmagában kevés a Török Birodalommal szemben, egy nagy közép-európai birodalmat szeretne kiépíteni.
+Nyugati politika: célja a német-római császári cím megszerzésére 
+• a cseh trónt akarja megszerezni (a cseh király az egyik választófejedelem), csak Morvaország lesz az övé 
+• 1485-ben elfoglalja Bécset, és 1485-ben ide helyezi át székhelyét. 
+
+
+VII. Utódlás: dinasztiaalapításra törekedett, de nem volt törvényes örököse. Törvénytelen fiát, Corvin Jánost akarta elfogadtatni utódjának, de Mátyás halála után nem ismerik el. Az új király a cseh II.(Dobzse) Ulászló.
+
+VIII. Jelentősége:. Felesége, Beatrix révén Itáliából elterjedt hazánkban a reneszánsz kultúra. Tudós humanisták kerültek Mátyás udvarába: Janus Pannonius, Bonfini, Galeotto Marzio. Híres gyűjteménye volt a Corvina könyvtár. Elindult a könyvnyomtatás is.. 
+Mátyás király belső rendet teremtett az országban, mely gazdaságilag és politikailag megerősödött. Központosító politikára törekedett. Elhárította az országot fenyegető külső veszélyt. Jelentős uralkodó volt.
+
+`
+        },
+        {
+            id: "8",
+            cim: "Reformáció = a katolikus vallás megújítása",
+            szoveg: `Reformáció = a katolikus vallás megújítása
+1.Előzményei:
+-	a huszita mozgalom Csehországban (két szín alatti áldozást akartak borral és kenyérrel /Krisztus testét és vérét jelképezi/ ne csak a pap, hanem a hívek is áldozhassanak, valamint cseh nyelvű prédikációt követeltek).
+-	a reneszánsz (evilági örömök hirdetése) fellazítja a vallásos gondolkodást
+2.A reformáció közvetlen okai:
+1.	A főpapok fényűző palotákban éltek, az egyházi élet szabályait nem tartották be. Az alsópapság nyomorgott.
+2.	A római Szent Péter székesegyház építésére a pápa bűnbánó búcsúcédulákat bocsátott ki, amit a hiszékeny emberek megvettek bűneik feloldozására.
+3. Ez ellen lépett fel Luther Márton ágoston rendi szerzetes pap, a wittenbergi egyetem tanára. 1517. október 31-én a wittenbergi vártemplom kapujára kifüggesztette 95 pontból álló követeléseit:
+•	A búcsúcédulák eltörlése, mert a bűnt egyedül Isten bocsáthatja meg.
+•	Az egyháznak nincs szüksége nagy birtokokra feladatai ellátásához, Krisztus és az apostolok is szegények voltak.
+•	A katolikus vallás szentségeiből csak a keresztelést és az úrvacsorát tartja meg.
+•	Eltörli a gyónást, az ember közvetlenül Istennek vallja be bűneit és csak ő oldozhatja fel.
+•	Nincs szükség pápára és szerzetesrendekre.
+•	A papok házasodhassanak.
+A pápa kiátkozta Luthert, de a német fejedelmek megvédik, Bölcs Frigyes Wartburg várában látszat- fogságban tartja, hogy ne essen bántódása. Luther itt lefordítja német nyelvre a Bibliát. Tanításai a könyvnyomtatás segítségével gyorsan terjedtek. Németország nagy része, Csehország és Skandinávia áttér az ő hitére.
+A következő években nagy vallásháború indul, a pápa szeretné visszaszorítani Luther követőit, a pápa mellett áll a császár is. Ellenük harcolnak a német fejedelmek, akik elvették az egyházi földeket (szekularizálták), így hasznuk származott a reformációból. Ők tiltakoztak = protestáltak a pápa fellépése ellen, ezért nevezzük protestánsoknak őket. A vallásháborúk végén 1555-ben Augsburgban békét kötnek, ami szerint a földesurak maguk választhatják meg vallásukat, a jobbágyok pedig földesuruk vallását kötelesek követni.
+Németországban a parasztság körében megjelent egy másik irányzat, az újrakeresztelkedők, anabaptisták, akik elvetették a csecsemőkeresztelést, vagyoni egyenlőséget hirdettek. Vezetőjük Müntzer Tamás. Ebből parasztháború robbant ki, amit a német fejedelmek levertek.
+4. A svájci reformáció
+Luther újításai a német fejedelmek érdekeit szolgálták, mert megszerezték az egyházi birtokokat. Svájcban a városi polgárság több változást szeretne. Az ő érdekükben tevékenykedett Kálvin János francia származású genfi prédikátor, aki megalapította a református egyházat.
+Kálvin tanításai:
+•	predesztináció (eleve elrendelés tana): Isten már születésünkkor eldöntötte, hogy pokolba vagy mennybe szánt-e.
+•	megszüntetik a sok egyházi ünnepnapot a naptárban, hogy a polgárok többet dolgozhassanak.
+•	Szegényebb egyházat akart, fehérre meszelik a templomokat, kiszórják a képeket, szobrokat.
+•	Az egyházat köztársasági mintára szervezik meg, a polgárok is beleszólhassanak az egyház ügyeibe választott képviselőik, a presbiterek révén.
+
+5. Szentháromság-tagadók
+Egy spanyol orvos, Servét Mihály továbbfejleszti Kálvin tanításait. Isten egy és oszthatatlan, ezért tagadja a Szentháromságot (Atya, Fiú, Szentlélek). Kálvin János máglyahalálra ítéli Servét Mihályt. Hívei Erdélybe menekülnek, s Európában csak ott gyakorolhatták vallásukat. Későbbi elnevezésük: unitáriusok.
+[KEP:img/toritablazat.png]
+6. Az ellenreformáció
+A katolikus egyház harcot indított, hogy híveit visszaszerezze a reformációtól.
+1545-ben Trident városában egyházi tanácskozást, zsinatot hívtak össze, ahol a következő döntéseket hozták:
+•	Betiltják a búcsúcédulák árusítását.
+•	A főpapok kötelese az egyházmegyéjükben tartózkodni, és felügyelni az alsópapság erkölcseit.
+•	Összeállították a tiltott könyvek (Luther, Kálvin írásai) listáját, az indexet.
+•	Félelmetes egyházi bíróságot szerveztek, az inkvizíciót, ami máglyára küldte a reformáció követőit. Spanyolországban, Portugáliában szinte 100%-ban visszatérítették az embereket a katolikus hithez.
+•	Iskolákat alapítanak, ahol jól képzett papokat nevelnek.
+•	Megalapították a jezsuita rendet, amelynek papjai tűzzel-vassal térítették vissza az embereket.
+Megszületik a barokk stílus, amelyben hatalmas méretű (monumentális) túldíszített templomokat építettek, amelyek Isten gazdagságát hirdetik, a látvánnyal próbálják visszacsalogatni az embereket a katolikus egyházhoz.
+
+
+`
+        },
+        {
+            id: "9",
+            cim: "Széchenyi és Kossuth reformprogramja",
+            szoveg: `A reformkor (1825-1848) jelentős politikusai: Széchenyi István, Kossuth Lajos, Wesselényi Miklós (ő az árvízi hajós is egyben) és Deák Ferenc változásokat, az ország fejlődését akarták.
+
+Széchenyi István gazdag főnemesi családból származott. 
+Apja, Széchényi Ferenc a Nemzeti Múzeum és az Országos Széchényi könyvtár megalapítója. 
+Széchenyi fiatal korában részt vett a Napóleon elleni háborúkban. A lipcsei csatában futárszolgálatot teljesített. Ezután utazgatni kezdett, bejárta Európát Törökországtól Angliáig. Különösen Anglia ragadta meg, ahol látta az ipari forradalom eredményeit, ez rádöbbentette saját hazája elmaradottságára. Angliában 3 dolgot tartott különösen figyelemreméltónak: 
+•	a gyárakat
+•	a parlamenti rendszert
+•	és a lóversenyzést
+Amikor hazatért, hozzálátott programja megvalósításához.
+Az 1825-ös országgyűlésen Széchenyi birtokainak 1 éves jövedelmét felajánlotta az Akadémia megalapítására.
+Az angol társasági élet mintájára Széchenyi megalapította a Nemzeti Kaszinót, és beindította a lóversenyzést → ezzel lehetőséget teremtett, hogy a nemesség találkozhasson, politizálhasson.
+Birtokait korszerűsíteni akarta, ezért egy bécsi bankhoz fordult hitelért, de a bank ezt elutasította.
+Emiatt írta meg a Hitel című művét 1830-ban. Ebben azt mondja:
+—	a magyar nemes sokkal szegényebb, mint birtokai alapján lehetne. → Ennek az az oka, hogy nem kaphat hitelt a korszerűsítésre, → mert az ősiség törvénye nem teszi lehetővé. (A törvény kimondja, hogy a nemesi birtokot sem eladni, sem eladományozni nem lehet, ha a család kihal, a birtok vissza száll a királyra → tehát nem lehet jelzáloggal terhelni.)
+—	a legfőbb feladat ezért az ősiség törvényének eltörlése, korszerűsítés, gépesítés a birtokokon
+—	a jobbágyok robotmunkája helyett Széchenyi szerint szabad bérmunkásokat kellene alkalmazni
+—	a Hitel azzal fejeződik be: „Sokan azt gondolják, hogy Magyarország volt… én azt szeretném hinni, hogy lesz!”
+Későbbi könyvei a Világ,  1833-ban megírta a Stádiumot, itt 12 pontban foglalta össze programját (az ősiség eltörlése, a nem nemesek is szerezhessenek földtulajdont, törvény előtti egyenlőség, mindenki adózzon (=közteherviselés), a magyar nyelv hivatalossá tétele.)
+Nagyon jelentős a gyakorlati tevékenysége:
+•	Ő kezdeményezi a Lánchíd építését William Clark tervei alapján és Clark Ádám kivitelezésében, hogy Pestet és Budát állandó híd kösse össze. 
+•	A kereskedelem fellendítésére javasolja a Tisza szabályozását, ami Vásárhelyi Pál tervei alapján indul meg. Az Al-Dunán a Vaskapu-szorosban zátonyokat robbantanak fel, így hajózhatóvá válik a folyó a Fekete tengerig. 
+•	A dunai és balatoni gőzhajózás beindítása, a pesti hengermalom megalapítása fűződik még Széchenyi nevéhez.
+•	A pesti hengermalom építése, selyemhernyó tenyésztés beindítása.
+Kossuth méltán nevezte őt a „legnagyobb magyarnak.”
+
+
+
+
+Kossuth Lajos 1802-ben született Monokon, kisnemesi családban. Apja ügyvéd volt, ő is jogot tanult.
+	Közéleti pályája az 1832-36-os országgyűlésen kezdődött, amikor távollevő zempléni főurak kérték meg, levélben tájékoztassa őket az országgyűlés eseményeiről. Úgy gondolta az országgyűlés zárt üléseiről nem csak a főurakat, hanem az egész ország közvéleményét kellene tájékoztatni. Bevonta ebbe a pozsonyi joghallgató egyetemistákat is, ők jegyzeteltek, és segítettek kézírással másolni a cenzúra kikerülésével írt kéziratos újságot, az Országgyűlési Tudósításokat. Ezt a munkát tovább folytatta a vármegyében is, ott Törvényhatósági Tudósítások címmel adja ki lapját. Ezt betiltják, őt magát perbe fogják és 1837-ben letartóztatják.
+	A börtönben megtanul angolul és közgazdasági könyveket tanulmányoz. 1840-ben szabadult ki. Az 1840-es években már ő a hazai politika vezéregyénisége.
+	1840-ben az induló Pesti Hírlap szerkesztője lesz, a bécsi udvar úgy gondolta, a cenzúra segítségével könnyebben szemmel tarthatják. Ezzel a lappal megteremti Magyarországon a politikai újságírást és a vezércikk műfaját. Kitűnő szónoki képességeit újságíróként is jól kamatoztatja. A lap példányszáma neki köszönhetően a kezdeti 60-ról hamarosan 4 ezerre növekedett. Ebben fejtette ki politikai programját:
+1. Érdekegyesítés: a társadalom minden rétegét megnyerni a reformok ügyének.
+2. Kötelező örökváltság: a jobbágyok felszabadulását az állam fizetné ki a földesuraknak.
+3. Közteherviselés: vagyis a nemesség is adózzon.
+4. Politikai jogokat kell adni a népnek, hogy ők is választópolgárok lehessenek.
+5. Kossuth kezdetben a szabad kereskedelem híve volt, majd rájött arra, hogy ha létrejön a német vámunió, (a zollferein), ez a magyar ipart teljesen tönkretenné. Kossuth szerint védővámokat kell felállítani.
+1844-ben megalapítja a Védegyletet, amelynek tagjai megfogadták, hogy hat évig csak a magyar ipar termékeit vásárolják, akkor is, ha azok drágábbak vagy gyengébb minőségűek, mint a külföldi.
+6. Politikai programjának fontos pontja az iparfejlesztés. Hazai manufaktúrákat kell alapítani, majd meg kell teremteni a hazai gyáripart, mert „Ipar nélkül a nemzet félkarú óriás”.
+7. Az ipar mellett a kereskedelem fellendítését is fontosnak tartotta. Fiume kikötőjét akarta fejleszteni, hogy a magyar árukat tengeren külföldre vihessék.
+
+Kossuth és Széchenyi vitája:
+Széchenyi Kossuth több elképzelésével nem értett egyet.
+Míg Kossuth a köznemességet szánta a reformok vezetőjének, addig Széchenyi a főnemességet. Széchenyi a bécsi udvarral egyetértésben akarta a változásokat, bírálta Kossuth merész hangnemét, forradalmiságát. 
+Széchenyi a Kelet népe című művében indította a támadást. Kossuth válaszolt rá, és a közvélemény is az ő pártjára állt, Széchenyi elszigetelődött.
+
+Kossuth később Batthyány-kormány pénzügyminisztere Széchenyi pedig közlekedési minisztere lett.
+
+`
+        },
+        {
+            id: "10",
+            cim: "A sztálini diktatúra a Szovjetunióban",
+            szoveg: `1922-ben véget ért a polgárháború, a bolsevik párt megszilárdította hatalmát. Decemberben 16 tagköztársaság részvételével (Ukrajna, Belorusszia, Örményország, Grúzia, Azerbajdzsán, stb.) megalakul a Szovjetunió.
+A párt vezetésében azonban kemény hatalmi harc bontakozott ki. Lenin ekkor már halálos beteg volt, posztjáért Sztálin és Trockij is versengett.
+1. Trockij a Vörös Hadsereg megszervezője, kitűnő szónok, világforradalmár. 
+2. Sztálin zárkózott, bizalmatlan ember hiányzott belőle Lenin józansága, diktátori hajlammal rendelkezett. Saját személyes hatalmának kiépítésére törekedett, fontos pozíciókba saját embereit ültette. Ezt Lenin is felismerte, javasolta a leváltását, de Sztálin megakadályozta leveleinek nyilvánosságra hozatalát.
+1924- ben Lenin halála után politikai végrendeletét nem hozták nyilvánosságra, Sztálin pedig magát tüntette fel örökösének és eszmei folytatójának. Le akart számolni ellenfeleivel, elsőként a világforradalmat hirdető Trockijjal. Sztálin azt állította, hogy a szocializmust egyetlen országban is fel lehet építeni, ez megköveteli a hatalom koncentrációját.
+Trockijt és híveit kizárják a pártból, Trockij emigrált és Az elárult forradalom c. könyvében leleplezte a sztálinizmus hibáit.1940-ben Mexikóban a szovjet titkosszolgálat meggyilkolta.
+
+1928-tól kezdetét vette a szocialista tervgazdálkodás: 5 éves tervek keretében akarták a Szovjetuniót modern ipari állammá alakítani.
+1.	A nehézipar fejlesztését tűzték ki célul, mert ez a fegyvergyártás alapja.
+2.	A fogyasztási cikkeket gyártó könnyűipart viszont elhanyagolták, a lakosság élet-színvonala továbbra is alacsony maradt.
+3.	1928-ban hozzáláttak a mezőgazdaság szocialista átszervezéséhez. A paraszti birtokokból szövetkezeteket, kolhozokat alakítottak, a szegényparasztokat erőszakkal kényszeríttették a belépésre. A gazdag parasztokat a rendszer ellenségének nyilvánították, munka-táborokba GULAG-okba küldték őket, ez több mint 1 millió embert érintett. A mező-gazdasági termelés emiatt visszaesett, a 30-as években Ukrajnában több millió ember halt éhen.
+
+1934 januárjában a bolsevik párt 17. kongresszusán bátortalan kísérletet tettek Sztálin eltávolítására. Többen azt tervezték, hogy a leningrádi párttitkárt, Szergej Kirovot választják meg a párt élére. A szavazáson Kirov 3, Sztálin majdnem 300 ellenszavazatot kapott, de hívei meghamisították az eredményeket. Sztálin ezután elhatározta, hogy leszámol a párton belüli ellenfeleivel is:
+-	A kongresszus 1966 küldötte közül több mint 1000-et letartóztattak, többségüket agyonlőtték. A népszerű Kirovot is meggyilkolták.
+-	A 30-as évektől koncepciós pereket rendeztek, ahol koholt vádak alapján (árulás, kémkedés) sokakat letartóztattak. Az ítélet már a tárgyalás megkezdése előtt kész volt (többnyire halálbüntetés), a tárgyalás már csak színjáték volt, hamis tanúkat vonultattak fel, vagy a vádlott kínzások után „beismerő” vallomást tett. A pártvezetők közül ilyen perben ölték meg Kamenyevet, Zinovjevet és Buharint.
+-	Perbe fognak gazdasági vezetőket: szocialista nagyüzemek, gyárak igazgatóit, általában a terv nem megfelelő teljesítése miatt.
+-	1934-ben a tisztogatás elérte a hadsereget is: 822 ezredes és tábornok közül, 711-et kivégeztek. Általánossá vált a terror, milliókat hurcoltak el otthonukból.
+Sztálin kezében rendkívüli hatalom összpontosult, ő volt a párt főtitkára és az államfő is. Az elért eredményeket saját érdemének tüntette fel, dicsőíteni kellett, személyi kultuszt épített ki maga körül.
+`
+        },
+        {
+            id: "11",
+            cim: "Az Európai Unió",
+            szoveg: `1946-ban Churchill zürichi beszédében Európai Egyesült Államokról beszélt.
+Az európai integráció az 1950-es Schumann-tervvel indult. A 6 országot összefogó együttműködés legfontosabb elemét a német-francia kapcsolat jelentette, hiszen 1945-ig még háborús ellenfelek voltak. 1950. május 9-én Robert Schumann francia külügyminiszter előterjesztette a megbékélésről és az európai együttműködésről szóló tervét, felvázolta a „konkrét lépések politikáját". Ezzel egyetértett Konrad Adenauer német kancellár is (azóta ez a nap az Európa-nap).
+ 
+A Montánunió létrejötte:
+- 1951-ben Franciaország és (Nyugat-) Németország között jött létre az Európai Szén- és Acélközösség (Montánunió)
+-  Montánunióhoz csatlakozott Olaszország és a Benelux-államok
+
+Az Európai Gazdasági Közösség (EGK) létrejötte és működése:
+- 1957  Római Szerződés: Európai Gazdasági Közösség (EGK) létrehozása 
+- Az EGK létrehozásának céljai:
+•	Tartós béke és biztonság 
+•	Belső piac megteremtése
+•	Áruk, szolgáltatások, tőke, személyek szabadon áramolhatnak
+•	Nemzeti, vallási, kulturális sokszínűség megőrzése
+
+-  Az EGK eredményei 1970-ig:
+•	Vámunió jött létre
+•	Közös agrárpolitika
+•	Regionális fejlesztések:
+
+- Területi bővülések 
+•	1973: Nagy-Britannia, Dánia, Írország
+•	1981: Görögország
+•	1986: Spanyolország, Portugália
+
+ 2. Az Európai Unió (EU) létrejötte
+-  1993 Maastrichti Szerződés
+•	A gazdasági integrációt tovább bővítették
+•	Közös kül- és biztonságpolitikát alakítottak ki
+•	Közös bel- és igazságügyi politikát hoztak létre
+-  új neve Európai Unió (EU) 
+
+-   Adatok Európai Unióról:
+•	Tagállamok száma: 28-1
+•	Hivatalos nyelv: 24
+•	Jelképei:
+o	kék zászló, közepén 12 körben elhelyezkedő sárga csillag
+o	himnusz (Beethoven 9. szimfóniájának negyedik tételéből az Örömóda)
+o	az egységes európai valuta az €
+o	Európa Nap: május 9.
+
+- Területi bővülések az EU időszakában:
+•	1995: Ausztria, Finnország, Svédország
+•	2004: Magyarország, Csehország, Lengyelország, Szlovákia, Észtország, Lettország, Litvánia, Málta, Ciprus, Szlovénia
+•	2007: Bulgária, Románia
+•	2013: Horvátország
+
+ 3. Az Európai Unió legfontosabb intézményei
+Európai Unió Tanácsa:
+-  Az EU fő döntéshozó szerve
+-  Székhelye: Brüsszel
+-  közös kül- és biztonságpolitika, adózás, menekültügy, bevándorlás esetében az egyes tagállamoknak vétójoguk van
+-  A többi döntés elfogadásához legalább 255 szavazatra és a tagállamok több mint felének támogatására van szükség, a határozatokat az Európai Bizottság javaslatára hozzák.
+-  Minden más esetben a Tanács minősített többségi döntéséhez a tagállamok legalább kétharmadától származó 255 szavazatra van szükség.
+ 
+Európai Tanács:
+-  legjelentősebb politikai döntéshozó
+- tagjai az EU állam- és kormányfői
+-  Elnöke: a soros elnökségi funkciót ellátó ország miniszterelnöke
+-  évente általában négyszer hívják össze
+
+Európai Parlament:
+-  Az Unió polgárai által közvetlenül választott képviselőtestület
+-  feladata a kinevezés és ellenőrzés
+- részt vállal a költségvetés meghatározásában
+- székhelye: Strasbourg
+- képviselői helyek számának meghatározásánál a népességszám a meghatározó
+ -Parlament jelenlegi létszáma 751, Magyarország 21 képviselőt küldhet
+
+Európai Bizottság:
+- Az Európai Unió Tanácsa és az Európai Parlament döntéseit készíti elő, és hajtja végre.
+- Székhelye: Brüsszel
+-  szupranacionális intézmény
+-  minden ország 1 biztost jelölhet
+-  feladatai:
+•	 jogszabályokat kezdeményez
+•	őrködik a közösségi jog,  a szerződések betartása felett
+•	végrehajtja az uniós politikákat
++ ezeket még kiegészíti a közösségi pénzügyek kezelése
+ 
+Európai Unió Bírósága(i):
+Az Európai Unió igazságszolgáltatási szervei:
+•	az Európai Bíróság
+- Elsőfokú Törvényszék
+-  A székhelye: Luxemburg
+-  minden egyes tagállam rendelkezik a bíróállítás jogával
+-  munkáját főügyészek segítik
+- hatásköre: a tagállamok, a közösségi intézmények kötelezettségeinek teljesítésével kapcsolatos jogviták 
+ 
+Európai Számvevőszék
+- Az Európai Unió pénzügyi érdekeit képviselő szerv, 1977-ben kezdte meg működését
+- Feladata az Unió kiadásainak és bevételeinek, felhasználásának ellenőrzése
+-  Székhelye: Luxemburg
+ 
+Európai Központi Bank:
+- feladata: a közös pénz, az euró kibocsátása, működtetése és stabilitásának megőrzése 
+- Székhelye: Frankfurt
+ 
+Európai ombudsman:
+-  megválasztása és kinevezése az Európai Parlament hatásköre
+- feladata: a hozzá beérkezett egyéni panaszok kivizsgálása
+ 
+`
+        },
+        {
+            id: "12",
+            cim: "A Kádár-korszak",
+            szoveg: `Kádár János tagja volt Nagy Imre kormányának 1956-ban, de november elején titokban Moszkvába utazott, és szovjet tankokkal tért haza. Az ő kezébe került a főhatalom. A Kádár-rendszer az 1956 és 1988 közti időszakot jelenti, amikor Kádár János volt az MSZMP (Magyar Szocialista Munkáspárt) első titkára. 
+A forradalmat szigorú megtorlások követték:
+- 300 forradalmárt kivégeztek (köztük Nagy Imrét és Maléter Pál honvédelmi minisztert, Tóth Ilona orvostanhallgatót, Mansfeld Pétert)
+- 22 ezer ember börtönbe került 
+- 200 ezer ember disszidált
+- 1956-ot ellenforradalomnak bélyegezték, nem volt szabad róla beszélni.
+- Besúgó hálózat működött, III/III-as ügynökök megfigyeltek szinte mindenkit, és erről jelentést írtak.
+A Kádár-korszakban megmaradt az egypártrendszer, Szovjetuniónak alárendelt külpolitika, de módszerei enyhébbek, mint a Rákosié: nincs nyílt terror és nincs személyi kultusz, javultak az életkörülmények: „puha diktatúra”. 
+•	Országos szervek: a Magyar Népköztársaságot az állampárt, vagyis a Magyar Szocialista Munkáspárt (MSZMP) irányította és ifjúsági szervezetük a KISZ (Kommunista Ifjúsági Szövetség), fegyveres testületük a Munkásőrség. Az ÁVH megszűnt. Emellett úttörőmozgalom volt a gyerekeknek.
+•	Kettős országvezetés: a hagyományos szervek mellett, mint parlament vagy kormány, létezett egy másik rendszer is: a pártszervezet. Ennek élén állt a pártfőtitkár (Kádár), és a Központi Bizottság illetve a megyei, városi pártfőtitkárságok, városi tanácsok. Létezett még az Elnöki Tanács is, mely a pártszervek közt helyezkedett el és a legfontosabb ügyekben döntött.
+•	Tervgazdálkodás szerint működött a gazdaság.
+
+A konszolidáció kora: 
+Az 1960-as évek elejétől a lakosság megnyerésére törekedtek. Jelszavuk: „Aki nincs ellenünk, az velünk van.” Alapvető program lett a jólét biztosítása, az emberek életkörülményeinek javítása.
+-	Csökkentették a nehézipari beruházások arányát, hogy több pénz jusson a lakosság jólétét biztosító iparágakra. A bányászat, kohászat helyett a vegyipar lett fontosabb.
+-	1959 ás 1961 között hajtották végre a mezőgazdaság újbóli kollektivizálását, téeszeket és állami gazdaságokat szerveztek, de megengedték mellette a háztáji gazdálkodást. (A vidékiek munkaidő után állatokat gondoztak, kertben vagy fóliasátorban dolgoztak). Mindez biztosította az ország élelmiszer-ellátását.
+-	A gépesítés miatt kevesebb munkaerőre volt szükség a földeken, a fiatal generáció tömegesen hagyta el a falut, az iparban kezdett dolgozni.
+-	1968-ban bevezették az új gazdasági mechanizmust. Kidolgozói Nyers Rezső és Fock Jenő. Ez a piacgazdaság néhány elemét próbálta a tervgazdaság (5 éves tervek) merev rendszerébe vegyíteni: pl. önálló vállalati kezdeményezések, magánvállalkozások a szolgáltatásokban, de alapvető fogyasztási cikkeknél maradtak a kötött árak, nem engedték a kiugróan magas béreket, fontos volt a teljes foglalkoztatás (aki nem dolgozik → közveszélyes munkakerülő). /1974-re leállították, mert rájöttek, hogy kikezdi a pártállam működését./
+
+
+A „gulyáskommunizmus”
+	 1957-1978 között a reálbérek kétszeresére nőttek → nő az élelmiszer-fogyasztás („gulyáskommunizmus”)
+	az emberek tartós fogyasztási cikkeket vásároltak (mosógép, rádió, televízió, autó) =„frizsiderszocializmus”
+	általánosan elterjedt a nyaralás szokása
+	divattá vált a hétvégi telek
+	A többi szocialista országhoz képest jobban éltek → mi voltunk a „legvidámabb barakk”.
+
+A jólét ára
+	a legtöbb ember túlórázott, a "második gazdaságban" = mellékállásban próbálta jövedelmét kiegészíteni. 
+	Ennek a feszített élettempónak főleg a népegészség romlása lett a következménye  különösen a középkorú férfiak halálozási arányai romlottak.
+	A gépkocsi és más tartós fogyasztási cikkek iránti felfokozott vágyakozás egyre inkább háttérbe szorította a gyerekvállalást: a családokban folyamatosan csökkent a gyermekek száma („előbb a kocsi, aztán a kicsi”) 
+	Eltűnt a nagycsalád, az egy-két gyermekes családok váltak jellemzővé. Növekedett a válások száma (1978-tól a válások száma meghaladta a házasságkötések számát), megkétszereződött a házasságon kívüli kapcsolatok száma.
+
+Kultúrpolitika
+	A hatvanas-hetvenes években a kultúrpolitika legfőbb irányítója Aczél György volt. A kádári kultúrpolitika legfontosabb elvének az ún. „három T” számított: művészeti alkotások egy részét támogatták, másik részét csak tűrték, (pl. rockzene) az „ellenséges” alkotásokat pedig tiltották. Öncenzúra működött: az író nem írt le olyat, amiről feltételezte, hogy, nem jelenhet meg, esetleg kiváltja a hatalom megtorlását. 
+
+A Kádár-korszak válsága:
+•	A Közel-Kelet háborúi miatt olajárrobbanás történt 1973-ban. Az olaj és ezen keresztül a benzin ára megemelkedett, a Szovjetunió is drágábban adta Magyarországnak. Ezzel lelassult nálunk a gazdasági növekedés, majd a 80-as évekre stagnált (nem nőtt és nem is csökkent). Kádárék titokban külföldi kölcsönöket kezdtek felvenni, eladósodott az ország.
+•	A 80-as évek elején újabb reformokkal kísérleteztek: engedélyeztek kisebb magánvállalkozásokat és újra növelték a vállalatok önállóságát. Ám ez sem oldotta meg a problémákat. A lakosság elégedetlen volt .
+
+•	A válság jelei: a) Szamizdat irodalom alakul ki, pl.: Figyelő, Demokrata, melyet százezrek olvasnak b) Bős-Nagymarosi vízlépcső ellen tüntetések zajlanak 1989-ben c) Taxisblokád a nagy benzinár emelések ellen (1990)
+Pozsgay Imre kijelenti a médiában, 1989 januárjában: 1956 nem ellenforradalom volt
+A reformkommunisták előretörnek, 1988 májusában a pártkongresszus úgy váltja le Kádárt a főtitkári címról, hogy pártelnökké nyilvánítja, ez a korábban nem létező pozíció semmiféle jogkört nem adott neki. Utóda Grósz Károly lett. Rá egy évre, 1989 nyarán (július 6-án) Kádár meghal. Véget ér a "kádár-korszak" is.
+`
+        },
+
+        {
+            id: "13",
+            cim: "A politikai intézményrendszer fő elemei",
+            szoveg: `I. A rendszerváltás
+
+A szocialista világrendszer az 1980-as évek végére omlott össze. Fő oka az eladósodás, a rendszer merevsége, a Szovjetunió nem tudta tartani a versenyt az amerikai csillagháborús programmal.
+1. Mihail Gorbacsov, az SZKP főtitkára (1985-1991) felülről kezdeményezett reformokat indított el a válság megoldása érdekében:
+„nyíltság” (glasznoszty): a hibák nyílt feltárása és„átalakítás” (peresztrojka): a gazdaság és a társadalom modernizálása. Ez a folyamat a keleti tömbben is megindul, s 1989-től szabad utat kapnak ezek az országok a Szovjetuniótól.
+
+2.  1987-től ellenzéki pártok szerveződnek Magyarországon. 
+1987-ben Lakitelek lesz a Magyar Demokrata Fórum szerveződésének színhelye. Szabad választásokat követelnek. Szervezői: Antall József, Lezsák Sándor 
+1988-ban létrejön a FIDESZ, azaz a Fiatal Demokraták Szövetsége Orbán Viktor, Kövér László szervezésében. 
+1988-ban megalakul a Szabad Demokraták Szövetsége (SZDSZ) Göncz Árpád, Magyar Bálint szervezésében. 
+Az ellenzéki erők fellépnek a bős-nagymarosi vízlépcső vagy a romániai falurombolás ellen.
+
+3.  Ezután az MSZMP (Magyar Szocialista Munkáspárt) változtatni próbál. Reformkommunisták veszik kezükbe a hatalmat, akik a békés átmenet hívei: Grósz Károly, Németh Miklós, Pozsgay Imre, Szűrös Mátyás, Nyers Rezső. 1989 januárjában Pozsgay   Imre   népfelkelésnek   minősíti   az   1956-os eseményeket.  1989-ben elismerik a többpártrendszert, s nemzeti kerekasztal-tárgyalások veszik kezdetüket az MSZMP és a demokratikus pártok között. 1989. június 16-án történik Nagy Imre és társainak újratemetése.
+1989. szept. 10-én Magyarország megnyitja határait nyugaton a keletnémet menekültek előtt. A vasfüggönyt felszámolták. 
+
+
+Magyarország államformája köztársaság lett: 1989. október 23-án hirdette ki az új államformát Szűrös Mátyás akkori ideiglenes köztársasági elnök. 
+
+1990. tavaszán választásokat tartottak, 6 párt jutott be a parlamentbe: MDF 42%, SZDSZ 23%, FKGP 11%, MSZP 8,6%, FIDESZ 5,45, KDNP 5,4 % Az MDF, az FKGP és Kereszténydemokrata Néppárt koalícióra lépett egymással, így 59,5 %-öt  szereztek  meg.  Antall  József /MDF/  alakított  kormányt.   
+
+A választási rendszer:
+A rendszerváltás óta vegyes választási rendszer van érvényben: a polgárok külön szavazhatnak a pártok listájára és az egyéni jelöltekre. (A vegyes rendszer elősegíti, hogy stabil kormányzás jöhessen létre) Eleinte nagy létszámú volt a parlament (390 képviselő). 2012 óta 199 képviselő közül 106 egyéni választókerületből, 93 pedig a pártok listájáról kerülhet az Országgyűlésbe.
+A választásokon többséget szerző párt vagy koalícióalkíthat kormányt. A kormány zavartalan működédének feltétele a mandátumok 51 %-ának megszerzése.
+
+
+A három fő hatalmi ág:
+1.	Törvényhozás
+A törvényhozói hatalom az egykamarás országgyűlés (parlament) kezében van, képviselőit 4 évre választják. Az országgyűlés feladata:
+- a törvények megalkotása
+- a kormány tevékenységének ellenőrzése
+- itt fogadják el a kormány által beterjesztett költségvetést
+- az országgyűlés választja a köztársasági elnököt, az Alkotmánybíróság tagjait, a Nemzeti Bank elnökét, a Legfelsőbb Bíróság elnökét és a legfőbb ügyészt.
+A törvényeket a képviselők 50% + 1 fővel kell megszavazni, de vannak 2/3-os törvények is.
+A parlamnetben bizottságok is működnek: állandó bizottságok a külügyi, nemzetbiztonsági, költségvetési bizottság és vannak alkalomszerű bizottságok is.
+A parlamenti munka plenáris üléseken és különböző bizottságokban folyik, két ún. rendes ülésszakot tartanak évente (febr. 1-től – június 15-ig, illetve szept. 1-től – december 15-ig.)
+
+2011 áprilisában a magyar országgyűlés elfogadta az új alktmányt, amely 2012. január 1-jén lépett életbe, majd később több módosításon ment keresztül.
+Az Alkotmány az ország alaptörvénye, amely kimondja az állampogárok alapvető jogait és kötelességeit, meghatározza az államszervezetrevonatkozó szabályokat. A legmagasabb szointű jogforrás, minden más jogszabály ebből vezethető le, így az Alaptörvénnyel semmilyen jogszabály nem lehet ellentétes.
+
+
+
+2. A végrehajtó hatalmat a parlamentnek felelős kormány gyakorolja. Élén a miniszterelnök áll, akit a választásokon győztes párt jelölhet, és a köztársasági elnök nevezi ki. A miniszterelnök alakít kormányt a választások után, ennek tagjai a miniszterek, az ő helyetteseik az államtitkárok. Minden területnek megvan a saját minisztériuma, pl. pézügy-, külügy-, földművelési és vidékfejlesztési, , nemzeti erőforrások minisztériuma.
+
+
+A 3. hatalmi ág az igazságszolgáltatás
+- a független bíróságok látják el ezt a feladatot
+- az ügyészség feladata a vád képviselete, a védelmet ügyvédek látják el. 
+- 1990-től működik az Alkotmánybíróság, amely megsemmisíti az alkotmányellenes törvényeket, elbírálja a hozzá benyújtott alkotmányossági panaszokat. Határozata mindenki számára kötelező, ellene fellebbezési lehetőség nincs. Tagjai jogi végzettségű, legalább 20 évi szakmai gyakorlattal rendelkező jogászok lehetnek. Megbízatásuk 9 évre szól.
+- Emellett működik még a Legfelsőbb Bíróság, a Fővárosi Bíróság, megyei, járási  és városi bíróságok. 
+
+
+Magyarország államfője a köztársasági elnök, aki kifejezi a nemzet egységét. Jelenleg Áder János tölti be. Az országgyűlés 5 évre választja (1-szer újraválasztható). 
+- reprezentatív és diplomáciai feladatai vannak
+- vétójoga van a törvényekkel kapcsolatban, 1-szer visszaküldheti a parlamentnek
+- ő nevezi ki a miniszterelnököt és a minisztereket
+- kegyelmet gyakorolhat
+
+A parlamentben működnek az állampolgári jogok biztosai, az ombudsmanok, akik a személyiségi, adatvédelmi, kisebbségi jogok védelmét szolgálják.
+
+A helyi hatalom az önkormányzatok kezében van. Feladatuk:
+- a helyi közszolgáltatások biztosítása (pl. iskolák, óvodák működtetése, szociális ellátás, út és ivóvízhálózat, hulladékszállítás megoldása)
+Az önkormányzat élén a polgármester áll, 5 évenként közvetlenül választják a képviselőtestület tagjaival együtt. 
+A képviselők száma a település nagyságától függ. A döntés-előkészítést a jegyző végzi, ő a felelős a törvényesség betartásáért is.
+Az ezer fő alatti kistelepülések általában nem képesek saját polgármesteri hivatalt fenntartani, ezért körjegyzőséget hoznak létre. (= 1 jegyzője van több településnek.)
+A helyi önkormányzatok felett áll a megyei önkormányzat. Budapesten kétszintű önkormányzat működik: 
+1. szint: kerületenként; 2. szint: fővárosi önkormányzat, élén a főpolgármesterrel (Karácsony Gergely).
+
+`
+        },
+        {
+            id: "14",
+            cim: "Az athéni demokrácia",
+            szoveg: `Athén az attikai félszigeten található, a ionok alapították (ejtsd: jónok), területe kb. 2200 km2.
+A hagyomány szerint a Kr.e. 8. századig királyság volt, legjelentősebb uralkodója Thészeusz.
+Később az arisztokraták vették a kezükbe az irányítást. Közülük választották az állam vezetőit: évente 9 arkhónt. A volt arkhónok bekerültek az areioszpagosz tanácsába. / Nevüket onnan kapták, hogy Árész hadisten dombján tartották a tanácskozásaikat./
+A kereskedők, iparosok nem szólhattak bele a város ügyeibe.
+
+Görög gyarmatosítás:
+A 7. századra a poliszok túlnépesedtek, munkanélküliség és az adósrabszolgaság sújtotta őket. Emiatt a népesség egy része elköltözött, új városokat alapítottak. Anyavárosukkal jó kapcsolatban maradtak, élénk kereskedelmet folytattak, ez a démosz egy részét gazdaggá tette, ők harcot indítottak, hogy politikai jogokat szerezzenek.
+
+Athénban az első eredményt Drakón arkhón idejében érték el.
+Kr.e. 621-ben Drakón (neve sárkányt jelent) írásba foglalta a törvényeket. Ezek nagyon szigorú „vérrel írott” törvények voltak, ezt az arisztokratáknak is be kellett tartani és gátat szabott a szokásjog önkényes értelmezésének.
+
+Kr.e. 594-ben Szolón, a 7 görög bölcs egyike új alkotmányt vezetett be, ami kedvezett a köznépnek:
+-- eltörölte az adósrabszolgaságot és minden más fennálló adósságot, ezt nevezzük teherlerázásnak.
+-- az állam pénzén visszavásárolták a külföldre eladott rabszolgákat is
+--vagyona alapján 4 osztályba sorolta Athén lakosságát: 500, 400, 300 és 200 mérősökre. Akinek több volt a vagyona több adót fizetett, de több jog illette meg. Szolón alkotmánya szerint kinek mennyi a vagyona, annyi a joga és a kötelessége.
+
+Szolón visszavonulása után törvényeit nem tartották be, anarchia ütötte fel a fejét. Ezt a helyzetet használta ki egy gazdag előkelő, Peiszisztrátosz (560-527) felrúgva a törvényeket egyeduralmat vezetett be. Ezt nevezzük türannisz rendszernek, a zsarnokot pedig türannosznak.
+Peiszisztrátosz halála után fiai tovább akarták folytatni a zsarnokságot, az athéni nép azonban megelégelte, idősebb fiát egy felvonuláson meggyilkolták, a másik pedig a perzsákhoz szökött.
+
+Kr.e. 508-ban Athénban megszületik a demokrácia, kialakítása Kleiszthenész nevéhez fűződik. /demokrácia= népuralom/ 
+Ő már nem vagyoni, hanem területi alapon osztotta fel a lakosságot: 10 kerületet (phülét) hozott létre, minden phülé 50-50 képviselőt küldött az 500-ak tanácsába (bulé). A képviselőket az esélyegyenlőség érdekében sorsolták. / 1-1 phülét 3 részre osztottak: város--szárazföld--tengerpart, hogy minden vagyoni helyzetű ember kerüljön bele./ Az 500-ak tanácsa dolgozta ki a törvényjavaslatokat, amelyek a népgyűlés elé kerültek, kisebb kérdésekről itt is dönthettek
+Athén legfontosabb irányító testülete a népgyűlés, az ekklészia lett. Ennek minden felnőtt athéni férfipolgár tagja volt. Itt hozták a törvényeket, választották a tiszségviselőket, döntöttek háború és béke kérdésében.
+Ezen kívül választottak 10 sztratégoszt (hadvezért) is, ez a tisztség eltért a többitől: egy évnél tovább lehetett viselni. A tehetség, a rátermettség számított. Periklész 15 éven át volt sztratégosz. Tovább működött a 9 arkhón és az areioszpagosz tanácsa is, de csökkentett hatáskörrel.
+Az igazságszolgáltatást esküdtbíróságok végezték, ennek tagjait naponta sorsolták a 30 évet betöltött athéni polgárok közül, ők napidíjat kaptak.
+
+Az athéni demokrácia az ókor leghaladóbb államformája volt, hiszen minden athéni férfipolgár szavazati joggal rendelkezett és megválaszthatták bármilyen tisztségre. Kimaradtak a demokráciából a nők, az idegenek és a rabszolgák.
+
+Az athéniak nagyon büszkék voltak politikai rendszerükre, és óvakodtak attól, nehogy valaki zsarnokságra törjön. A demokrácia biztosítékai:
+Cserépszavazás (osztrakiszmosz):a gyanúsítottak nevét cserépdarabokra írták, s aki a legtöbb szavazatot kapta, 10 évre száműzték a városból, de vagyonát nem vették el. A szavazás csak akkor volt érvényes, ha legalább hatezren részt vettek benne.
+
+Az athéni demokrácia közel 50 éven át virágzott, fénykorát Periklész idejében élte. 
+Periklész fontos reformja volt, hogy az athéni polgárok napidíjat kaptak a közéleti szereplésért. A polgárok többségének volt saját munkája, amikor közéleti szerepre sorsolták ki őket (pl. bíróság, bulé), saját munkájukat nem tudták végezni, így jövedelemtől estek el. Periklész a napidíjjal akarta kárpótolni a polgárokat.
+Athénnak igen jelentős mezőgazdasági, ipari, kereskedelmi tevékenysége volt, amelyekből jelentős állami jövedelmek származtak. További anyagi forrást jelentett az athéni állam számára a déloszi szövetség, melyet a görög-perzsa háborúk alatt szervezett meg Athén több városállamból. A szövetség tagjai eredetileg hozzájárulást fizettek a háború fő terheit viselő Athénnak, ám a háborúk után Athén ugyanúgy követelte a tagok hozzájárulását, így ez egyfajta adóvá vált.
+Ezekből az állami jövedelmekből bőven jutott a napidíjakra, de Athén szépítésére is: Periklész idején épült pl. a mai napig a város jelképének számító híres Athéné templom és a Parthenon.
+
+A demokrácia hanyatlása a peloponnészoszi háború idején következett be. Spárta irigyen nézte Athén fejlődését, háborút indított ellene. Pestis járvány tört ki, Periklész is életét vesztette.  A vereség után felszámolták a demokráciát.
+[KEP:img/tori1.png]
+[KEP:img/tori2.png]
+
+
+`
+
+        },
+        {
+            id: "15",
+            cim: "Géza fejedelem és Szent István államalapítása",
+            szoveg: `A kalandozó hadjáratok idővel kudarcba fulladtak. 933-ban Merseburgnál (=Merzeburg), 955-ben Augsburgnál (=Augszburg) szenvedtek vereséget a portyázó magyar csapatok. Ennek több oka is volt:
+•	Kiismerik a harcmodorukat
+•	A Német Birodalomban megszűnik a feudális anarchia, helyre áll a rend és I. Ottó nehézfegyverzetű katonaságot vet be a könnyűlovas magyarok ellen.
+Géza fejedelem felismerte, hogy változásokra van szükség, feudális államot kell szervezni. 973-ban követeket küld a német-római császárhoz Quedlingburgba (=Kvedlingburgba). Békét ajánl neki, és térítő papokat kér tőle. A fejedelmi család és a nép megkeresztelkedik. Ő és fia Vajk az István nevet kapják a kereszténységben. Német lovagok is érkeznek az udvarába. Fiának a császár rokonát, a bajor Gizellát kérte feleségül. Lányait a szomszédos országok uralkodóihoz adta feleségül (orosz, bolgár fejedelmekhez és velencei doge-hoz (=dózse). Géza véres kézzel leszámolt a törzsfőkkel, nemzetségfőkkel, megszilárdította a központi hatalmat. 
+
+997-ben Géza meghalt és a trónt fiára, Istvánra akarta hagyni, ahogy az európai keresztény népeknél szokás (ez az elsőszülöttség joga). A szeniorátus elve szerint viszont a trónt a pusztai népeknél a fejedelmi család legidősebb férfitagja örökölte. Erre hivatkozva Koppány is magának követelte a fejedelmi címet. Veszprém környékén nagy összecsapásra került sor István és Koppány között. Koppányt a régi rend, a pogányság hívei, Istvánt a német lovagok és az egyház támogatta. Ő győz, és elrettentésként Koppányt felnégyelteti. Később Istvánnak meg kell küzdenie nagybátyjával, az erdélyi Gyulával és Ajtonnyal, a Maros vidékének urával. Ezek földjeit elkobozza, és saját birtokaihoz csatolja. 
+1000-ben követeket küldött II. Szilveszter pápához és koronát kért tőle, ezt meg is kapta, majd az ezredik év karácsonyán vagy 1001. január 1-jén királlyá koronázták. 
+
+HOZZÁLÁT A FEUDÁLIS ÁLLAM MEGSZERVEZÉSÉHEZ:
+A legyőzött törzsfők területein és saját birtokain vármegyéket szervez. Központja egy-egy földvár. Élére saját megbízható embereit állította, ők az ispánok. 
+Feladatuk: -     az adók beszedése
+-	igazságszolgáltatás 
+-	háború esetén ő vezette harcba a vármegye katonáit
+a vármegyék népessége: 
+                   -     ispán
+-	várjobbágyok
+-	várkatonák
+-	szolgáltató népek
+
+Egyházszervező munkája: István 10 püspökséget szervezett, ezek közül az esztergomi érseki rangot kapott. Kolostorok is szerveződtek egyre nagyobb számban. István a törvényeiben is megemlékezik az egyházról.
+-	kimondja, hogy minden 10 falu építsen egy templomot, és oda vasárnaponként mindenki köteles elmenni kivéve a tűz őrzőit. 
+-	A templom felszereléséről (terítők, keresztek) a királynak kell gondoskodni, a könyvekről a püspöknek.
+-	Aki vasárnap ökrökkel dolgozik, az állatát elveszik tőle.
+-	Bevezeti az egyházi tized fizetését.
+
+István két törvénykönyvet adott ki. Az elsőt a megkoronázása után, a másodikat az 1030-as években. Ezekben az egyház védelmén túl a magántulajdon védelmére törekszik. Szigorúan bünteti a lopásokat, de különbséget tesz szabad ember, szolga és egyházi tolvajlása között.
+Jó viszonyban állt a szomszédos országok uralkodóival. Az 1030-as években sikerült visszavernie a német Konrád császár hűbéri kísérleteit.
+
+Külpolitikája:
+A szomszédokkal békében élt (rokonságban álltak). Mikor sógora, II. Henrik császár meghalt, az új német-római császár, II. Konrád támadást indított az ország ellen. István ezt visszaverte, a felperzselt föld taktikáját alkalmazta. Visszaverte a kelet felől betörő besenyők támadását is. 
+
+István a fiára, Imrére szerette volna hagyni a trónt, gondos nevelésben részesítette, Gellért püspök volt a nevelője. Intelmeiben összefoglalja, hogy milyen tulajdonságokkal kell rendelkeznie egy jó uralkodónak. Imre azonban 1031-ben egy vadászbalesetben meghalt. Ekkor a fejedelmi család legidősebb tagja, Vazul akarta megszerezni a trónt. Mivel szimpatizált a pogánysággal, István megvakíttatja és megsüketíti, fiai pedig elmenekülnek az országból. István nővérének fiát, a velencei Orseolo Pétert akarja a trónra. 1038-ban István halála után őt koronázzák királlyá. 
+`
+        },
+        {
+            id: "16",
+            cim: "A kiegyezés",
+            szoveg: `A szabadságharc bukása után kb. 1 évig tartott Haynau rémuralma. Az európai közvélemény tiltakozása miatt a császár leváltja őt, és Alexander Bach osztrák belügyminiszter bízta meg a magyarországi ügyek intézésével. A következő 10 évet Bach korszaknak nevezzük.
+Jellemzői:
+1.	Osztrák hadsereget állomásoztatnak Magyarországon
+2.	Idegen származású (főként cseh) hivatalnokok dogoznak, ők a Bach huszárok
+3.	Besúgók sokasága figyelte a hazafiak esetleges szervezkedéseit
+A magyar nemesség Kossuth távozása után Deák Ferencet tekintette vezetőjének. Ő hirdette meg az ún. passzív ellenállást. Birtokait eladta, Pesten beköltözött az Angol Királynő nevű fogadóba, s bármilyen hivatalt ajánlottak neki visszautasította. 
+A magyar nemesség követte a példáját: 
+-	nem vállaltak hivatalt
+-	megpróbálták kijátszani a császári rendeleteket
+-	nem fizették be az adókat
+
+1859-ben az osztrák- piemonti háború idején újraéledtek a magyar remények. Kossuth személyesen tárgyalt III. Napóleonnal: ha a franciák csapatokat küldenek, akkor Magyarországon is felkelést robbantanak ki Ausztria ellen. III. Napóleon azonban cserbenhagyta szövetségeseit, így a magyar felkelés elmaradt.
+ 
+Az 1850-es évek végére Ausztria egyre nehezebb helyzetbe került:
+1.	A piemonti háború elvesztése megtépázta a tekintélyét
+2.	A hadsereg, a besúgók és a hivatalnokok fizetése óriási összegeket emésztett fel, az ország a csőd felé tartott.
+A magyar nemesség is egyre inkább szegényedett, így érdekében állt a megegyezés. A változás első jeleként az uralkodó menesztette Bach minisztert és 1860. október 20-án kiadta az Októberi Diplomát, amelyben azt ígérte: helyreállítaná a magyar országgyűlést és az önkormányzatokat, de a hadügy és külügy királyi jog. (ez az 1847-es állapotok visszaállítását jelentené). A hazafiak elutasították.
+1861 februárjában Ferenc József kiadta a Februári Pátenst, amelyben egy közös birodalmi gyűlés felállítását tervezte. 
+Az uralkodó összehívta a magyar országgyűlést ezen kérdéseknek a megvitatására. A magyar nemesség itt 2 pártba tömörült:
+1.	Felirati Párt: ragaszkodik a 48-as törvényekhez, elutasítják az Októberi Diplomát és a Februári Pátenst. Döntésüket feliratban akarják közölni az uralkodóval. Vezetőjük Deák F.
+2.	Határozati Párt: ragaszkodnak a 49-es állapotokhoz, a trónfosztáshoz, Ferenc Józsefet nem tekintik törvényes magyar királynak, ezért nem szabályosan (feliratban), hanem határozatban akarják javaslatát visszautasítani. Vezetőjük: Teleki László
+Heves parlamenti viták után Teleki öngyilkos lett, másnap a szavazáson 3 szavazattal Deákék nyertek. (Tisza Kálmán lett a Határozati Párt új vezetője.)
+
+Ferenc József feloszlatta az országgyűlést és ideiglenes katonai kormányzást vezetett be 1861 és 65 között. Ez volt a provizórium: ideiglenes katonai kormányzás.
+1865-ben Ausztria készült a Poroszországgal való összecsapásra, ezért érdekében állt, hogy megegyezést keressen a magyarokkal. A magyar nemesség is tovább szegényedett, szintén sürgette a megegyezést.
+1865 áprilisában Deák a Pesti Naplóban közzé tette híres húsvéti cikkét. Ebben kilátásba helyezte, hogy hajlandók felülvizsgálni a 48-as törvényeket és ezt a birodalom érdekeivel összeegyeztetni. Ezután megindultak a tárgyalások. 
+1866-ban az osztrákok königgrazi veresége után sürgőssé válik számukra a megegyezés a magyarokkal. Erzsébet királyné is szívén viselte a kiegyezés létrejöttét, ami 1867-ben született meg.
+ Az állam hivatalos neve ezentúl Osztrák-Magyar Monarchia, ami dualista állam, vagyis 2 egyenlő ország szövetsége. 
+Közös az uralkodó személye és vannak közös ügyeik: 
+             - külügy
+	 - hadügy
+             - pénzügy.
+Ezek intézésére 60-60 fős delegációkat választanak, amelyek egyik évben Pesten, másik évben Bécsben találkoznak. Belügyeikben teljesen önállóak, saját kormánya van Ausztriának és Magyarországnak is. Közös lesz a hadsereg, a K. und K.= császári és királyi hadsereg. Vezényleti nyelve a német, főparancsnoka az uralkodó. 
+Létrejött a gazdasági kiegyezés is: a 2 ország kereskedelmi és vámszövetséget kötött.
+Közös lett a pénzrendszer és a jegybank is. Elosztják az anyagi terheket. 
+Ferenc Józsefet magyar királlyá koronázták, ő Andrássy Gyulát nevezte ki magyar miniszterelnökké.
+
+A kiegyezést nagyon ellentmondásosan értékelték a kortársak. Az emigráció tagjai egyenesen árulásnak tartották, a talajt vesztett Kossuth a Cassandra-levelekben agitált ellene. Deákék viszont azzal érveltek, hogy egy ilyen megállapodást 1848-ban örömmel elfogadtak volna. A kiegyezéshez és 1848-hoz való viszonyulásban egyre kisebb szerepük lett az észérveknek, egyre inkább érzelmi üggyé vált.
+
+
+A kiegyezéssel létrejött Osztrák-Magyar Monarchia területét és lakóinak számát tekintve Európa egyik nagyhatalma volt, mégis sok belső probléma feszítette ezután is. Mindenekelőtt a nemzetiségi kérdést kellett rendezni. A horvátok Magyarországgal azonos jogállást követeltek a birodalmon belül, végül 1868-ban megszületett az ún. horvát kiegyezés. A törvény tartalma szerint a horvátokat elismerték politikai nemzetnek, autonómiát kaptak. 
+
+Az 1868-ban elfogadott nemzetiségi törvény széleskörű nyelvhasználatot biztosított az oktatás és a közigazgatás alsó és középső szintjén. A magyar nyelv használata csak az államélet legfelső szintjén (törvénykezés, minisztériumok) volt kötelező. Az alsó fokú iskoláztatás teljesen nemzetiségi nyelven történt, magyart még tantárgyként sem kellett tanítani. Lehetővé tették nemzetiségi egyesületek létrehozását is.
+A nemzetiségeket – főként a románokat és szerbeket - e törvény sem elégítette ki, ők területi autonómiát és kollektív jogokat követeltek.
+
+`
+        },
+        {
+            id: "17",
+            cim: "A nemzetszocializmus ideológiája és programja (német fasizmus)",
+            szoveg: `A fasizmus eszméje az 1920-as években keletkezett. A kifejezés az olasz eredetű: a „faccsó di kambantimento”= vesszőnyalábba szúrt bárd (római hatalmi jelkép volt). Eleinte Mussolini mozgalmát nevezték így, később több országban is elterjedt. (A német náci párt, a horvát usztasa mozgalom, a román Vasgárda, a magyar Nyilaskeresztes Párt is ilyen jellegű volt.) 
+A fasizmus fő ideológiája a más népek gyűlöletére épülő nacionalizmus, faji felsőbbrendűség hirdetése, fő eszköze a terror.
+
+Németországban az 1. világháború után, 1919-ben alakult meg a Nemzetszocialista Német Munkáspárt (NSZDAP) vagy náci párt. 
+Vezetője, Adolf Hitler nem volt az alapító tagok között, de már a következő évben belépett a pártba.
+1923-ban kísérletet tettek a hatalomra jutásra, ez volt a müncheni sörpuccs. Egy müncheni sörcsarnokban foglyul ejtették az ott tartózkodó bajor miniszterelnököt és kormányának tagjait. Ők látszólag elfogadták Hitler követeléseit, mire szabadon engedték őket. Ezután mozgósították a katonaságot és letartóztatták a fasiszta vezetőket.
+Hitler a börtönben megírja a Mein Kampf (Harcom) című könyvét. Ebben fejti ki programját.
+1. Élettér elmélet: Németország túlnépesedett, új területekre van szüksége. A paraszti birtokot a legidősebb fiú örökölje, hogy az ne aprózódjon szét, a fiatalabb fiúk számára a meghódítandó keleti élettérben (Lenygyelorsz., Ukrajna) ígért földet.
+A terjeszkedés lépései:
+a.) Az európai németek egy birodalomban való egyesítése.
+b) Egész Európára kiterjedő német uralom.    c.) Német világuralom.
+2. A fajelmélet:
+A német nép (germán faj) felsőbbrendűségét hirdette. Vannak ún. rokon népek (hollandok, skandinávok), úgy vélték, hogy a többi nép legfeljebb a németek szolgálatára való. A zsidókat kiirtandó népnek tartja.
+
+A 20-as években a fasiszta párt még nem rendelkezett nagy népszerűséggel, 1928-ban a választásokon a szavazatoknak csak 2,4 %-át tudták megszerezni. 1929-től a gazdasági világválság idején Németországban ezrével mentek tönkre a kisvállalkozások és a paraszti birtokok → Megrendül az emberek bizalma a demokráciában, ekkor nő meg a fasiszták népszerűsége. Ők demagóg módon minden rétegnek ígértek valamit (földet, munkalehetőséget, új hadsereget). 1932-ben a választásokon a szavazatoknak már 37,4 %-át szerezték meg, ezzel a legerősebb párttá váltak.
+Hindenburg köztársasági elnök 1933. január 30-án kénytelen volt kinevezni Hitlert birodalmi kancellárárrá. Ezután megkezdődik a fasiszta diktatúra kiépítése:
+•	Legnagyobb ellenfelüknek a kommunistákat tartották, így először velük akartak leszámolni. Titokzatos gyújtogatás történt a Birodalmi Gyűlés, a Reischtag épületében, ezt a kommunistákra fogták, letartóztatták a párt vezetőit és másnap felfüggesztették az alkotmányt. Hamarosan megkezdődött a lipcsei per, ahol egy bolgár kommunistát, Dimitrovot vádolták a gyújtogatással. Bár bebizonyosodott ártatlansága, májusban betiltották a kommunista pártot.
+•	Rendeletben korlátozták a szabadságjogokat
+•	Hamarosan leszámoltak a többi párttal is. Az ellenzéki politikusokat börtönbe vagy koncentrációs táborokba zárták
+•	Feloszlatták a szakszervezeteket. → Létrejött az egypártrendszer.
+
+A fasiszta párt testületei:
+•	SA rohamosztagok
+•	SS védőosztag
+•	Gestapo titkos államrendőrség
+A párt vezetői:
+•	Adolf Hitler: pártvezér (Führer), kancellár, államfő
+•	Rudolf Hess: Hitler helyettese, a koncentrációs táborok vezetője
+•	Hermann Göring: légimarsall a légierő vezetője
+•	Joseph Goebbels (göbbelsz): propaganda miniszter → a modern pszichológia tanításait is felhasználta a náci propaganda a tömegek fanatizálására (nagy tömegben erősnek érzik magukat, rövid jelszavakat skandálnak, nem az értelemre, hanem érzelmeikre próbáltak hatni).
+
+Az SA vezetői az ígéretek valóra váltását várták Hitlertől, Ő azonban már nem akarta teljesíteni a kisembereknek tett ígéreteit. Figyelme a nagytőkések felé fordult, tőlük várt pénzt pártja támogatásához. Így a reformokat követelő SA vezetőket 1934. június 29-30-án „a hosszú kések éjszakáján” lemészároltatta.
+
+A fasiszták erőszakos lépéseket tettek, a versailles-i békeszerződés szinte minden pontját megszegték:
+•	1933-ban kiléptek a Népszövetségből.
+•	Általános hadkötelezettséget vezettek be.
+•	Légierőt állítottak fel.
+•	A gazdaságot átállítják a haditermelésre.
+•	A Rajna vidékén újra hadsereget állomásoztatnak.
+•	1936-ban szövetséget kötnek a fasiszta Olaszországgal, ezzel létrejött a Berlin-Róma tengely.
+`
+        },
+        {
+            id: "18",
+            cim: "A második világháború",
+            szoveg: `ELŐZMÉNYEK:
+Hitler hatalomra jutása után a németek az első világháborút lezáró béke szinte minden pontját megszegték: 
+•	1933-ban kiléptek a Népszövetségből, majd ismét bevezették az általános hadkötelezettséget, s elrendelték a modern fegyverek fejlesztését (1935). 
+•	A Rajna-vidéken újra hadsereget állomásoztattak
+•	Hitler kikényszerítette az Anschlusst 1938. március 12-13-án, csapatai bevonultak Ausztria területére. 
+•	Ezután Hitler Csehszlovákiában avatkozott be, ahol a Szudéta-vidéken közel 3 millió német élt kisebbségben, s a nagyhatalmak a müncheni konferencián 1938 szeptemberében átengedték a területet Németországnak. 1939-ben Szlovákia német támogatással kikiáltotta függetlenségét és a németek bevonultak a megmaradt Csehországba megszerezve a fejlett hadiipart.
+•	1939-ben szovjet-német 10 évre szóló megnemtámadási szerződést kötött a két külügyminiszter, Ribbentrop és Molotov. Ennek titkos záradéka a  Ribbentrop-Molotov paktum, amelyben felosztották egymás között Lengyelországot, a 3 balti államot pedig átengedték a Szovjetuniónak.
+
+A HÁBORÚ KEZDETE
+1939. szeptember 1-jén a német csapatok megtámadták Lengyelországot, mire válaszul Franciaország és Nagy-Britannia hadat üzent a németeknek. Kitört a 2. világháború. A lengyel haderőt a német hadsereg egy hét alatt szétzúzta, szeptember 17-én pedig a Szovjetunió is megtámadta a Lengyelországot. A szovjetek a finnektől Leningrád védelmére területeket követeltek, az elutasítást követően megtámadták a kis országot. Kezdetben a Vörös Hadsereg kudarcot vallott, végül azonban érvényesült a túlerő, és a finnek átadták a követelt térséget.
+
+A francia hadsereg védelemre rendezkedett be a bevehetetlennek hitt Maginot vonal (Mazsinó vonal) mögött. A nyugatiak nem tudtak támadni, Hitler pedig még nem akart, ezért hadműveletek nélküli ún. furcsa háború alakult ki. 
+1940 áprilisában Hitler lerohanta Dániát és Norvégiát, s ezzel biztosította az északi részt. A dánok és a norvégok nem fejtettek ki komolyabb ellenállást, s a nácik németbarát kormányokat segítettek hatalomra (pl. Quisling /ejtsd Kvizling/). Az északi sikerek után a német hadsereg Belgiumon át, a Maginot vonalat megkerülve két hónap alatt legyőzte Franciaországot, aki 1940 júniusában kapitulált, s északi része Párizzsal együtt német megszállás alá került. Délen pedig bábkormány alakult, székhelye Vichy. A francia hadsereg maradéka Dunkerque (Dönker) kikötőjén keresztül Angliába menekült, De Guelle (Dö Gól) tábornok itt kezdi szervezni a francia ellenállást.
+Hitler kezdetben bízott a britekkel való kiegyezésben, (nem támadnak, ha Anglia elismeri Németország eddigi hódításait)a brit vezetés azonban Churchill irányításával az ellenállás mellett döntött. Az angliai csatában (1940. július-szeptember) Hitler teve: légitámadásokkal meggyengíteni Angliát, majd partra szállni. Az angol ellenállást nem sikerült megtörni, fejlettebb technikával rendelkeztek (elektronikus felderítő rendszer, radar).
+A HÁBORÚ KITERJEDÉSE:
+Az angol kudarc után Hitler 1941 nyarán kelet felé fordult, hogy megszerezze a Szovjetunió hatalmas élelmiszer- és anyagtartalékait. 1941. június 22-én indult a támadást, mely váratlanul érte a szovjeteket. (Sztálin nem akarta elhinni) A németek 3 oszlopban, Leningrád, Moszkva és Kijev irányába egyszerre nagy erőkkel nyomultak előre (Barbarossa-terv), s hetek alatt óriási területeket foglaltak el. Ugyanakkor a német veszteségek óriásiak voltak, mivel a szovjet katonák nem adták meg magukat, emellett akadozott az utánpótlás, és a leszakadt orosz egységek partizánként folytatták a harcot. Eközben csökkent a német haderő technikai és kiképzésbeli fölénye és a beálló kemény téli hidegben akadozott a német technika. Így a szovjetek 1941. november-decemberében Moszkva alatt megállították a német előretörést, s a villámháborús terv összeomlott.
+Az olaszok vereséget szenvedtek Észak-Afrikában és Görögországban. Hitler 1941 tavaszán Afrikába küldte Rommel tábornok vezetésével az Afrika-hadtestet, akik a meglepett angolokat a sivatag széléig szorították vissza. A háború egyre több kontinensre terjedt ki.
+A japán katonai vezetés Délkelet-Ázsia és a Csendes-óceán térségében kívánt előretörni. 1941. december 7-én hadüzenet nélkül megtámadták az Egyesült Államok támaszpontját, Pearl Harbort. Ezután egy időre a japánok a csendes-óceáni térség uraivá váltak, s hadseregük Indiáig és Ausztráliáig nyomult előre. Az amerikai veszteség azonban nem volt végzetes, mert az amerikai anyahajók nem tartózkodtak a támaszponton. 
+1942 a fordulat éve: 1942-ben a német támadás Sztálingrád irányába összpontosult, mert elfoglalása megbéníthatta volna a szovjet védelmet és utat nyitott volna a bakui olajmezők felé. A veszteségek pótlására a németek a szövetséges Olaszország és a csatlós államok (Románia, Magyarország, Szlovákia) fokozottabb háborús részvételét erőszakolták ki. A Paulus tábornok vezette német egységek el is érték Sztálingrádot, és fontos iparvidékeket foglaltak el. A szovjetek azonban vagy elpusztították a termelőkapacitásokat vagy áttelepítették keletre, így a haditermelés túlszárnyalta a németekét és megjelentek a modern harceszközök is. Sztálingrádnál a szovjetek ellentámadást indítottak, bekerítették Paulus seregét, és miután Hitler nem engedélyezte a visszavonulást, a német haderő 1943. február 2-án megadta magát. 
+Szintén jelentős volt a Rommel vezette Afrika-hadtest veresége is az angol Montgomery tábornoktól (El Alamein, 1942. október-november). 
+1942 nyarán az amerikai flotta a Midway-szigeteknél jelentős győzelmet aratott, megállítva a japán előrenyomulást. 1943-ban megindult az ellentámadás, és az amerikaiak szigetről szigetre szorították vissza a japánokat (békaugrás hadművelet).
+`
+        }
+        ,
+        {
+            id: "19",
+            cim: "A trianoni békeszerződés a nemzetközi politika függvényében",
+            szoveg: `I. Az első világháborút (1914-1918) követő békék:
+1918-ban véget ért az első világháború. A győztes antant hatalmak: Nagy-Britannia, USA, Franciaország, Olaszország, Japán részvételével 1919. január 18-án ült össze Párizs mellett a versailles-i kastélyban a békekonferencia. 
+A legfontosabb döntésekben 4 nagyhatalomnak volt döntő szava: Clemanceau (Klemanszó) francia, Lloyd George brit, Orlando olasz és Wilson amerikai elnök vezetésével. 
+Wilson elnök 1918-ban kidolgozott egy 14 pontból álló béketervet, ami elvetette a titkos egyezkedéseket, nyílt tárgyalásokat és nemzetiségi elven alapuló határokat akart. Mivel ezek nem valósultak meg, az Egyesült Államok kivonult a békekonferenciáról. 
+
+A veszteseket nem hívták meg a tárgyalásokra, csak az aláírásra. Mindegyiket azonos módon büntették: a területi veszteségeken túl háborús jóvátételt kellett fizetniük, flottájukat és légierejüket leszerelték, csak korlátozott létszámú hadsereget tarthattak fenn, és el kellett törülniük az általános hadkötelezettséget. Csak Törökország volt képes szembeszállni az antant akaratával. Musztafa Kemál vezetésével Törökországban felkelés tört ki a békeszerződés ellen. Elűzték az antant csapatokat, megvédték a területeiket.
+
+II. A trianoni béke előzményei:
+A háború végén, 1918-ban felbomlott a Monarchia, amely vesztesen fejezte be a háborút. Magyarországon forradalmak robbantak ki (őszirózsás forradalom, tanácsköztársaság) és nem voltak végleges határok. 
+A magyar békedelegáció gróf Apponyi Albert vezetésével érkezett Párizsba 1920 januárjában. Apponyi beszédet mondott a békekonferencián, a Kárpát-medence történelmi, földrajzi, gazdasági és kulturális egységét hangsúlyozta. Apponyi az elcsatolandó területeken népszavazásra tett javaslatot. Gróf Teleki Pál elkészítette Magyarország „vörös térképét”, amely jelöli, hogy mely területeken laknak többségében magyarok (vörös színnel jelölte). 
+A nagyhatalmak a szomszédos országok: a győztes Románia és Csehszlovákia túlzott követeléseit vették figyelembe. Ők a vasútvonalakat, fontos ipari létesítményeket, nyersanyaglelőhelyeket akarták megszerezni. (Az antant már 1916-ban a románoknak ígérte Erdélyt, ha megtámadják a Monarchiát.) Lloyd George angol miniszterlnök Apponyi beszéde után javasolta, hogy tárgyalják újra a békét, de a franciák ragaszkodtak az eredeti állásponthoz. 
+III. A trianoni béke következményei:
+A békeszerződés aláírására 1920. június 4-én a Párizs melletti Trianon-palotában került sor. Magyarország óriási területeket veszített (2/3-ad részét)
+Területe 282 ezer négyzetkilométerről 93 ezer km2-re csökkent.
+•	Románia megszerezte Erdélyt   (102 ezer km2-t)
+•	Csehszlovákia a Felvidéket   (63 ezer km2-t)
+•	A Szerb-Horvát-Szlovén Királyság (a későbbi Jugoszlávia) a Délvidéket (21 ezer km2)
+•	Példátlan döntés nyomán az egyik vesztest a másik rovására kárpótolták, így Ausztriának adtak 4000 km2-t. Itt ellenállás szerveződött, a „rongyos gárda” visszaverte az osztrák csendőrséget. Az antant beleegyezett, hogy népszavazást tartottak Sopron és környéke ügyében. A lakosság a Magyarországhoz való tartozás mellett döntött, így Sopron megkapta „civitas fidelissima” „a leghűségesebb város” címet.
+
+A békeszerződést a Simonyi - Semadam Sándor kormány idején írták alá, (gesztus értékű, hogy két kevésbé jelentős politikust választottak: a népjóléti és munkaügyi miniszter írta alá) ezt követően a kormány lemondott. 
+A békeszerződés döntése:
+•	Jóvátétel fizetése
+•	Az általános hadkötelezettség megszűnt 
+•	A hadsereg max. 35 ezer fő
+•	Tilos tankokat behozni és gyártani, légierő nem lehet
+
+
+3,3 millió magyar került idegen uralom alá. Súlyos gazdasági válságot okozott Magyarországon, hogy a nyersanyagforrások, bányák, vasúthálózat nagy része és a legjelentősebb városok (Pozsony, Kassa, Nagyvárad, Temesvár) az országhatáron kívül maradtak.
+A trianoni békeszerződés példátlan mértékű területvesztés volt, ezt a magyarság nem tudta elfogadni és tragédiának fogta fel. A kormányok célja ezután a revízió, azaz a béke felülvizsgálata, a határok visszaállítása volt. A békeszerződés újabb háborúba sodorta emiatt Magyarországot, és ez máig is súlyos nemzetiségi problémák forrása.
+
+`
+        },
+        {
+            id: "20",
+            cim: "Az 1956-os forradalom ",
+            szoveg: `Az 50-es évek diktatúrája, a lakosság nyomora (a padláslesöprések), az ÁVH törvénytelenségei miatt 1956 nyarára már pattanásig feszült volt a helyzet. 
+A Szovjetunióban az SZKP 20. kongresszusán ugyan elítélték a sztálinizmust, és ennek hatására Rákosit is menesztették, de mégsem lett igazi változás, mert a helyére Gerő Ernő került. 
+1956 június 28-án a lengyelországi Poznanban felkelés tört ki, amelyet elfojtottak.
+Az elégedetlenkedők (írók, költők, jogászok) megalakították a Petőfi-kört, ahol nagy viták zajlottak, már néven nevezték a bűnös vezetőket. A szegedi egyetemisták megalakították a MEFESZT, követeléseiket 16 pontban foglalták össze. Követelték:
+•	A szovjet csapatok kivonását
+•	Új kormányt Nagy Imre vezetésével
+•	Szólás és sajtószabadságot
+•	Többpártrendszert és demokratikus választásokat
+•	A külkereskedelmi szerződések felülvizsgálatát (különösen a magyar urán kivitele keltet nagy felháborodást, azt követelték, hogy világpiaci áron vihessék ki a szovjetek)
+•	Nemzeti ünnepeink és jelképeink, pl. Kossuth-címer visszaállítása.
+
+- 1956 október 23-án délután 3-kor nagygyűlést tartottak a Petőfi-szobornál. Kb. 10 ezer ember előtt Sinkovics Imre elszavalta a Nemzeti dalt és felolvasták a 16 pontot.
+A tömeg a Parlament elé vonult, a zászlókból kivágták a szovjet mintájú címert. Nagy Imrét akarták hallani, és jelszavakat kiáltoztak: „Gerőt a Dunába, Nagy Imrét a kormányba!”
+Ezután a Rádióhoz mentek, és fel akarták olvasni követeléseiket, ezt megtagadták, így eldördültek az első fegyverek.
+A tömeg egy része a Városligetbe vonult, ledöntötték az elnyomás szimbólumát, a 8 méter magas Sztálin-szobrot.
+Az éjszaka folyamán a pártvezetőség tanácskozott, engedtek a nép követelésének, és Nagy Imrét kinevezték miniszterelnökké.
+
+- Október 24-én megérkeztek a szovjet csapatok a fővárosba, Gerőék azt remélték, hogy látványukkal megfélemlítik a tömeget. A szovjeteket viszont fegyveres ellenállás fogadta. A Korvin közben, a Tűzoltó és a Práter utcában nagy harcok folytak a felkelők és a szovjetek között.
+Nagy Imre délben beszédet mondott a rádióban, a harcok beszüntetésére szólított fel mindenkit, és az 1953-as program megvalósítását ígérte.
+
+- Október 25-én a Parlament előtti tér megtelt békés tüntetőkkel. A tömeg bizakodott Nagy Imre szavai után. Ekkor váratlanul a Földművelésügyi Minisztérium tetejéről belelőttek a tömegbe (valószínűleg ÁVH-sok), 100-150 ember megsebesült, meghalt. 
+- A harcok kiújultak, országos méretűvé váltak. Több nagyvárosban volt összecsapás az ÁVH-sok és a forradalmárok között. Mosonmagyaróváron a tömeg el akarta távolítani a vörös csillagot a laktanyáról, erre közéjük lőttek, kb. 100-an haltak meg.
+A párton belül is ellentétek voltak az események megítélésében, a kormányt többször is átalakították.
+
+- Október 28. a forradalom csúcspontja:
+•	Nagy Imre most már nem ellenforradalomnak, hanem demokratikus népi megmozdulásnak nevezi a történteket.
+•	Fegyverszünetet köt a szovjet csapatokkal, akik elhagyják a fővárost.
+•	Az ENSZ Biztonsági Tanácsa napirendre tűzte a magyar kérdés megvitatását.
+
+- Október 30-án Nagy Imre a rádióban bejelentette az egypártrendszer megszüntetését, koalíciós kormány alakult. Hazatértek a korábban elüldözött politikusok, újjászerveződtek a pártok.
+
+- November 1-jén bejelentették, hogy Magyarország kilép a Varsói Szerződésből. Úgy tűnt, győzött a forradalom. 
+- A magyar eseményekkel egy időben a világ a szuezi-válságra figyelt. (Az egyiptomi elnök államosította a szuezi-csatornát, ami angol és francia részvényesek tulajdona volt. Ezért Anglia, Franciaország és Izrael háborút indított Egyiptom ellen). Az oroszok kihasználják, hogy a nagyhatalmak ezzel a kérdéssel vannak elfoglalva, és elhatározzák a magyar forradalom leverését.
+
+- November 3-án éjszaka a szovjet biztonsági szervek letartóztatták a Maléter Pál honvédelmi miniszter vezette kormányküldöttséget, amely tárgyalni ment a tököli szovjet repülőtérre. November 4-én hajnalban megkezdődött a szovjet csapatok beözönlése Záhonynál. Nagy Imre bejelentette, hogy szovjet támadás indult a törvényes magyar kormány megdöntésére. Ezt követően társaival és családjaikkal a jugoszláv nagykövetség épületébe menekültek.
+
+- Budapest néhány pontján elszánt fegyveres harc bontakozott ki, ami november 7-ére csaknem mindenütt véget ért. 
+- Megkezdődtek a letartóztatások. A rögtönítélő bíróságok gyorsan meghozták az első halálos ítéleteket. A megtorlások éveken át folytatódtak, még 1961-ben is születtek halálos ítéletek. Kb. 300 embert végeztek ki, mintegy 25-26 ezer embert zártak börtönbe.
+- November elejétől január közepéig több mint 200 ezer ember hagyta el az országot, korabeli szóhasználat szerint disszidált.
+- 1958. június 15-én lezárult Nagy Imre-per, melyben Nagy Imrét, Gimes Miklóst és Maléter Pált halálra ítélték, és az ítéletet másnap végrehajtották. 
+`
+        }
+
+    ];
+
+  // Select feltöltése
+    const sel = document.getElementById('selector');
+    data.forEach(t => {
+        let o = document.createElement('option');
+        o.value = t.id;
+        o.textContent = t.id + ". " + t.cim;
+        sel.appendChild(o);
+    });
+
+    function load() {
+        const item = data.find(t => t.id == sel.value);
+        const area = document.getElementById('content-area');
+        const bodyDiv = document.getElementById('body');
+
+        area.style.display = 'block';
+        document.getElementById('title').textContent = item.cim;
+
+        // REGEX: Megkeresi az összes [KEP:valami] formátumot és kicseréli <img> tagre
+        let processedText = item.szoveg.replace(/\[KEP:(.*?)\]/g, (match, url) => {
+            return `<img src="${url.trim()}" class="embedded-img">`;
+        });
+
+        bodyDiv.innerHTML = processedText;
+        window.scrollTo({top: 0, behavior: 'smooth'});
+    }
+</script>
+    <!-- Auth rendszer -->
+    <script type="module" src="auth.js"></script>
+    <script type="module" src="tori.js"></script>
+</body>
+</html>

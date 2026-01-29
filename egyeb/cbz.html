@@ -1,0 +1,363 @@
+<!-- <!DOCTYPE html>
+<html lang="hu">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>cbz</title>
+  <style>
+    :root { --bg:#0e0f11; --fg:#e8e8e8; --muted:#9aa0a6; --accent:#7c3aed; }
+    * { box-sizing: border-box; }
+    body { margin:0; background:var(--bg); color:var(--fg); font:16px/1.5 system-ui, -apple-system, Segoe UI, Roboto, "Helvetica Neue", Arial; }
+
+    /* ===== MINIMAL AUTH ===== */
+    #auth-section { min-height:100dvh; display:grid; place-items:center; padding:16px; }
+    #auth-section > div { width:min(360px,92vw); display:flex; flex-direction:column; gap:10px; }
+    #auth-message { color:#ffd37a; min-height:1em; font-size:.95rem; }
+    #auth-section label { display:flex; flex-direction:column; gap:6px; font-size:.95rem; color:var(--muted); }
+    #auth-section input {
+      appearance:none; background:#121317; color:var(--fg);
+      border:1px solid #2a2d33; padding:9px 10px; border-radius:6px; outline:none;
+    }
+    #auth-section input:focus { border-color:#454b55; }
+    #auth-section > div > div { display:flex; gap:8px; flex-wrap:wrap; }
+    #auth-section button {
+      all:unset; background:#1e2228; padding:8px 12px; border-radius:6px; cursor:pointer; text-align:center;
+    }
+    #auth-section button:hover { background:#2a2f37; }
+    #reset-password-btn { border:1px solid #2a2d33; }
+
+    /* ===== Olvasó (eredeti stílusod) ===== */
+    header { position:sticky; top:0; z-index:10; transition: transform .2s ease; backdrop-filter:blur(6px);
+             background: color-mix(in srgb, var(--bg) 85%, transparent); border-bottom:1px solid rgba(255,255,255,.08); }
+    header.is-hidden { transform: translateY(-110%); }
+    .container { max-width:1100px; margin:0 auto; padding:10px 16px; }
+    .controls { display:flex; gap:10px; align-items:center; flex-wrap:wrap; }
+    .chip { background:#1a1c1f; border:1px solid rgba(255,255,255,.16); padding:6px 10px; border-radius:8px; }
+    select { background:#1a1c1f; color:var(--fg); border:1px solid rgba(255,255,255,.18); padding:7px 10px; border-radius:8px; }
+    #status { margin-left:auto; color:var(--muted); font-size:14px; display:none !important; }
+    button.chip { cursor: pointer; }
+    button.chip:hover { border-color: var(--accent); }
+
+    #menuToggle {
+      position: fixed; top:10px; right:10px; z-index: 9999;
+      background:#1a1c1f; color:var(--fg); border:1px solid rgba(255,255,255,.22);
+      padding:8px 10px; border-radius:10px; cursor:pointer;
+    }
+    #menuToggle:hover { border-color: var(--accent); }
+
+    main { padding:16px; }
+    #pages { margin:0 auto; max-width:min(100%, 1400px); }
+    .page { display:block; margin:0 auto 16px; width:100%; height:auto; background:#0a0b0d; box-shadow:0 1px 0 rgba(255,255,255,.02) inset; border-radius:0 !important; }
+    footer { text-align:center; color:var(--muted); padding:24px 12px; font-size:14px; }
+    kbd { background:#1a1c1f; border:1px solid rgba(255,255,255,.15); border-bottom-color:rgba(255,255,255,.25); padding:2px 6px; border-radius:6px; font-family:ui-monospace,SFMono-Regular,Menlo,monospace; }
+    .err { opacity:.85; font-size:.9em; }
+    #toTopBtn { background: transparent !important; border: 1px solid rgba(255,255,255,.22); padding:6px 10px; border-radius:8px; }
+    #toTopBtn:hover { border-color: var(--accent); }
+
+    /* toast */
+    #toast {
+      position: fixed; left: 50%; bottom: 24px; transform: translateX(-50%) translateY(20px);
+      background: #1f242a; color:#fff; padding:10px 14px; border-radius:10px; opacity:0; pointer-events:none;
+      transition: all .25s ease; border:1px solid rgba(255,255,255,.12);
+    }
+    #toast.show { opacity:1; transform: translateX(-50%) translateY(0); }
+  </style>
+</head>
+<body>
+
+  <!-- ===== Auth szekció (minimal) ===== -->
+  <section id="auth-section">
+    <div>
+      <p id="auth-message" class="form-msg" aria-live="polite"></p>
+
+      <label>
+        <span>E-mail</span>
+        <input type="email" id="email" autocomplete="email" required>
+      </label>
+
+      <label>
+        <span>Jelszó</span>
+        <input type="password" id="password" autocomplete="current-password" required>
+      </label>
+
+      <div>
+        <button id="login-btn">Bejelentkezés</button>
+        <button id="reset-password-btn" style="display:none">Jelszó visszaállítása</button>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===== App (olvasó) szekció – csak belépve látszik ===== -->
+  <section id="app-section" style="display:none">
+    <button id="menuToggle" aria-expanded="true">✕ Menü</button>
+
+    <header id="topbar">
+      <div class="container controls">
+        <div style="display:flex; gap:8px; align-items:center;">
+          <select id="volSelect" title="Kötet kiválasztása"></select>
+        </div>
+
+        <span id="status">0 / 0</span>
+
+        <button id="toTopBtn" class="chip" type="button" title="Ugrás az oldal tetejére" aria-label="Ugrás az oldal tetejére">
+          ⬆︎
+        </button>
+      </div>
+    </header>
+
+    <main>
+      <div id="pages"></div>
+    </main>
+
+    <footer>
+      Tipp: <kbd>J</kbd>/<kbd>K</kbd> görgetés, <kbd>Home</kbd>/<kbd>End</kbd> eleje/vége.  
+      Menü elrejt/hoz: <kbd>M</kbd> vagy a jobb felső gomb.
+    </footer>
+  </section>
+
+  <!-- Toast -->
+  <div id="toast"></div>
+
+  <!-- ===== Firebase + Auth + Olvasó logika ===== -->
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/12.4.0/firebase-app.js";
+    import { getAuth, signInWithEmailAndPassword, onAuthStateChanged, sendPasswordResetEmail } from "https://www.gstatic.com/firebasejs/12.4.0/firebase-auth.js";
+
+    const firebaseConfig = {
+      apiKey: "AIzaSyAwRrAtHaNRh2DLwVkryA3wSf86h7aQCaI",
+      authDomain: "konyv-93c63.firebaseapp.com",
+      projectId: "konyv-93c63",
+      storageBucket: "konyv-93c63.firebasestorage.app",
+      messagingSenderId: "349471560585",
+      appId: "1:349471560585:web:55c6e78499ebbca0540758",
+      measurementId: "G-NF07N36ETJ"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const auth = getAuth(app);
+
+    const authSection = document.getElementById("auth-section");
+    const appSection  = document.getElementById("app-section");
+    const emailInput  = document.getElementById("email");
+    const passwordInput = document.getElementById("password");
+    const authMessage = document.getElementById("auth-message");
+    const loginBtn = document.getElementById("login-btn");
+    const resetPasswordBtn = document.getElementById("reset-password-btn");
+    const toast = document.getElementById("toast");
+
+    function showToast(msg) {
+      if (!toast) return;
+      toast.textContent = msg;
+      toast.classList.add("show");
+      setTimeout(()=> toast.classList.remove("show"), 2400);
+    }
+
+    loginBtn?.addEventListener("click", () => {
+      const email = emailInput.value.trim();
+      const password = passwordInput.value.trim();
+      authMessage.textContent = "";
+      if (!email || !password) {
+        authMessage.textContent = "Kérlek, töltsd ki az összes mezőt!";
+        return;
+      }
+      signInWithEmailAndPassword(auth, email, password)
+        .catch(() => {
+          authMessage.textContent = "Hibás e-mail cím vagy jelszó!";
+          resetPasswordBtn.style.display = "inline-block";
+        });
+    });
+
+    resetPasswordBtn?.addEventListener("click", () => {
+      const email = emailInput.value.trim();
+      if (!email) { authMessage.textContent = "Add meg az e-mail címed!"; return; }
+      sendPasswordResetEmail(auth, email)
+        .then(()=> authMessage.textContent = "✅ Ellenőrizd az emailed!")
+        .catch(err => authMessage.textContent = "❌ Hiba: " + err.message);
+    });
+
+    onAuthStateChanged(auth, (user) => {
+      if (user) {
+        authSection.style.display = "none";
+        appSection.style.display = "block";
+        showToast("Sikeres bejelentkezés!");
+      } else {
+        appSection.style.display = "none";
+        authSection.style.display = "grid";
+      }
+    });
+
+    /* ====== KÉPREGÉNY OLVASÓ ====== */
+    const VOLUME_ROOT = './zip';
+    const VOLUMES = [
+      'Chainsaw Man v01','Chainsaw Man v02','Chainsaw Man v03','Chainsaw Man v04','Chainsaw Man v05',
+      'Chainsaw Man v06','Chainsaw Man v07','Chainsaw Man v08','Chainsaw Man v09','Chainsaw Man v10',
+      'Chainsaw Man v11','Chainsaw Man v12','Chainsaw Man v13','Chainsaw Man v14','Chainsaw Man v15',
+      'Chainsaw Man v16','Chainsaw Man v17','Chainsaw Man v18','Chainsaw Man v19'
+    ];
+    const IMAGE_EXT = /\.(jpe?g|png|webp)$/i;
+
+    (function(){
+      const pagesEl   = document.getElementById('pages');
+      const statusEl  = document.getElementById('status');
+      const volSelect = document.getElementById('volSelect');
+      const topbar    = document.getElementById('topbar');
+      const menuBtn   = document.getElementById('menuToggle');
+      const toTopBtn  = document.getElementById('toTopBtn');
+
+      let currentBaseUrl = null;
+      let knownList = [];
+      let loadedCount = 0;
+      let ioImgs = null;
+
+      function encodedJoin(base, path){
+        const b = encodeURI(base).replace(/\/$/, '');
+        const parts = path.split('/').map((p,i,a)=> i===a.length-1 ? encodeURIComponent(p) : encodeURI(p));
+        return `${b}/${parts.join('/')}`;
+      }
+      async function tryFetch(url){
+        try{ const r = await fetch(url, { cache:'no-cache' }); return r.ok ? r : null; }
+        catch{ return null; }
+      }
+      function clearAll(){
+        pagesEl.innerHTML = '';
+        loadedCount = 0; updateStatus();
+        if (ioImgs) { ioImgs.disconnect(); ioImgs = null; }
+      }
+      function updateStatus(){
+        statusEl.textContent = `${loadedCount} / ${knownList.length}`;
+      }
+      function naturalSort(arr){
+        const coll = new Intl.Collator(undefined, { numeric:true, sensitivity:'base' });
+        return arr.sort((a,b)=> coll.compare(a,b));
+      }
+
+      async function loadFromManifest(baseUrl){
+        const u1 = encodedJoin(baseUrl, 'manifest.txt');
+        const u2 = encodedJoin(baseUrl, 'manifest.json');
+        for (const u of [u1,u2]){
+          const res = await tryFetch(u); if (!res) continue;
+          const ct = res.headers.get('content-type')||'';
+          try{
+            if (u.endsWith('.json') || ct.includes('application/json')){
+              const arr = await res.json(); return Array.isArray(arr) ? arr.filter(n=>IMAGE_EXT.test(n)) : [];
+            } else {
+              const txt = await res.text();
+              return txt.split(/\r?\n/).map(s=>s.trim()).filter(s=>s && IMAGE_EXT.test(s));
+            }
+          }catch{}
+        }
+        return null;
+      }
+      async function listDirectoryOnce(baseUrl){
+        const res = await tryFetch(encodeURI(baseUrl) + '/');
+        if (!res) return null;
+        const ct = res.headers.get('content-type')||'';
+        if (!ct.includes('text/html')) return null;
+        const html = await res.text();
+        const doc = new DOMParser().parseFromString(html, 'text/html');
+        const names = Array.from(doc.querySelectorAll('a'))
+          .map(a => a.getAttribute('href')||'')
+          .filter(h => h && !h.endsWith('/'))
+          .map(h => decodeURIComponent(h.replace(/^.*\//,'')))
+          .filter(name => IMAGE_EXT.test(name));
+        return names.length ? names : null;
+      }
+      async function getExactFileList(baseUrl){
+        const m = await loadFromManifest(baseUrl);
+        if (m && m.length) return naturalSort(m);
+        const l = await listDirectoryOnce(baseUrl);
+        if (l && l.length) return naturalSort(l);
+        return null;
+      }
+
+      function observeImages(){
+        ioImgs = new IntersectionObserver((entries)=>{
+          for (const entry of entries){
+            const img = entry.target;
+            if (!entry.isIntersecting || img.dataset.loading === '1') continue;
+            img.dataset.loading = '1';
+            img.src = encodedJoin(currentBaseUrl, img.dataset.name);
+            img.addEventListener('load', ()=>{ loadedCount++; updateStatus(); }, { once:true });
+            img.addEventListener('error', ()=>{ img.classList.add('err'); img.alt = `Nem sikerült: ${img.dataset.name}`; }, { once:true });
+          }
+        }, { rootMargin:'900px 0px', threshold:0.01 });
+        document.querySelectorAll('img.page').forEach(img => ioImgs.observe(img));
+        updateStatus();
+      }
+      function renderKnownList(list){
+        clearAll();
+        knownList = list.slice();
+        const frag = document.createDocumentFragment();
+        knownList.forEach((name, idx)=>{
+          const img = document.createElement('img');
+          img.className = 'page';
+          img.alt = name;
+          img.dataset.name = name;
+          img.dataset.idx = String(idx);
+          img.loading = 'lazy';
+          frag.appendChild(img);
+        });
+        pagesEl.appendChild(frag);
+        observeImages();
+      }
+
+      async function loadVolume(volumeName){
+        currentBaseUrl = `${VOLUME_ROOT.replace(/\/$/, '')}/${volumeName}`;
+        document.title = `Képregény — ${volumeName}`;
+        const list = await getExactFileList(currentBaseUrl);
+        if (!list){
+          renderKnownList([]);
+          statusEl.textContent = '0 / 0';
+          alert('A böngésző nem tudja kilistázni a mappát.\nAdj manifest.txt / manifest.json-t a kötet mappájába, vagy futtasd egyszerű szerverrel (pl. "npx serve .").');
+          return;
+        }
+        renderKnownList(list);
+        window.scrollTo({ top: 0, behavior: 'instant' });
+      }
+
+      function populateVolumes(){
+        volSelect.innerHTML = '';
+        VOLUMES.forEach(v => { const o=document.createElement('option'); o.value=v; o.textContent=v; volSelect.appendChild(o); });
+        volSelect.value = VOLUMES[0];
+      }
+      volSelect.addEventListener('change', ()=> loadVolume(volSelect.value));
+
+      function setMenuHidden(hidden){
+        if (hidden){
+          topbar.classList.add('is-hidden');
+          menuBtn.textContent = '☰ Menü';
+          menuBtn.setAttribute('aria-expanded','false');
+        } else {
+          topbar.classList.remove('is-hidden');
+          menuBtn.textContent = '✕ Menü';
+          menuBtn.setAttribute('aria-expanded','true');
+        }
+      }
+      menuBtn.addEventListener('click', ()=>{
+        const hidden = topbar.classList.contains('is-hidden');
+        setMenuHidden(!hidden);
+      });
+
+      toTopBtn.addEventListener('click', () => {
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+      });
+
+      window.addEventListener('keydown', (e) => {
+        const t = e.target;
+        if (t && (t.tagName==='INPUT'||t.tagName==='TEXTAREA'||t.isContentEditable)) return;
+        if (e.key.toLowerCase()==='j') window.scrollBy({ top: window.innerHeight*0.9, behavior:'smooth' });
+        if (e.key.toLowerCase()==='k') window.scrollBy({ top: -window.innerHeight*0.9, behavior:'smooth' });
+        if (e.key==='Home') window.scrollTo({ top:0, behavior:'smooth' });
+        if (e.key==='End') window.scrollTo({ top: document.body.scrollHeight, behavior:'smooth' });
+        if (e.key.toLowerCase()==='m'){ const hidden = topbar.classList.contains('is-hidden'); setMenuHidden(!hidden); }
+      });
+
+      (async () => {
+        populateVolumes();
+        await loadVolume(volSelect.value);
+        setMenuHidden(false);
+      })();
+    })();
+  </script>
+</body>
+</html> -->

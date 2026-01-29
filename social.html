@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="hu">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=0">
+    <title>BOMBASZ - Social</title>
+    
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;900&family=Orbitron:wght@700;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="social.css">
+</head>
+<body id="body-tag">
+
+    <div id="toast-container"></div>
+    
+    <div id="confirm-modal" class="modal-overlay">
+        <div class="modal-box">
+            <div id="modal-text" class="modal-text">Biztosan?</div>
+            <div class="modal-buttons">
+                <button id="modal-cancel-btn" class="btn-modal btn-modal-cancel">Mégse</button>
+                <button id="modal-confirm-btn" class="btn-modal btn-modal-confirm">Igen</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="msg-actions-modal" class="modal-overlay">
+        <div class="modal-box">
+            <div class="modal-text">Válassz műveletet</div>
+            <div class="modal-buttons" style="flex-direction:column; gap:10px;">
+                <button id="msg-act-copy" class="btn-modal btn-modal-copy">Másolás</button>
+                <button id="msg-act-delete" class="btn-modal btn-modal-delete">Törlés</button>
+                <button id="msg-act-cancel" class="btn-modal btn-modal-cancel">Mégse</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="input-modal" class="modal-overlay">
+        <div class="modal-box">
+            <div id="input-modal-title" class="modal-text" style="font-weight:bold; margin-bottom:10px;">Cím</div>
+            <input type="text" id="input-modal-field" class="modal-input" autocomplete="off">
+            <div class="modal-buttons">
+                <button id="input-modal-cancel" class="btn-modal btn-modal-cancel">Mégse</button>
+                <button id="input-modal-confirm" class="btn-modal btn-modal-confirm">Mentés</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="login-view">
+        <div class="bg-wrap"></div>
+        <div class="login-container">
+            <h1 class="main-title">BOMBASZ</h1>
+            <div class="form-card">
+                <div class="auth-tabs">
+                    <button class="auth-tab active" data-tab="login">Bejelentkezés</button>
+                    <button class="auth-tab" data-tab="register">Regisztráció</button>
+                </div>
+                <div id="auth-message" class="message"></div>
+                <form id="login-form" class="auth-form active">
+                    <div class="form-group"><label for="login-email">Email cím</label><input type="email" id="login-email" placeholder="pelda@email.com" required></div>
+                    <div class="form-group"><label for="login-password">Jelszó</label><input type="password" id="login-password" placeholder="••••••••" required></div>
+                    <div class="checkbox-group"><input type="checkbox" id="remember-me" checked><label for="remember-me">Emlékezz rám</label></div>
+                    <button type="submit" class="submit-btn">Belépés</button>
+                    <a href="#" class="forgot-link" id="forgot-password">Elfelejtetted a jelszavad?</a>
+                </form>
+                <form id="register-form" class="auth-form">
+                    <div class="form-group"><label for="reg-username">Felhasználónév</label><input type="text" id="reg-username" placeholder="Pl. Gamer123" required></div>
+                    <div class="form-group"><label for="register-email">Email cím</label><input type="email" id="register-email" placeholder="pelda@email.com" required></div>
+                    <div class="form-group"><label for="register-password">Jelszó</label><input type="password" id="register-password" placeholder="Min. 6 karakter" required minlength="6"></div>
+                    <div class="form-group"><label for="register-password2">Jelszó újra</label><input type="password" id="register-password2" placeholder="Jelszó megerősítése" required minlength="6"></div>
+                    <button type="submit" class="submit-btn">Regisztráció</button>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <div id="app-view">
+        <header class="main-header">
+            <button class="mobile-back" onclick="closeChat()"><i class="fa-solid fa-arrow-left"></i></button>
+            <div class="user-profile-side" id="header-user-info"><div class="profile-icon">?</div></div>
+            <div style="display:flex; align-items:center;">
+                <button id="notif-btn" class="btn-notif" onclick="requestNotificationPermission()" title="Értesítések engedélyezése">
+                    <i class="fa-solid fa-bell"></i>
+                    <span>Értesítések</span>
+                </button>
+                <button onclick="logoutUser()" class="btn-icon-logout" title="Kijelentkezés"><i class="fa-solid fa-right-from-bracket"></i></button>
+            </div>
+        </header>
+
+        <main class="container">
+            <div class="social-wrapper">
+                <aside class="social-sidebar" id="sidebar">
+                    <input type="text" id="user-search" class="search-input" placeholder="KERESÉS..." autocomplete="off">
+                    <div id="search-results"></div>
+
+                    <div class="section-title">Kérések <span id="req-count" style="color:red; display:none">!</span></div>
+                    <div id="requests-list"></div>
+
+                    <div class="section-title">Barátok</div>
+                    <div id="friends-list"></div>
+                </aside>
+
+                <section class="chat-container" id="chat-window">
+                    <div id="chat-target-name">
+                        <span id="active-chat-user" class="chat-header-title">VÁLASSZ VALAKIT</span>
+                        <div id="chat-actions" class="chat-header-actions">
+                            <button id="rename-friend-btn" class="btn-header-icon" title="Becenév beállítása"><i class="fa-solid fa-pen"></i></button>
+                            <button id="delete-friend-btn" class="btn-header-icon" title="Beszélgetés törlése"><i class="fa-solid fa-trash"></i></button>
+                        </div>
+                    </div>
+                    
+                    <div id="chat-messages"></div>
+                    <div class="chat-input-wrapper">
+                        <input type="text" id="msg-input" placeholder="Üzenet..." autocomplete="off">
+                        <button id="send-btn" class="btn-send"><i class="fa-solid fa-paper-plane"></i></button>
+                    </div>
+                </section>
+            </div>
+        </main>
+    </div>
+
+    <script src="social.js" type="module"></script>
+</body>
+</html>

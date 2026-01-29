@@ -1,0 +1,4009 @@
+﻿<!DOCTYPE html>
+<html lang="hu">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bombasz Vids</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
+    <link rel="icon" type="image/x-icon" href="/favicon.ico?v=1.1">
+    <style>
+        *,
+        *::before,
+        *::after {
+            box-sizing: border-box;
+            /* Megakadályozza, hogy a padding növelje a szélességet */
+        }
+
+        html,
+        body {
+            margin: 0;
+            padding: 0;
+            width: 100%;
+            min-width: 100%;
+            overflow-x: hidden;
+            /* Ez csak akkor ér valamit, ha a szülő nem tágul */
+            position: relative;
+        }
+
+        #app {
+            display: flex;
+            flex-direction: column;
+            width: 100%;
+            max-width: 100%;
+            overflow-x: hidden;
+        }
+
+
+
+        .progress-container {
+            width: 100%;
+            height: 6px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 0;
+            margin-top: 5px;
+            overflow: hidden;
+        }
+
+        .progress-bar {
+            height: 100%;
+            background: #444;
+            width: 0;
+            transition: width 0.3s ease-out;
+            border-radius: 0;
+        }
+
+        body {
+            margin: 0;
+            font-family: 'Poppins', sans-serif;
+            background: #111;
+            color: #fff;
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            overflow-x: hidden;
+        }
+
+        .series-page-bg {
+            pointer-events: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 0;
+            background-size: cover;
+            background-position: center;
+            opacity: 0;
+            transition: opacity 0.5s ease;
+            /* JAVÍTÁS: Hardware-es gyorsítás hozzáadása és kisebb blur */
+            filter: blur(40px);
+            transform: translateZ(0);
+            will-change: opacity;
+        }
+
+        .series-page-bg.visible {
+            opacity: 0.6 !important;
+            /* Emeltem az átlátszóságon, hogy látszódjon */
+        }
+
+        /* EZRE CSERÉLD LE: */
+        .series-page-bg.visible {
+            opacity: 0.5;
+        }
+
+        #login-container {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+            background: #1A1A1A;
+            border-radius: 0;
+            padding: 40px;
+            width: 90%;
+            max-width: 380px;
+            box-shadow: 0 8px 30px rgba(0, 0, 0, 0.8), inset 0 0 5px rgba(255, 255, 255, 0.05);
+        }
+
+        #login-container h2 {
+            text-align: center;
+            font-weight: 700;
+            font-size: 1.8rem;
+            margin-bottom: 10px;
+        }
+
+        #login-container input {
+            padding: 12px;
+            border-radius: 0;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            background: rgba(255, 255, 255, 0.05);
+            color: #fff;
+            margin-top: 6px;
+            transition: all 0.3s;
+        }
+
+        #login-container input:focus {
+            background: rgba(255, 255, 255, 0.1);
+            border-color: #444;
+            box-shadow: 0 0 10px rgba(68, 68, 68, 0.3);
+            outline: none;
+        }
+
+        .btn {
+            padding: 12px 20px;
+            border-radius: 0;
+            border: none;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            letter-spacing: 0.5px;
+        }
+
+        .btn.fill {
+            background: #252525;
+            color: #fff;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.4);
+        }
+
+        .btn.fill:hover {
+            background: #444;
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.6);
+        }
+
+        #app {
+            position: relative;
+            z-index: 1;
+            display: none;
+            opacity: 0;
+            transition: opacity 0.5s ease-in-out;
+            flex-direction: column;
+            height: 100vh;
+            width: 100vw;
+
+            /* Ez a sor a legfontosabb: */
+            background: transparent !important;
+            z-index: 1;
+        }
+
+        header {
+            box-shadow: none;
+
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 2px 30px;
+
+            position: relative;
+        }
+
+        #profile-btn,
+        #logout-btn {
+            transition: color 0.3s, transform 0.3s;
+            background: none;
+            border: none;
+            color: #fff;
+            font-weight: 600;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            position: relative;
+        }
+
+        #profile-btn:hover,
+        #logout-btn:hover {
+            color: #bbb;
+            transform: scale(1.1);
+        }
+
+        #logout-btn {
+            color: #fff;
+            border-radius: 0;
+            padding: 5px 8px;
+        }
+
+        #logout-btn:hover {
+            background: #444;
+            box-shadow: none;
+        }
+
+        #profile-dropdown {
+            position: absolute;
+            right: 0;
+            top: 45px;
+            background: #222;
+            border-radius: 0;
+            padding: 15px;
+            min-width: 250px;
+            max-height: 80vh;
+            overflow-y: auto;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.5);
+            z-index: 100;
+            display: none;
+        }
+
+        #watched-list {
+            margin-top: 15px;
+            padding-top: 10px;
+            border-top: 1px solid #444;
+            display: flex;
+            flex-direction: column;
+            gap: 5px;
+        }
+
+        .watched-item {
+            display: flex;
+            flex-direction: column;
+            padding: 8px;
+            background: #1A1A1A;
+            color: #fff;
+            cursor: pointer;
+            transition: background 0.2s;
+            border: 1px solid #1A1A1A;
+            font-size: 0.9rem;
+        }
+
+        .watched-item:hover {
+            background: #252525;
+        }
+
+        .watched-title {
+            font-weight: 600;
+            margin-bottom: 3px;
+            color: #bbb;
+        }
+
+        .watched-progress-text {
+            font-size: 0.8em;
+            color: #777;
+        }
+
+        #search-container {
+            display: flex;
+            align-items: center;
+            position: relative;
+        }
+
+        /* Ezt a részt cseréld a stílusaid között */
+        #search-input {
+            position: absolute;
+            right: 0;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 0;
+            padding: 8px 0;
+            border: none;
+            border-radius: 4px;
+            transition: all 0.3s ease-in-out;
+            opacity: 0;
+            background: #222;
+            color: #fff;
+            z-index: 10;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        #search-container.active #search-input {
+            width: 180px;
+            padding: 8px 35px 8px 15px;
+            opacity: 1;
+        }
+
+        /* Ez megvédi a logót mobilon */
+        @media(max-width: 768px) {
+            #home-btn {
+                font-size: 1.2rem;
+                white-space: nowrap;
+            }
+
+            #search-container.active #search-input {
+                width: 130px;
+            }
+        }
+
+        #search-clear-btn {
+            position: absolute;
+            right: 5px;
+            top: 50%;
+            /* Középre igazítás */
+            transform: translateY(-50%);
+            background: transparent;
+            border: none;
+            color: #fff;
+
+            font-size: 1.5rem;
+            width: 30px;
+            height: 30px;
+            display: none;
+            /* Alapból rejtve */
+            z-index: 20;
+            pointer-events: auto !important;
+            /* Engedélyezzük a kattintást */
+            align-items: center;
+            justify-content: center;
+        }
+
+        #search-container.active #search-clear-btn {
+            opacity: 1;
+            pointer-events: auto;
+        }
+
+
+        .main-page {
+            width: 100%;
+            max-width: 100%;
+            padding: 15px;
+            margin: 0;
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 15px;
+            overflow-x: hidden;
+        }
+
+        .series-card {
+            /* Asztali méret marad 180px */
+            width: 180px;
+            flex-shrink: 0;
+            display: flex;
+            flex-direction: column;
+            background: #1A1A1A;
+            transition: all 0.3s;
+        }
+
+        @media (max-width: 480px) {
+            .main-page {
+                padding: 10px;
+                gap: 10px;
+            }
+
+            .series-card {
+                /* Kiszámoljuk, hogy két kártya pont elférjen (50% mínusz a gap fele) */
+                width: calc(50% - 15px);
+                min-width: 120px;
+                /* Megakadályozza, hogy túl kicsi legyen */
+            }
+
+            .series-title {
+                min-height: 45px;
+                padding: 5px;
+            }
+        }
+
+        .series-card:hover {
+            transform: none;
+            box-shadow: none;
+            background: #252525;
+        }
+
+        .series-card img {
+            width: 100%;
+            aspect-ratio: 2/3;
+            object-fit: cover;
+            display: block;
+            border-radius: 0;
+            transition: transform 0.3s ease-out;
+        }
+
+        .series-card:hover img {
+            transform: none;
+        }
+
+        .series-title {
+            width: 100%;
+            min-height: 50px;
+            padding: 8px 10px;
+            box-sizing: border-box;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: transparent;
+            transition: all 0.2s ease;
+            cursor: pointer;
+        }
+
+        .series-title span {
+            font-size: 0.85rem;
+            line-height: 1.2;
+            text-align: center;
+            color: #fff;
+            display: block;
+
+            /* Alapértelmezett levágás 2 sorra */
+            display: -webkit-box;
+            -webkit-box-orient: vertical;
+            -webkit-line-clamp: 2;
+            line-clamp: 2;
+            /* Standard tulajdonoság a sárga aláhúzás ellen */
+            overflow: hidden;
+        }
+
+        /* ASZTALI GÉPEN: Egér ráhúzásra nyílik */
+        @media (hover: hover) {
+            .series-card:hover .series-title span {
+                -webkit-line-clamp: unset;
+                line-clamp: unset;
+                overflow: visible;
+                display: block;
+            }
+
+            .series-card:hover .series-title {
+                height: auto;
+            }
+        }
+
+        /* TELEFONON: Koppintásra (hosszabb nyomásra vagy kattintásra) nyílik */
+        @media (max-width: 768px) {
+
+            /* Amikor a kártyát megérintik, a cím kinyílik */
+            .series-card:active .series-title span,
+            .series-card:focus .series-title span {
+                -webkit-line-clamp: unset;
+                line-clamp: unset;
+                overflow: visible;
+                display: block;
+            }
+
+            .series-card:active .series-title,
+            .series-card:focus .series-title {
+                height: auto;
+            }
+        }
+
+        .series-title.scrolling-title span {
+            animation: smoothScroll linear infinite;
+        }
+
+        @keyframes smoothScroll {
+            0% {
+                transform: translateX(0);
+            }
+
+            100% {
+                transform: translateX(-50%);
+            }
+        }
+
+        .series-page {
+            display: none;
+            flex: 1;
+            height: calc(100vh - 60px);
+            /* Kiszámolja a maradék helyet a header alatt */
+            flex-direction: row;
+            align-items: flex-start;
+            /* Fontos: megakadályozza, hogy a sidebar függőlegesen kinyúljon */
+        }
+
+        /* A javított sidebar stílus */
+        .sidebar {
+            width: 240px;
+            height: fit-content;
+            /* Csak a tartalom (részek) végéig ér */
+            max-height: calc(100vh - 100px);
+            /* Megakadályozza, hogy túl sok résznél kilógjon a képernyőről */
+            background: rgba(0, 0, 0, 0.3) !important;
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            padding: 20px;
+            box-sizing: border-box;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            overflow-y: auto;
+            /* Ha sok rész van, ezen belül lehet görgetni */
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            margin: 20px;
+            /* Modern, lebegő hatást ad neki */
+            border-radius: 4px;
+        }
+
+        .sidebar::-webkit-scrollbar {
+            display: none;
+            width: 0 !important;
+        }
+
+        .sidebar {
+            -ms-overflow-style: none;
+            scrollbar-width: none;
+        }
+
+        .sidebar h2 {
+            margin: 0 0 10px 0;
+            text-align: center;
+            font-size: 20px;
+        }
+
+        .video-card {
+            background: #252525;
+            border-radius: 0;
+            padding: 10px;
+            transition: background 0.2s, border-color 0.2s, transform 0.2s;
+            border: 1px solid transparent;
+            cursor: pointer;
+            text-align: center;
+            font-size: 14px;
+            color: #bbb;
+        }
+
+        .video-card.active {
+            border-color: #444;
+            background: #444;
+            color: #fff;
+            transform: scale(1.02);
+            font-weight: 600;
+        }
+
+        .video-card.active .fa-check {
+            color: #fff;
+        }
+
+        .video-card:not(.active):hover {
+            background: #383838;
+            transform: scale(1.01);
+            border-color: #444;
+            color: #fff;
+        }
+
+        .video-card.watched:not(.active) {
+            background: #161616;
+            color: #777;
+            border-color: #161616;
+        }
+
+        .video-card.watched:not(.active):hover {
+            background: #222;
+        }
+
+        .watched .fa-check {
+            color: #4cff7f;
+            margin-left: 5px;
+        }
+
+
+        .video-content-wrapper {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            padding: 20px;
+            box-sizing: border-box;
+            order: 1;
+            align-items: center;
+            max-width: min(1300px, 85vw);
+            margin: 0 auto;
+            height: 100%;
+            /* A háttérszínt töröltük, hogy átlátszódjon a dinamikus kép */
+            background: transparent;
+            border-radius: 0;
+        }
+
+        .video-frame-container {
+            width: 100%;
+            position: relative;
+            height: 0;
+            padding-top: 56.25%;
+            max-width: 100%;
+            flex-shrink: 0;
+            overflow: hidden;
+        }
+
+        .video-frame-container iframe {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            border: 0;
+            border-radius: 0;
+            box-shadow: 0 8px 30px rgba(0, 0, 0, 0.8);
+        }
+
+        .video-frame-container iframe.indavideo-player {
+            width: 100%;
+            height: 100%;
+        }
+
+
+        #nextEpisodeBtn {
+            background: #252525;
+            color: #fff;
+            border: 2px solid #444;
+            padding: 10px 20px;
+            border-radius: 0;
+            cursor: pointer;
+            margin-top: 20px;
+            margin-bottom: 20px;
+            font-weight: 600;
+            transition: all 0.3s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            max-width: 400px;
+            width: 100%;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.4);
+        }
+
+        #nextEpisodeBtn:hover {
+            background: #444;
+            transform: translateY(-2px);
+            border-color: #bbb;
+            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.6);
+        }
+
+        .back-button {
+            background: #444;
+            color: #fff;
+            border: none;
+            padding: 8px 15px;
+            border-radius: 0;
+            cursor: pointer;
+            margin-bottom: 15px;
+            transition: all 0.3s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            font-weight: 500;
+        }
+
+        .back-button:hover {
+            background: #555;
+            transform: scale(1.05);
+        }
+
+        @media(max-width:768px) {
+
+            body {
+                align-items: flex-start;
+                padding-top: 5vh;
+                min-height: auto;
+            }
+
+            #login-container {
+                margin: 0 auto;
+            }
+
+            header {
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+                padding: 10px 30px;
+
+                /* Sticky pozíció: így görgetésnél is látszik az üveg hatás */
+                position: sticky;
+                top: 0;
+                left: 0;
+                right: 0;
+                z-index: 1000;
+
+                /* Áttetsző sötét háttér */
+                background: rgba(0, 0, 0, 0.4) !important;
+
+                /* Üveg hatás (homályosítás) */
+                backdrop-filter: blur(15px) !important;
+                -webkit-backdrop-filter: blur(15px) !important;
+
+                /* Elegáns választóvonal */
+                border-bottom: 1px solid rgba(255, 255, 255, 0.1) !important;
+                box-shadow: none !important;
+
+                /* Simább átmenet a színek között */
+                transition: background 0.3s ease;
+            }
+
+            /* Mobil optimalizálás a headernek */
+            /* MOBIL NÉZET JAVÍTÁSA - CSAK 768px ALATT */
+            /* MOBIL NÉZET JAVÍTÁSA - CSAK 768px ALATT */
+            @media(max-width:768px) {
+                body {
+                    display: block !important;
+                    overflow-x: hidden;
+                    overflow-y: auto;
+                    height: auto !important;
+                    min-height: 100vh;
+                }
+
+                /* FIX HEADER MOBILON */
+                header {
+                    position: fixed !important;
+                    /* Fixen rögzítjük a tetején */
+                    top: 0;
+                    left: 0;
+                    width: 100%;
+                    z-index: 2000 !important;
+                    /* Hogy minden felett legyen */
+                    box-sizing: border-box;
+                    background: rgba(17, 17, 17, 0.95) !important;
+                    backdrop-filter: blur(10px);
+                    height: 60px !important;
+                    display: flex !important;
+                    padding: 0 15px !important;
+                }
+
+                #app {
+                    display: none;
+                    flex-direction: column !important;
+                    height: auto !important;
+                    min-height: 100vh;
+                    padding-top: 60px !important;
+                    /* Helyet hagyunk a fix fejlécnek */
+                    overflow-y: visible !important;
+                }
+
+                .series-page {
+                    flex-direction: column !important;
+                    height: auto !important;
+                    padding-bottom: 50px;
+                }
+
+                /* VIDEÓ RÉSZ: Mobilon legyen felül */
+                .video-content-wrapper {
+                    width: 100% !important;
+                    max-width: 100% !important;
+                    padding: 10px !important;
+                    margin: 0 !important;
+                    order: 0 !important;
+                    height: auto !important;
+                    flex: none !important;
+                }
+
+                .video-frame-container {
+                    padding-top: 56.25% !important;
+                    height: 0 !important;
+                    position: relative !important;
+                    display: block !important;
+                }
+
+                .video-frame-container iframe {
+                    position: absolute !important;
+                    top: 0;
+                    left: 0;
+                    width: 100% !important;
+                    height: 100% !important;
+                }
+
+                /* SIDEBAR (Részek listája): A videó alá */
+                .sidebar {
+                    width: calc(100% - 30px) !important;
+                    margin: 15px !important;
+                    max-height: 300px !important;
+                    order: 1 !important;
+                    background: rgba(20, 20, 20, 0.9) !important;
+                    border: 1px solid rgba(255, 255, 255, 0.1) !important;
+                    flex: none !important;
+                }
+
+                #nextEpisodeBtn {
+                    order: 2 !important;
+                    width: calc(100% - 30px) !important;
+                    margin: 10px 15px !important;
+                }
+
+                .main-page {
+                    padding: 15px !important;
+                    justify-content: center !important;
+                }
+
+                .series-card {
+                    width: 140px !important;
+                }
+            }
+
+            .series-title {
+                font-size: 0.85rem;
+            }
+
+            .series-page {
+                flex-direction: column;
+                overflow-y: auto;
+                height: 100vh;
+            }
+
+            .sidebar {
+                width: 240px;
+                height: auto;
+                max-height: 250px;
+                padding: 20px;
+                order: 1;
+                background: rgba(17, 17, 17, 0.8);
+            }
+
+            .video-content-wrapper {
+                height: 220px;
+                flex: none;
+                padding: 15px;
+                order: 0;
+                background: none;
+                margin: 0;
+                max-width: 100%;
+            }
+
+            .video-frame-container {
+                padding-top: 0;
+                height: 100%;
+            }
+
+            .sidebar h2 {
+                margin-bottom: 5px;
+                font-size: 1.2rem;
+            }
+
+            .video-card {
+                font-size: 12px;
+                padding: 8px;
+                border-radius: 0;
+            }
+
+            #nextEpisodeBtn {
+                margin-top: 15px;
+                max-width: 100%;
+                border-radius: 0;
+            }
+
+        }
+
+        @media(max-width:480px) {
+            .series-card {
+                width: 120px;
+                margin: 0 auto;
+            }
+
+            .series-title {
+                font-size: 0.8rem;
+            }
+
+            #login-container {
+                padding: 30px 20px;
+            }
+        }
+
+        /* Ambilight konténer */
+        /* Konténer igazítása */
+        .ambilight-wrapper {
+            position: relative;
+            width: 100%;
+            max-width: 1000px;
+            z-index: 1;
+        }
+
+        /* AMBILIGHT: Ez a réteg adja a tényleges fényt */
+        #ambilightGlowContainer {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 100%;
+            height: 100%;
+            z-index: -1;
+            /* Pontosan a fővideó mögött */
+            transform: translate(-50%, -50%) scale(1.2, 1.3);
+            opacity: 0;
+            /* Brutális elmosás és színerősség - FEHÉRNÉL FEHÉR LESZ */
+            filter: blur(120px) saturate(1.8) brightness(1.4);
+            pointer-events: none;
+            display: none;
+            transition: opacity 0.8s ease;
+        }
+
+        #ambilightGlowContainer iframe {
+            width: 100%;
+            height: 100%;
+            border: none;
+        }
+
+        /* Aktiválás */
+        .ambilight-active #ambilightGlowContainer {
+            display: block;
+            opacity: 1 !important;
+        }
+
+        .theater-mode-on .ambilight-wrapper {
+            max-width: 100% !important;
+            width: 100% !important;
+        }
+
+        /* Mozi mód méretek */
+        .theater-mode-on .video-content-wrapper {
+            max-width: 95vw !important;
+            /* Szinte teljes szélesség */
+            width: 95vw !important;
+            padding: 20px 0 !important;
+            /* Kevesebb margó, több videó */
+        }
+
+        .theater-mode-on .video-frame-container {
+            box-shadow: 0 0 80px rgba(0, 0, 0, 1);
+            z-index: 10;
+        }
+
+        #theaterBtn:hover {
+            background: rgba(255, 255, 255, 0.2);
+        }
+
+        .theater-mode-on:hover #theaterBtn,
+        #theaterBtn:hover {
+            opacity: 1;
+        }
+
+        #theaterBtn {
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            color: #ccc;
+            padding: 10px 20px;
+            margin-top: 15px;
+            cursor: pointer;
+            border-radius: 4px;
+            transition: all 0.3s ease;
+            z-index: 100;
+        }
+
+        .theater-mode-on #theaterBtn {
+            position: fixed;
+            bottom: 25px;
+            /* Kicsit lejjebb toltuk */
+            left: 50%;
+            transform: translateX(-50%);
+            z-index: 10000;
+        }
+
+        .theater-mode-on:hover #theaterBtn {
+            opacity: 1;
+        }
+
+        #theaterBtn.active {
+            background: #4cff7f;
+            color: #000;
+        }
+
+        /* Amikor a mozi mód aktív */
+        /* Mozi mód alapjai */
+        .theater-mode-on body {
+            background: #000 !important;
+        }
+
+        .theater-mode-on #app {
+            background: #000 !important;
+        }
+
+        /* Sidebar elrejtése */
+        .theater-mode-on .sidebar {
+            display: none !important;
+        }
+
+        /* Konténer méretezése: Nem túl nagy, de központozott */
+        .theater-mode-on .video-content-wrapper {
+            max-width: 85vw !important;
+            width: 85vw !important;
+            padding: 40px 0 !important;
+            background: transparent !important;
+        }
+
+        /* Ambilight (Háttérvilágítás) réteg stílusa */
+        .theater-mode-on .video-content-wrapper {
+            max-width: 80vw !important;
+            width: 80vw !important;
+            padding: 60px 0 !important;
+            background: transparent !important;
+        }
+
+        /* AMBILIGHT: Extrém kiterjedés és intenzitás */
+        #ambilightGlowContainer {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 100%;
+            height: 100%;
+            z-index: -1;
+            transform: translate(-50%, -50%) scale(1.1);
+            opacity: 0;
+            /* JAVÍTÁS: 150px blur helyett próbáld meg a 60-80px-et */
+            filter: blur(60px) saturate(1.5);
+            pointer-events: none;
+            will-change: filter, transform;
+            /* GPU segítség kérése */
+        }
+
+        /* Teljes fényerő bekapcsolva */
+        .ambilight-active #ambilightGlowContainer {
+            opacity: 0.9 !important;
+            display: block;
+        }
+
+        /* Sötét keret a videó körül, hogy elváljon a háttértől */
+        .theater-mode-on .video-frame-container {
+            box-shadow: 0 0 60px 10px rgba(0, 0, 0, 0.8);
+            z-index: 2;
+        }
+
+        .ambilight-active #ambilightGlowContainer {
+            display: block;
+        }
+
+        /* Az iframe-ek méretezése a konténeren belül */
+        #ambilightGlowContainer iframe {
+            width: 100%;
+            height: 100%;
+            border: none;
+        }
+
+        /* A főoldal és egyéb elemek sötétítése mozi módban */
+        .theater-mode-on header,
+        .theater-mode-on #dynamicBackground {
+            opacity: 0 !important;
+            pointer-events: none;
+        }
+
+        .theater-mode-on {
+            background: #000 !important;
+        }
+
+        .theater-mode-on header {
+            display: none !important;
+            /* Elrejti a logót és a profilod mozi módban */
+        }
+
+        #continueList {
+            display: flex;
+            gap: 15px;
+            overflow-x: auto;
+            padding-bottom: 15px;
+            scrollbar-width: none;
+            /* Firefox */
+        }
+
+        #continueList::-webkit-scrollbar {
+            display: none;
+            /* Chrome/Safari */
+        }
+
+        #continueList .series-card {
+            flex: 0 0 auto;
+            /* Megakadályozza, hogy összenyomódjanak a kártyák */
+        }
+
+        /* Kompakt folytatás szekció */
+        #continueWatchingSection {
+            width: 100%;
+            padding: 10px 40px 0 40px;
+            margin-bottom: -10px;
+            /* Hogy közelebb legyen a főrácshoz */
+        }
+
+        #continueList {
+            display: flex;
+            gap: 10px;
+            overflow-x: auto;
+            padding: 5px 0 15px 0;
+            scrollbar-width: none;
+        }
+
+        #continueList::-webkit-scrollbar {
+            display: none;
+        }
+
+        .continue-chip {
+            background: #252525;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            padding: 8px 15px;
+            border-radius: 4px;
+            display: flex;
+            flex-direction: column;
+            min-width: 160px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .continue-chip:hover {
+            background: #333;
+            border-color: #4cff7f;
+            transform: translateY(-2px);
+        }
+
+        .continue-chip .series-name {
+            font-size: 0.85rem;
+            font-weight: 600;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            color: #fff;
+        }
+
+        .continue-chip .episode-name {
+            font-size: 0.75rem;
+            color: #4cff7f;
+        }
+
+        @media (max-width: 768px) {
+            #continueWatchingSection {
+                padding: 10px 20px 0 20px;
+            }
+        }
+
+        /* Kompakt, modern Folytatás rész */
+        #continueWatchingSection {
+            width: 100%;
+            padding: 20px 40px 0 40px;
+            background: linear-gradient(to bottom, rgba(255, 255, 255, 0.02), transparent);
+        }
+
+        #continueList {
+            display: flex;
+            gap: 12px;
+            overflow-x: auto;
+            padding: 10px 0;
+            scrollbar-width: none;
+        }
+
+        .continue-chip {
+            background: #1e1e1e;
+            border: 1px solid #333;
+            padding: 10px 16px;
+            border-radius: 8px;
+            /* Lekerekített, modernebb forma */
+            min-width: 200px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .continue-chip:hover {
+            background: #282828;
+            border-color: #4cff7f;
+        }
+
+        .series-name {
+            font-size: 0.85rem;
+            font-weight: 600;
+            color: #eee;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            max-width: 130px;
+        }
+
+        .episode-name {
+            font-size: 0.75rem;
+            color: #4cff7f;
+            background: rgba(76, 255, 127, 0.1);
+            padding: 2px 6px;
+            border-radius: 4px;
+        }
+
+        /* Főoldali kártyák finomítása */
+        .series-card {
+            border-radius: 8px;
+            overflow: hidden;
+            background: #161616;
+            border: 1px solid transparent;
+        }
+
+        .series-card:hover {
+            border-color: #333;
+            background: #1e1e1e;
+        }
+
+        .series-card {
+            width: 180px;
+            flex-shrink: 0;
+            display: flex;
+            flex-direction: column;
+            background: #1A1A1A;
+            border-radius: 8px;
+            overflow: hidden;
+            border: 1px solid transparent;
+            /* Ez biztosítja a sima mozgást */
+            transition: transform 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94), background 0.3s ease, border-color 0.3s ease;
+            will-change: transform;
+        }
+
+        /* Kurzus ráhúzáskor (Zoom effekt) */
+        .series-card:hover {
+            transform: scale(1.05);
+            /* 5%-os növekedés */
+            background: #252525;
+            border-color: #444;
+            z-index: 10;
+            /* Hogy a szomszédos kártyák fölé emelkedjen */
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.5);
+        }
+
+        .series-card img {
+            width: 100%;
+            aspect-ratio: 2/3;
+            object-fit: cover;
+            display: block;
+        }
+
+        .video-card {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 5px 10px;
+            text-align: left;
+            /* Így jobban néz ki a kép mellett */
+        }
+
+
+
+
+
+
+        .video-card {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 8px 12px;
+    text-align: left;
+    background: rgba(10, 10, 10, 0.7);
+    border-left: 3px solid transparent; /* Neon csík helye */
+    transition: all 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    position: relative;
+    overflow: hidden;
+}
+
+.video-card:hover {
+    background: rgba(40, 40, 40, 0.9);
+    border-left: 3px solid #4cff7f; /* Aktív neon zöld sáv */
+    transform: translateX(5px); /* Kicsit "beugrik" a képbe */
+}
+
+.video-card.active {
+    background: rgba(76, 255, 127, 0.1);
+    border-left: 3px solid #4cff7f;
+    box-shadow: inset 5px 0 15px rgba(76, 255, 127, 0.15);
+}
+.continue-chip {
+    /* ... marad az alap ... */
+    background: #0d0d0d;
+    border: 1px solid #222;
+    position: relative;
+}
+
+/* Kis dekorációs sarok a chipre */
+.continue-chip::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    right: 0;
+    width: 10px;
+    height: 10px;
+    background: linear-gradient(45deg, transparent 50%, #4cff7f 50%);
+}
+
+.continue-chip:hover {
+    border-color: #4cff7f;
+    box-shadow: 0 0 10px rgba(76, 255, 127, 0.2);
+}
+.theater-mode-on .video-frame-container::after {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(
+        rgba(18, 16, 16, 0) 50%, 
+        rgba(0, 0, 0, 0.1) 50%
+    );
+    background-size: 100% 4px;
+    z-index: 5;
+    pointer-events: none; /* Ne zavarja a videóra kattintást */
+    opacity: 0.5;
+}
+/* --- INTERACTIVE MODERN CARDS --- */
+
+:root {
+    --accent: #00f3ff;
+    --card-width: 200px;
+    --card-ratio: 2 / 3;
+    --card-radius: 12px;
+}
+
+.main-page {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 25px;
+    justify-content: center;
+    padding: 40px 20px;
+}
+
+/* 1. KÁRTYA ALAPOK */
+.series-card {
+    width: var(--card-width) !important;
+    aspect-ratio: var(--card-ratio) !important;
+    height: auto !important;
+    background: #000 !important;
+    border-radius: var(--card-radius) !important;
+    overflow: hidden;
+    position: relative;
+    border: 1px solid rgba(255, 255, 255, 0.05) !important;
+    transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+    cursor: pointer;
+}
+
+.series-card img {
+    width: 100% !important;
+    height: 100% !important;
+    object-fit: cover !important;
+    transition: transform 0.5s ease, filter 0.5s ease;
+}
+
+/* 2. CÍM PANEL - ALAPHELYZETBEN REJTVE (MONITORON) */
+.series-title {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    padding: 30px 10px 15px;
+    background: linear-gradient(to top, rgba(0, 0, 0, 0.95) 30%, transparent);
+    
+    /* Rejtés monitoron */
+    opacity: 0;
+    transform: translateY(20px);
+    transition: all 0.35s ease-out;
+    z-index: 2;
+    pointer-events: none;
+}
+
+.series-title span {
+    font-size: 0.95rem !important;
+    font-weight: 600 !important;
+    color: #fff !important;
+    display: block;
+    text-align: center;
+    text-shadow: 0 2px 4px rgba(0,0,0,0.8);
+}
+
+/* 3. HOVER EFFEKT (MONITORON) */
+@media (min-width: 769px) {
+    .series-card:hover {
+        transform: scale(1.06);
+        border-color: var(--accent) !important;
+        box-shadow: 0 15px 30px rgba(0, 0, 0, 0.6);
+        z-index: 10;
+    }
+
+    .series-card:hover img {
+        transform: scale(1.1);
+        filter: brightness(0.7); /* Kicsit besötétítjük a képet, hogy a fehér cím jobban látszódjon */
+    }
+
+    .series-card:hover .series-title {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* 4. MOBIL NÉZET - CÍMEK FIXEN OTT VANNAK */
+@media (max-width: 768px) {
+    .main-page {
+        gap: 15px;
+        padding: 20px 10px;
+    }
+
+    .series-card {
+        width: calc(50% - 15px) !important; /* 2 oszlopos elrendezés */
+        border-radius: 8px !important;
+    }
+
+    .series-title {
+        opacity: 1 !important;
+        transform: translateY(0) !important;
+        padding: 20px 8px 8px !important;
+        background: linear-gradient(to top, rgba(0, 0, 0, 0.8) 50%, transparent) !important;
+    }
+
+    .series-title span {
+        font-size: 0.85rem !important;
+    }
+}
+/* --- VÉGLEGES MODERN STREAMING UI (ALL-IN-ONE) --- */
+
+:root {
+    --accent: #00f3ff;
+    --card-width: 200px;
+    --card-ratio: 2 / 3;
+    --card-radius: 12px;
+    --bg-dark: #050505;
+    --glass-bg: rgba(10, 10, 10, 0.7);
+}
+
+/* 1. DINAMIKUS HÁTTÉR ÉS ALAPOK */
+body {
+    background-color: var(--bg-dark);
+    /* Nagyon halvány, mozgó fények érzete a háttérben */
+    background-image: 
+        radial-gradient(at 0% 0%, rgba(0, 243, 255, 0.03) 0px, transparent 50%),
+        radial-gradient(at 100% 100%, rgba(255, 0, 85, 0.03) 0px, transparent 50%);
+    background-attachment: fixed;
+    margin: 0;
+    font-family: 'Inter', -apple-system, sans-serif;
+    color: white;
+}
+
+/* 2. GLASSMORPHISM FEJLÉC */
+header {
+    position: sticky;
+    top: 0;
+    z-index: 1000;
+    background: var(--glass-bg) !important;
+    backdrop-filter: blur(20px) !important;
+    -webkit-backdrop-filter: blur(20px) !important;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.05) !important;
+    padding: 15px 40px;
+}
+
+/* 3. FŐ RÁCSSZERKEZET */
+.main-page {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 25px;
+    justify-content: center;
+    padding: 40px 20px;
+}
+
+/* 4. PRÉMIUM KÁRTYA DESIGN */
+.series-card {
+    width: var(--card-width) !important;
+    aspect-ratio: var(--card-ratio) !important;
+    height: auto !important;
+    background: #111 !important;
+    border-radius: var(--card-radius) !important;
+    overflow: hidden;
+    position: relative;
+    border: 1px solid rgba(255, 255, 255, 0.05) !important;
+    transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+    cursor: pointer;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.4);
+}
+
+/* Torzításmentes képkezelés */
+.series-card img {
+    width: 100% !important;
+    height: 100% !important;
+    object-fit: cover !important;
+    transition: transform 0.5s ease, filter 0.5s ease;
+}
+
+/* Play ikon (hoverre) */
+.series-card::after {
+    content: '▶';
+    position: absolute;
+    top: 50%; left: 50%;
+    transform: translate(-50%, -50%) scale(0.5);
+    font-size: 40px;
+    color: white;
+    opacity: 0;
+    transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    z-index: 3;
+}
+
+/* 5. CÍM PANEL (Monitoron alapból rejtve) */
+.series-title {
+    position: absolute;
+    bottom: 0; left: 0; width: 100%;
+    padding: 35px 10px 15px;
+    background: linear-gradient(to top, rgba(0, 0, 0, 0.95) 40%, transparent);
+    opacity: 0;
+    transform: translateY(20px);
+    transition: all 0.35s ease-out;
+    z-index: 2;
+    pointer-events: none;
+}
+
+.series-title span {
+    font-size: 0.95rem !important;
+    font-weight: 600 !important;
+    color: #fff !important;
+    display: block;
+    text-align: center;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+/* 6. MONITOR HOVER EFFEKTEK */
+@media (min-width: 769px) {
+    .series-card:hover {
+        transform: scale(1.06) translateY(-5px);
+        border-color: var(--accent) !important;
+        box-shadow: 0 15px 35px rgba(0, 243, 255, 0.15);
+        z-index: 10;
+    }
+
+    .series-card:hover img {
+        transform: scale(1.1);
+        filter: brightness(0.6);
+    }
+
+    .series-card:hover .series-title {
+        opacity: 1;
+        transform: translateY(0);
+    }
+
+    .series-card:hover::after {
+        opacity: 0.9;
+        transform: translate(-50%, -50%) scale(1);
+    }
+}
+
+/* 7. MOBIL NÉZET (Fix címek és 2 oszlop) */
+@media (max-width: 768px) {
+    .main-page {
+        gap: 15px;
+        padding: 20px 10px;
+    }
+
+    .series-card {
+        width: calc(50% - 15px) !important;
+        border-radius: 8px !important;
+    }
+
+    .series-title {
+        opacity: 1 !important;
+        transform: translateY(0) !important;
+        padding: 25px 8px 8px !important;
+        background: linear-gradient(to top, rgba(0, 0, 0, 0.85) 50%, transparent) !important;
+    }
+
+    .series-title span {
+        font-size: 0.85rem !important;
+    }
+}
+
+/* 8. MODERN SIDEBAR FINOMÍTÁS */
+.sidebar {
+    background: var(--glass-bg) !important;
+    backdrop-filter: blur(15px) !important;
+    -webkit-backdrop-filter: blur(15px) !important;
+    border: 1px solid rgba(255, 255, 255, 0.05) !important;
+    border-radius: 15px !important;
+}
+
+.video-card {
+    transition: 0.3s ease;
+    border-radius: 8px !important;
+    margin-bottom: 4px;
+}
+
+.video-card.active {
+    background: rgba(0, 243, 255, 0.1) !important;
+    color: var(--accent) !important;
+}
+/* --- MINIMALIST GREY EPISODE LIST --- */
+
+/* Sidebar háttér finomítása */
+.sidebar {
+    background: rgba(15, 15, 15, 0.8) !important;
+    backdrop-filter: blur(20px);
+    border: 1px solid rgba(255, 255, 255, 0.05) !important;
+    border-radius: 16px !important;
+}
+
+/* Epizód kártyák - Neon helyett szürke skála */
+.video-card {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 10px 12px !important;
+    background: transparent !important;
+    border: 1px solid transparent !important;
+    border-radius: 8px !important;
+    color: #999 !important; /* Alapértelmezett középszürke szöveg */
+    transition: all 0.2s ease;
+    cursor: pointer;
+    clip-path: none !important; /* Töröljük a vágott sarkokat */
+    text-align: left;
+}
+
+/* Hover állapot - Világosabb szürke */
+.video-card:hover {
+    background: rgba(255, 255, 255, 0.05) !important;
+    color: #fff !important;
+    padding-left: 18px !important; /* Kis mozgás az interakcióhoz */
+}
+
+/* Aktív epizód - Fehér/Világosszürke kiemelés */
+.video-card.active {
+    background: rgba(255, 255, 255, 0.1) !important;
+    border: 1px solid rgba(255, 255, 255, 0.1) !important;
+    color: #fff !important;
+    font-weight: 600;
+}
+
+/* Az epizódok címei és számai a listában */
+.video-card span {
+    font-size: 0.9rem;
+    letter-spacing: 0;
+    text-transform: none !important; /* Ne legyen minden nagybetűs */
+    text-shadow: none !important; /* Töröljük a neon ragyogást */
+}
+
+/* Sidebar címe (pl. "Epizódok") */
+.sidebar h2 {
+    color: #eee !important;
+    font-size: 1.1rem;
+    font-weight: 600;
+    text-transform: none;
+    letter-spacing: 0.5px;
+    margin-bottom: 20px;
+    text-shadow: none !important;
+}
+
+/* Következő rész gomb - Monokróm stílus */
+#nextEpisodeBtn {
+    background: #222 !important;
+    color: #eee !important;
+    border: 1px solid #333 !important;
+    border-radius: 8px !important;
+    padding: 12px 20px !important;
+    font-weight: 500;
+    text-transform: none;
+    transition: 0.3s;
+    clip-path: none !important;
+}
+
+#nextEpisodeBtn:hover {
+    background: #eee !important;
+    color: #000 !important;
+    transform: translateY(-2px);
+    box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+}
+/* --- ULTRALIGHT MINIMALIST CARDS --- */
+
+:root {
+    --card-width: 200px;
+    --card-ratio: 2 / 3;
+    --card-radius: 10px;
+}
+
+/* 1. KÁRTYA ALAPOK - Nincs alapkeret */
+.series-card {
+    width: var(--card-width) !important;
+    aspect-ratio: var(--card-ratio) !important;
+    height: auto !important;
+    background: #111 !important;
+    border-radius: var(--card-radius) !important;
+    overflow: hidden;
+    position: relative;
+    border: none !important; /* Keret törlése */
+    transition: all 0.4s cubic-bezier(0.25, 1, 0.5, 1); /* Lágyabb animáció */
+    cursor: pointer;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
+}
+
+.series-card img {
+    width: 100% !important;
+    height: 100% !important;
+    object-fit: cover !important;
+    transition: transform 0.6s cubic-bezier(0.25, 1, 0.5, 1);
+}
+
+/* 2. HOVER EFFEKT - Csak emelkedés és finom árnyék */
+.series-card:hover {
+    transform: translateY(-10px) scale(1.02);
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.6); /* Erősebb árnyék, hogy kiemelkedjen */
+    border: none !important; /* Itt sem lesz keret */
+}
+
+.series-card:hover img {
+    transform: scale(1.08);
+    filter: brightness(0.85); /* Enyhe sötétítés, hogy a cím olvasható legyen */
+}
+
+/* 3. PLAY BUTTON ELTÁVOLÍTÁSA */
+.series-card::after {
+    display: none !important; /* Töröljük a korábbi Play ikont */
+}
+
+/* 4. CÍM PANEL - Tisztán szürke/fehér skála */
+.series-title {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    padding: 30px 10px 15px;
+    background: linear-gradient(to top, rgba(0, 0, 0, 0.9) 20%, transparent);
+    opacity: 0;
+    transform: translateY(10px);
+    transition: all 0.3s ease;
+}
+
+.series-title span {
+    font-size: 0.9rem !important;
+    font-weight: 500 !important;
+    color: #ffffff !important;
+    text-align: center !important;
+    display: block;
+    text-shadow: 0 2px 4px rgba(0,0,0,0.5);
+}
+
+/* Hoverre megjelenő cím */
+.series-card:hover .series-title {
+    opacity: 1;
+    transform: translateY(0);
+}
+
+/* 5. MOBIL NÉZET - Egyszerűsítve */
+@media (max-width: 768px) {
+    .series-card {
+        width: calc(50% - 15px) !important;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.4);
+    }
+    
+    .series-card:hover {
+        transform: none; /* Mobilon ne mozogjon */
+    }
+}
+/* --- THE ULTIMATE TEXT-BREAK FIX --- */
+
+/* 1. A tároló doboz táguljon a szöveghez */
+#app .series-title {
+    display: block !important; /* A flex néha akadályozza a törést, a block biztosabb */
+    height: auto !important;   /* Engedjük tágulni felfelé */
+    min-height: 80px !important; 
+    opacity: 0;
+    transform: translateY(10px);
+    transition: all 0.3s ease !important;
+    padding: 40px 10px 15px !important;
+    background: linear-gradient(to top, rgba(0,0,0,0.95) 40%, transparent) !important;
+}
+
+/* 2. A szöveg kényszerítése a törésre */
+#app .series-title span {
+    display: block !important;    /* Legyen külön blokk */
+    white-space: normal !important; /* KÖTELEZŐ TÖRÉS */
+    overflow: visible !important;   /* Semmit ne rejtsen el */
+    text-overflow: clip !important; /* Ne legyen három pont */
+    
+    /* Betűk és sorközök */
+    font-size: 0.95rem !important;
+    line-height: 1.3 !important;    /* Kényelmes távolság a sorok közt */
+    text-align: center !important;
+    color: #ffffff !important;
+    
+    /* Biztosíték: ne legyen sehol tiltás */
+    max-width: 100% !important;
+    position: relative !important;
+}
+
+/* 3. Hoverre jelenjen meg minden */
+#app .series-card:hover .series-title {
+    opacity: 1 !important;
+    transform: translateY(0) !important;
+}
+/* 1. EPIZÓD KÁRTYA TELJES RESET */
+#app .video-card {
+    /* Minden korábbi háttér-beállítást (gradiens, kép) törlünk */
+    background-image: none !important;
+    background-color: #1a1a1a !important; /* Fix sötétszürke */
+    
+    /* Minden korábbi keret és ragyogás törlése */
+    border: 1px solid #333 !important;
+    box-shadow: none !important;
+    clip-path: none !important;
+    
+    /* Szöveg és elrendezés */
+    color: #eee !important;
+    display: block !important; /* Hogy a cím tudjon törni */
+    height: auto !important;
+    padding: 12px 15px !important;
+    margin-bottom: 8px !important;
+    border-radius: 8px !important;
+}
+
+/* 2. SZÖVEG TÖRÉSE (Hogy ne lógjon ki a hosszú cím) */
+#app .video-card span {
+    display: block !important;
+    white-space: normal !important; /* Ez kényszeríti a több sort */
+    word-wrap: break-word !important;
+    line-height: 1.4 !important;
+    text-shadow: none !important;
+    color: inherit !important;
+}
+
+/* 3. HOVER ÁLLAPOT (Csak világosabb szürke) */
+#app .video-card:hover {
+    background-color: #252525 !important;
+    border-color: #444 !important;
+    transform: none !important; /* Ne ugráljon cyberpunkosan */
+}
+
+/* 4. AKTÍV RÉSZ (Kiemelt szürke) */
+#app .video-card.active {
+    background-color: #333 !important;
+    border-color: #666 !important;
+    color: #fff !important;
+}
+/* --- A VIDEÓ SZÍNES, A KÖRNYEZET TISZTA --- */
+
+/* 1. A fő videólejátszó védelme (Mindig színes!) */
+#main-vid, .video-frame-container iframe {
+    filter: none !important;
+    -webkit-filter: none !important;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.5) !important;
+}
+
+/* 2. A háttérfény (Ambilight) szigorú színtelenítése */
+#ambilightGlowContainer iframe {
+    filter: grayscale(100%) brightness(0.2) blur(50px) !important;
+    opacity: 0.5 !important;
+}
+
+/* 3. Minden gomb és kártya tiszta szürke, zöld nélkül */
+.video-card, .series-card, #back-btn, #theaterBtn, #nextEpisodeBtn {
+    background: #1a1a1a !important;
+    border: 1px solid #333 !important;
+    color: #eee !important;
+    box-shadow: none !important; /* Itt öltük meg a zöld ragyogást */
+    text-shadow: none !important;
+    clip-path: none !important;
+}
+
+/* 4. Aktív és Hover állapotok - Zöld helyett fehér/világosszürke */
+.video-card.active, .video-card:hover {
+    background: #333 !important;
+    border-color: #666 !important;
+    color: #fff !important;
+}
+
+/* 5. A címek több sorba törése */
+.series-title span, .video-card-title span {
+    white-space: normal !important;
+    display: block !important;
+    line-height: 1.2 !important;
+}
+/* KIZÁRÓLAG A VISSZA GOMB MÓDOSÍTÁSA */
+#back-btn, #home-btn {
+    /* Alapstílus: Sötétszürke, neon nélkül */
+    background-color: #222 !important;
+    background-image: none !important;
+    color: #eee !important;
+    border: 1px solid #333 !important;
+    border-radius: 8px !important;
+    
+    /* Cyberpunk elemek törlése */
+    clip-path: none !important;
+    text-shadow: none !important;
+    box-shadow: none !important;
+    text-transform: none !important; /* Ne legyen kényszerített nagybetű */
+    
+    /* Méretezés és igazítás */
+    padding: 10px 20px !important;
+    font-weight: 500 !important;
+    transition: all 0.2s ease-in-out !important;
+}
+
+/* Hover állapot: Világos kiemelés */
+#back-btn:hover, #home-btn:hover {
+    background-color: #eee !important;
+    color: #000 !important;
+    border-color: #fff !important;
+    transform: translateY(-2px);
+}
+/* HOME GOMB: CYBERPUNK BETŰSTÍLUS, SEMMI MÁS */
+#home-btn {
+    /* Alapok törlése */
+    background: transparent !important;
+    background-image: none !important;
+    border: none !important;
+    box-shadow: none !important;
+    clip-path: none !important;
+    text-shadow: none !important;
+    
+    /* Cyberpunk szöveg stílus */
+    color: #ffffff !important;
+    font-family: 'Orbitron', 'Rajdhani', 'Roboto Mono', 'Courier New', monospace !important;
+    font-weight: 900 !important;      /* Extra vastag */
+    font-size: 1.3rem !important;      /* Kicsit nagyobb, hogy érvényesüljön a stílus */
+    letter-spacing: 3px !important;    /* Széthúzott betűk a sci-fi hatáshoz */
+    text-transform: uppercase !important;
+    
+    /* Fix állapot, hover nélkül */
+    cursor: pointer !important;
+    transition: none !important;
+    padding: 10px 0 !important;
+}
+
+/* Hover tiltása - maradjon minden ugyanúgy */
+#home-btn:hover {
+    background: transparent !important;
+    color: #ffffff !important;
+    transform: none !important;
+    opacity: 1 !important;
+}
+/* --- HEADER TISZTÍTÁS: NINCS HOMÁLYOSÍTÁS, NINCS KERET --- */
+
+header, .header, #header {
+    /* Minden homályosítás (blur) eltávolítása */
+    backdrop-filter: none !important;
+    -webkit-backdrop-filter: none !important;
+    filter: none !important;
+    
+    /* Keretek és hátterek pucolása */
+    background: transparent !important;
+    border: none !important;
+    box-shadow: none !important;
+}
+
+/* Home gomb fixálása (Vastag, Cyberpunk, semmi extra) */
+#home-btn {
+    background: transparent !important;
+    border: none !important;
+    color: #ffffff !important;
+    font-family: 'Orbitron', 'Rajdhani', 'Roboto Mono', monospace !important;
+    font-weight: 900 !important;
+    letter-spacing: 3px !important;
+    text-transform: uppercase !important;
+    cursor: pointer !important;
+}
+
+#home-btn:hover {
+    background: transparent !important;
+    color: #ffffff !important;
+}
+
+/* AMOLED alap */
+body {
+    background-color: #000000 !important;
+}
+/* --- KÁRTYA ÉS HEADER KERETEK TELJES ELTÜNTETÉSE --- */
+
+/* 1. Kártyák (sorozat és epizód) keretének és hátterének pucolása */
+.series-card, .video-card, .card {
+    border: none !important;
+    background: transparent !important;
+    box-shadow: none !important;
+    outline: none !important;
+}
+
+/* 2. Header homályosítás és keret stop */
+header, .header, #header {
+    backdrop-filter: none !important;
+    -webkit-backdrop-filter: none !important;
+    filter: none !important;
+    background: transparent !important;
+    border: none !important;
+    box-shadow: none !important;
+}
+
+/* 3. Home gomb (Marad a vastag Cyberpunk szöveg) */
+#home-btn {
+    background: transparent !important;
+    border: none !important;
+    color: #ffffff !important;
+    font-family: 'Orbitron', 'Rajdhani', 'Roboto Mono', monospace !important;
+    font-weight: 900 !important;
+    letter-spacing: 3px !important;
+    text-transform: uppercase !important;
+    cursor: pointer !important;
+}
+
+#home-btn:hover {
+    color: #ffffff !important;
+}
+
+/* 4. AMOLED alap */
+body {
+    background-color: #000000 !important;
+}
+#search-input, #profile-dropdown {
+    background: rgba(255, 255, 255, 0.05) !important;
+    backdrop-filter: blur(10px) !important;
+    border: 1px solid rgba(255, 255, 255, 0.1) !important;
+    border-radius: 12px !important;
+    color: white !important;
+}
+.series-card {
+    transition: transform 0.4s cubic-bezier(0.2, 1, 0.3, 1), filter 0.4s ease !important;
+}
+
+.series-card:hover {
+    transform: translateY(-8px) scale(1.02) !important;
+    filter: brightness(1.2) !important;
+}
+::-webkit-scrollbar {
+    width: 5px !important;
+}
+
+::-webkit-scrollbar-track {
+    background: #000 !important;
+}
+
+::-webkit-scrollbar-thumb {
+    background: #222 !important;
+    border-radius: 10px !important;
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background: #444 !important;
+}
+@keyframes skeleton-pulse {
+    0% { background-color: #050505; }
+    50% { background-color: #111; }
+    100% { background-color: #050505; }
+}
+
+.card-placeholder {
+    animation: skeleton-pulse 1.5s infinite ease-in-out;
+    border-radius: 8px;
+}
+#search-input, #profile-dropdown, .glass-panel {
+    background: rgba(10, 10, 10, 0.85) !important; /* Sötétebb, 85%-os fedés */
+    backdrop-filter: blur(20px) !important; /* Erősebb homályosítás */
+    -webkit-backdrop-filter: blur(20px) !important;
+    border: 1px solid rgba(255, 255, 255, 0.08) !important; /* Alig észrevehető él */
+    color: #ffffff !important;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.5) !important;
+}
+/* Ha van pipa vagy szöveg, hogy "Nézett" */
+.watched-tag, .is-watched {
+    color: #ff4d4d !important; /* Élénk vörös */
+    font-weight: bold !important;
+    text-transform: uppercase;
+    font-size: 0.75rem;
+    letter-spacing: 1px;
+}
+
+/* Ha a kártya alján van a progress bar */
+.watched-progress-bar {
+    background: rgba(255, 255, 255, 0.1) !important; /* Sötét alap */
+    height: 4px !important;
+    border-radius: 2px;
+}
+
+.watched-progress-fill {
+    background: #ff0000 !important; /* Tiszta vörös töltés */
+    box-shadow: 0 0 8px rgba(255, 0, 0, 0.6) !important; /* Enyhe izzás */
+}
+
+/* Opcionális: A már nézett kártyák borítója legyen picit sötétebb */
+.series-card.watched img {
+    filter: grayscale(0.3) brightness(0.7) !important;
+}
+#search-input:focus {
+    border-color: rgba(255, 255, 255, 0.3) !important;
+    outline: none;
+    background: rgba(15, 15, 15, 0.95) !important;
+}
+video::-webkit-media-controls-panel {
+    background-image: linear-gradient(transparent, rgba(0,0,0,0.8)) !important;
+}
+
+video::-webkit-media-controls-play-button,
+video::-webkit-media-controls-timeline {
+    filter: invert(1) brightness(2); /* Fehér gombok */
+}
+.series-card h3 {
+    letter-spacing: 0.5px;
+    font-weight: 600;
+    color: #efefef;
+    margin-top: 10px;
+}
+/* Ha a kereső aktív, a tartalom elhalványul */
+body:has(#search-input:focus) .series-grid,
+body:has(#search-input:focus) .header-content {
+    opacity: 0.3;
+    filter: blur(2px);
+    transition: all 0.4s ease;
+}
+body::after {
+    content: "";
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    /* A 60% miatt sokkal kijjebb kezdődik a sötétedés, a 0.5 pedig csak enyhe árnyékot ad */
+    background: radial-gradient(circle, transparent 60%, rgba(0,0,0,0.5) 100%);
+    pointer-events: none;
+    z-index: 1;
+}
+#app {
+    position: relative;
+    z-index: 2; /* Ez így a vignette réteg fölé kerül, tehát a vignette csak a legalsó háttérképet sötétíti */
+}
+.series-card:active, #home-btn:active {
+    transform: scale(0.97) !important;
+    transition: transform 0.1s ease !important;
+}
+.series-card {
+    opacity: 0;
+    transform: translateY(20px);
+    transition: all 0.5s ease-out !important;
+}
+
+.series-card.visible {
+    opacity: 1;
+    transform: translateY(0);
+}
+
+
+    </style>
+</head>
+
+<body>
+    <div id="dynamicBackground" class="series-page-bg"></div>
+
+    <div id="login-container">
+        <center>
+            <h2>Belépés</h2>
+            <form id="login-form" novalidate>
+                <label>E-mail <br>
+                    <input type="email" id="loginEmail" required>
+                </label><br><br>
+                <label>Jelszó <br>
+                    <input type="password" id="loginPassword" minlength="6" required>
+                </label><br><br>
+                <button type="submit" class="btn fill">Belépés</button>
+                <p id="login-msg" class="form-msg" role="status" aria-live="polite"></p>
+            </form>
+        </center>
+    </div>
+
+    <div id="app">
+        <header id="anyad">
+            <h2 id="home-btn">Bombasz Vids</h2>
+            <div id="profile-area" style="display:flex; align-items:center; gap:12px; position:relative;">
+                <div id="search-container">
+                    <input type="text" id="search-input" placeholder="Keresés...">
+                    <button id="search-clear-btn" aria-label="Keresés törlése" style="display:none;">&times;</button>
+                </div>
+                <button id="search-btn"
+                    style="background:none; border:none; cursor:pointer; color:#fff; display:flex; align-items:center; justify-content:center; width:32px; height:32px;">
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor"
+                        width="20" height="20">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M21 21l-4.35-4.35M17 10a7 7 0 11-14 0 7 7 0 0114 0z" />
+                    </svg>
+                </button>
+
+                <button style="display: none;" id="profile-btn"><i class="fa-solid fa-user"></i> <span id="username-display"></span></button>
+
+                <div id="profile-dropdown">
+                    <h4>film/sorozat kérés: <br> dc: bartaadi</h4>
+                    <hr> <br><strong>Üdv,</strong> <span id="profile-name"></span></p>
+                    <p style="font-weight: 600; margin-top: 15px; border-top: 1px solid #444; padding-top: 10px;">
+                        Legutóbb nézettek:</p>
+                    <div id="watched-list" style="display: flex; flex-direction: column; gap: 5px;">
+                        <p style="font-size: 0.85rem; color: #777;">Betöltés...</p>
+                    </div>
+                    <br>
+                    <button id="logout-btn"><i class="fa-solid fa-right-from-bracket"></i> Kilépés</button>
+                </div>
+            </div>
+        </header>
+
+        <div class="main-page" id="mainPage">
+            <div class="series-card" data-series="chainsaw-movie">
+                <img src="img/reze.png" alt="Chainsaw Man: Reze Arc">
+                <div class="series-title"><span>Chainsaw Man - The Movie: Reze Arc</span></div>
+            </div>
+            <div class="series-card" data-series="chainsaw-series">
+                <img src="img/chainsawman.webp" alt="Chainsaw Man">
+                <div class="series-title"><span>Chainsaw Man</span></div>
+            </div>
+            <div class="series-card" data-series="deathnote">
+                <img src="img/deathnote.avif" alt="Death Note">
+                <div class="series-title"><span>Death Note</span></div>
+            </div>
+            <div class="series-card" data-series="record-of-ragnarok-s1">
+                <img src="img/recordofragnaroks1.jpg" alt="Record of Ragnarok: Season 1">
+                <div class="series-title"><span>Record of Ragnarok: Season 1</span></div>
+            </div>
+            <div class="series-card" data-series="record-of-ragnarok-s2">
+                <img src="img/recordofragnaroks2.jpg" alt="Record of Ragnarok: Season 2">
+                <div class="series-title"><span>Record of Ragnarok: Season 2</span></div>
+            </div>
+
+            <div class="series-card" data-series="record-of-ragnarok-s3">
+                <img src="img/recordofragnaroks3.jpg" alt="Record of Ragnarok: Season 3">
+                <div class="series-title"><span>Record of Ragnarok: Season 3</span></div>
+            </div>
+
+            <div class="series-card" data-series="Evangelion">
+                <img src="img/evangelion.jpg" alt="Neon Genesis Evangelion">
+                <div class="series-title"><span>Neon Genesis Evangelion</span></div>
+            </div>
+
+            <div class="series-card" data-series="endofevangelion">
+                <img src="img/endofevangelion.jpg" alt="Neon Genesis Evangelion">
+                <div class="series-title"><span>Neon Genesis Evangelion: The End of Evangelion</span></div>
+            </div>
+            <div class="series-card" data-series="youarenotalone">
+                <img src="img/youarenptalone.webp" alt="Neon Genesis Evangelion: You Are Not Alone">
+                <div class="series-title"><span>Evangelion - 1.0 You Are (Not) Alone</span></div>
+            </div>
+            <div class="series-card" data-series="youcannotadvance">
+                <img src="img/youcannotadvance.jpg" alt="Evangelion - 2.0 You Can (Not) Advance">
+                <div class="series-title"><span>Evangelion - 2.0 You Can (Not) Advance</span></div>
+            </div>
+            <div class="series-card" data-series="youcannotredo">
+                <img src="img/youcannotredo.jpg" alt="Evangelion 3.0 You Can (Not) Redo">
+                <div class="series-title"><span>Evangelion 3.0 You Can (Not) Redo</span></div>
+            </div>
+            <div class="series-card" data-series="thriceuponatime">
+                <img src="img/thriceuponatime.webp" alt="Evangelion 3.0 You Can (Not) Redo">
+                <div class="series-title"><span>Evangelion: 3.0+1.0 Thrice Upon a Time</span></div>
+            </div>
+            <!-- <div class="series-card" data-series="degeneration">
+                <img src="degeneration.jpg" alt="Resident Evil: Degeneration">
+                <div class="series-title"><span>Resident Evil: Degeneration</span></div>
+            </div>
+            <div class="series-card" data-series="infinitedarkness">
+                <img src="infinitedarkness.jpg" alt="Resident Evil: Infinite Darkness">
+                <div class="series-title"><span>Resident Evil: Infinite Darkness</span></div>
+            </div>
+            <div class="series-card" data-series="damnation">
+                <img src="damnation.jpg" alt="Resident Evil: Damnation">
+                <div class="series-title"><span>Resident Evil: Damnation</span></div>
+            </div>
+            <div class="series-card" data-series="vendetta">
+                <img src="vendetta.jpg" alt="Resident Evil: Vendetta">
+                <div class="series-title"><span>Resident Evil: Vendetta</span></div>
+            </div>
+            <div class="series-card" data-series="deathisland">
+                <img src="deathisland.webp" alt="Resident Evil: Death Island">
+                <div class="series-title"><span>Resident Evil: Death Island</span></div>
+            </div>
+            <div class="series-card" data-series="fallouts1">
+                <img src="fallouts1.jpg" alt="Fallout Season 1">
+                <div class="series-title"><span>Fallout Season 1</span></div>
+            </div> -->
+            <!-- <div class="series-card" data-series="fallouts2">
+                <img src="fallouts2.jpg" alt="Fallout Season 2">
+                <div class="series-title"><span>Fallout Season 2</span></div>
+            </div> -->
+            <div class="series-card" data-series="codegeasss1">
+                <img src="img/codegeasss1.jpg" alt="Code Geass Season 1">
+                <div class="series-title"><span>Code Geass Season 1</span></div>
+            </div>
+            <div class="series-card" data-series="codegeasss2">
+                <img src="img/codegeasss2.png" alt="Code Geass Season 2">
+                <div class="series-title"><span>Code Geass Season 2</span></div>
+            </div>
+            <div class="series-card" data-series="realsteel">
+                <img src="img/realsteel.jpg" alt="Real Steel">
+                <div class="series-title"><span>Real Steel</span></div>
+            </div>
+            <div class="series-card" data-series="alita">
+                <img src="img/alita.jpg" alt="Alita: Battle Angel">
+                <div class="series-title"><span>Alita: Battle Angel</span></div>
+            </div>
+
+            <div class="series-card" data-series="bladerunner1">
+                <img src="img/bladerunner1.jpg" alt="Blade Runner">
+                <div class="series-title"><span>Blade Runner</span></div>
+            </div>
+
+            <div class="series-card" data-series="bladerunner2049">
+                <img src="img/bladerunner2049.jpg" alt="Blade Runner 2049">
+                <div class="series-title"><span>Blade Runner 2049</span></div>
+            </div>
+            <div class="series-card" data-series="sw1">
+                <img src="img/sw1.jpg" alt="Star Wars I: Revenge of the Sith">
+                <div class="series-title"><span>Star Wars I: The Phantom Menace</span></div>
+            </div>
+            <div class="series-card" data-series="sw2">
+                <img src="img/sw2.jpg" alt="Star Wars II: Attack of the Clones">
+                <div class="series-title"><span>Star Wars II: Attack of the Clones</span></div>
+            </div>
+            <div class="series-card" data-series="sw3">
+                <img src="img/sw3.jpg" alt="Star Wars III: Revenge of the Sith">
+                <div class="series-title"><span>Star Wars III: Revenge of the Sith</span></div>
+            </div>
+            <div class="series-card" data-series="sw4">
+                <img src="img/sw4.jpg" alt="Star Wars IV: A New Hope">
+                <div class="series-title"><span>Star Wars IV: A New Hope</span></div>
+            </div>
+            <div class="series-card" data-series="sw5">
+                <img src="img/sw5.jpg" alt="Star Wars V: The Empire Strikes Back">
+                <div class="series-title"><span>Star Wars V: The Empire Strikes Back</span></div>
+            </div>
+            <div class="series-card" data-series="sw6">
+                <img src="img/sw6.jpg" alt="Star Wars VI: Return of the Jedi">
+                <div class="series-title"><span>Star Wars VI: Return of the Jedi</span></div>
+            </div>
+            <!-- <div class="series-card" data-series="sw7">
+                <img src="sw7.jpg" alt="Star Wars VII: The Force Awakens" >
+                <div class="series-title"><span>Star Wars VII: The Force Awakens</span></div>
+            </div>
+            <div class="series-card" data-series="sw8">
+                <img src="sw8.jpg" alt="Star Wars VIII: The Last Jedi">
+                <div class="series-title"><span>Star Wars VIII: The Last Jedi</span></div>
+            </div>
+            <div class="series-card" data-series="sw9">
+                <img src="sw9.jpg" alt="Star Wars IX: The Rise of Skywalker">
+                <div class="series-title"><span>Star Wars IX: The Rise of Skywalker</span></div>
+            </div> -->
+            <div class="series-card" data-series="solo">
+                <img src="img/solo.jpg" alt="Solo: A Star Wars Story">
+                <div class="series-title"><span>Solo: A Star Wars Story</span></div>
+            </div>
+            <div class="series-card" data-series="rogueone">
+                <img src="img/rogueone.jpg" alt="Rogue One: A Star Wars Story">
+                <div class="series-title"><span>Rogue One: A Star Wars Story</span></div>
+            </div>
+            <div class="series-card" data-series="superman">
+                <img src="img/superman.webp" alt="Superman">
+                <div class="series-title"><span>Superman</span></div>
+            </div>
+            <!-- <div class="series-card" data-series="invincible1">
+                <img src="img/invincible1.jpg" alt="Invincible Season 1">
+                <div class="series-title"><span>Invincible Season 1</span></div>
+            </div>
+            <div class="series-card" data-series="invincible2">
+                <img src="img/invincible2.jpg" alt="Invincible Season 2">
+                <div class="series-title"><span>Invincible Season 2</span></div>
+            </div>
+            <div class="series-card" data-series="invincible3">
+                <img src="img/invincible3.jpg" alt="Invincible Season 3">
+                <div class="series-title"><span>Invincible Season 3</span></div>
+            </div> -->
+            <div class="series-card" data-series="re1">
+                <img src="img/re1.jpg" alt="Resident Evil">
+                <div class="series-title"><span>Resident Evil</span></div>
+            </div>
+            <div class="series-card" data-series="re2">
+                <img src="img/re2.jpg" alt="Resident Evil: Apocalypse">
+                <div class="series-title"><span>Resident Evil: Apocalypse</span></div>
+            </div>
+            <div class="series-card" data-series="re3">
+                <img src="img/re3.jpg" alt="Resident Evil: Extinction">
+                <div class="series-title"><span>Resident Evil: Extinction</span></div>
+            </div>
+            <div class="series-card" data-series="re4">
+                <img src="img/re4.webp" alt="Resident Evil: Afterlife">
+                <div class="series-title"><span>Resident Evil: Afterlife</span></div>
+            </div>
+            <div class="series-card" data-series="re5">
+                <img src="img/re5.jpg" alt="Resident Evil: Retribution">
+                <div class="series-title"><span>Resident Evil: Retribution</span></div>
+            </div>
+            <div class="series-card" data-series="re6">
+                <img src="img/re6.jpg" alt="Resident Evil: The Final Chapter">
+                <div class="series-title"><span>Resident Evil: The Final Chapter</span></div>
+            </div>
+            <div class="series-card" data-series="dune1">
+                <img src="img/dune1.jpg" alt="Dune">
+                <div class="series-title"><span>Dune</span></div>
+            </div>
+            <div class="series-card" data-series="dune2">
+                <img src="img/dune2.jpg" alt="Dune: Part Two">
+                <div class="series-title"><span>Dune: Part Two</span></div>
+            </div>
+            <div class="series-card" data-series="hungergames">
+                <img src="img/hungergames.jpg" alt="The Hunger Games">
+                <div class="series-title"><span>The Hunger Games</span></div>
+            </div>
+            <div class="series-card" data-series="hungergames2">
+                <img src="img/hungergames2.jpg" alt="The Hunger Games: Catching Fire">
+                <div class="series-title"><span>The Hunger Games: Catching Fire</span></div>
+            </div>
+            <div class="series-card" data-series="hungergames3">
+                <img src="img/hungergames3.jpg" alt="The Hunger Games: Mockingjay - Part 1">
+                <div class="series-title"><span>The Hunger Games: Mockingjay - Part 1</span></div>
+            </div>
+            <div class="series-card" data-series="hungergames4">
+                <img src="img/hungergames4.jpg" alt="The Hunger Games: Mockingjay - Part 2">
+                <div class="series-title"><span>The Hunger Games: Mockingjay - Part 2</span></div>
+            </div>
+            <div class="series-card" data-series="hungermid">
+                <img src="img/hungermid.jpg" alt="The Hunger Games: The Ballad of Songbirds & Snakes">
+                <div class="series-title"><span>The Hunger Games: The Ballad of Songbirds & Snakes</span></div>
+            </div>
+            <div class="series-card" data-series="interstellar">
+                <img src="img/interstellar.jpg" alt="Interstellar">
+                <div class="series-title"><span>Interstellar</span></div>
+            </div>
+            <!-- <div class="series-card" data-series="sweetpea">
+                <img src="sweetpea.jpg" alt="Sweetpea">
+                <div class="series-title"><span>Sweetpea</span></div>
+            </div> -->
+            <div class="series-card" data-series="fnaf">
+                <img src="img/fnaf.jpg" alt="Five Nights at Freddy's">
+                <div class="series-title"><span>Five Nights at Freddy's</span></div>
+            </div>
+            <div class="series-card" data-series="fnaf2">
+                <img src="img/fnaf2.jpg" alt="Five Nights at Freddy's 2">
+                <div class="series-title"><span>Five Nights at Freddy's 2</span></div>
+            </div>
+            <div class="series-card" data-series="prisonschool">
+                <img src="img/prisonschool.jpg" alt="Prison School">
+                <div class="series-title"><span>Prison School</span></div>
+            </div>
+            <!-- <div class="series-card" data-series="twinpeaksmovie">
+                <img src="twinpeaksmovie.png" alt="Twin Peaks: Fire Walk with Me">
+                <div class="series-title"><span>Twin Peaks: Fire Walk with Me</span></div>
+            </div>
+            <div class="series-card" data-series="twinpeakss1">
+                <img src="twinpeakss1.jpg" alt="Twin Peaks Season 1">
+                <div class="series-title"><span>Twin Peaks Season 1</span></div>
+            </div>
+            <div class="series-card" data-series="twinpeakss2">
+                <img src="twinpeakss2.jpg" alt="Twin Peaks Season 2">
+                <div class="series-title"><span>Twin Peaks Season 2</span></div>
+            </div>
+            <div class="series-card" data-series="twinpeakss3">
+                <img src="twinpeakss3.jpg" alt="Twin Peaks Season 3">
+                <div class="series-title"><span>Twin Peaks Season 3</span></div>
+            </div> -->
+            <div class="series-card" data-series="dmc">
+                <img src="img/dmc.jpg" alt="Devil May Cry">
+                <div class="series-title"><span>Devil May Cry</span></div>
+            </div>
+            <div class="series-card" data-series="cyberpunkedgerunners">
+                <img src="img/cyberpunkedgerunners.jpg" alt="Cyberpunk: Edgerunners">
+                <div class="series-title"><span>Cyberpunk: Edgerunners</span></div>
+            </div>
+            <!-- <div class="series-card" data-series="matrix1">
+                <img src="matrix1.jpg" alt="The Matrix">
+                <div class="series-title"><span>The Matrix</span></div>
+            </div>
+            <div class="series-card" data-series="matrix2">
+                <img src="matrix2.jpg" alt="The Matrix: Reloaded">
+                <div class="series-title"><span>The Matrix: Reloaded</span></div>
+            </div>
+            <div class="series-card" data-series="matrix3">
+                <img src="matrix3.jpg" alt="The Matrix: Revolutions">
+                <div class="series-title"><span>The Matrix: Revolutions</span></div>
+            </div>
+            <div class="series-card" data-series="matrix4">
+                <img src="matrix4.jpg" alt="The Matrix: Resurrections">
+                <div class="series-title"><span>The Matrix: Resurrections</span></div>
+            </div> -->
+            <!-- <div class="series-card" data-series="flashpointparadox">
+                <img src="flashpointparadox.jpg" alt="Justice League: The Flashpoint Paradox">
+                <div class="series-title"><span>Justice League: The Flashpoint Paradox</span></div>
+            </div> -->
+            <div class="series-card" data-series="hellsparadiseseason2">
+                <img src="img/hellsparadiseseaoson2.webp" alt="Hell's Paradise Season 2">
+                <div class="series-title"><span>Hell's Paradise Season 2</span></div>
+            </div>
+            <!-- <div class="series-card" data-series="dexters1">
+                <img src="dexters1.jpg" alt="Dexter Season 1">
+                <div class="series-title"><span>Dexter Season 1</span></div>
+            </div>
+            <div class="series-card" data-series="dexters2">
+                <img src="dexters2.png" alt="Dexter Season 2">
+                <div class="series-title"><span>Dexter Season 2</span></div>
+            </div>
+            <div class="series-card" data-series="dexters3">
+                <img src="dexters3.jpg" alt="Dexter Season 3">
+                <div class="series-title"><span>Dexter Season 3</span></div>
+            </div>
+            <div class="series-card" data-series="dexters4">
+                <img src="dexters4.jpg" alt="Dexter Season 4">
+                <div class="series-title"><span>Dexter Season 4</span></div>
+            </div>
+            <div class="series-card" data-series="dexters5">
+                <img src="dexters5.jpg" alt="Dexter Season 5">
+                <div class="series-title"><span>Dexter Season 5</span></div>
+            </div>
+            <div class="series-card" data-series="dexters6">
+                <img src="dexters6.webp" alt="Dexter Season 6">
+                <div class="series-title"><span>Dexter Season 6</span></div>
+            </div>
+            <div class="series-card" data-series="dexters7">
+                <img src="dexters7.jpg" alt="Dexter Season 7">
+                <div class="series-title"><span>Dexter Season 7</span></div>
+            </div>
+            <div class="series-card" data-series="dexters8">
+                <img src="dexters8.webp" alt="Dexter Season 8">
+                <div class="series-title"><span>Dexter Season 8</span></div>
+            </div>
+            <div class="series-card" data-series="dexternewblood">
+                <img src="dexternewblood.webp" alt="Dexter: New Blood">
+                <div class="series-title"><span>Dexter: New Blood</span></div>
+            </div>
+            <div class="series-card" data-series="dexteroriginalsin">
+                <img src="dexteroriginalsin.webp" alt="Dexter: Original Sin">
+                <div class="series-title"><span>Dexter: Original Sin</span></div>
+            </div>
+            <div class="series-card" data-series="dexterresurrection">
+                <img src="dexterresurrection.jpg" alt="Dexter: Resurrection">
+                <div class="series-title"><span>Dexter: Resurrection</span></div>
+            </div> -->
+        </div>
+
+        <div class="series-page" id="seriesPage">
+            <div class="sidebar">
+                <button id="back-btn" class="back-button">
+                    <i class="fa-solid fa-arrow-left"></i> Vissza
+                </button>
+                <h2 id="seriesTitle">Sorozat</h2>
+                <div id="videoList"></div>
+            </div>
+            <div class="video-content-wrapper">
+                <div class="ambilight-wrapper" id="ambilightWrapper">
+                    <div id="ambilightGlowContainer"></div>
+
+                    <div class="video-frame-container"></div>
+                </div>
+
+                <div style="display: flex; gap: 15px; align-items: center; justify-content: center; width: 100%;">
+                    <button id="theaterBtn"><i class="fa-solid fa-expand"></i> Mozi mód</button>
+                    <button id="nextEpisodeBtn" style="display:none; margin: 0;"></button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+<script type="module">
+        // 1. JAVÍTÁS: LÉTEZŐ FIREBASE VERZIÓ HASZNÁLATA (10.12.0)
+        import { initializeApp, getApps, getApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+        import { getAuth, signInWithEmailAndPassword, onAuthStateChanged, signOut, setPersistence, browserLocalPersistence } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
+        import { getDatabase, ref, set, get, child, onValue, onDisconnect } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-database.js";
+
+        const firebaseConfig = {
+            apiKey: "AIzaSyAwRrAtHaNRh2DLwVkryA3wSf86h7aQCaI",
+            authDomain: "konyv-93c63.firebaseapp.com",
+            projectId: "konyv-93c63",
+            storageBucket: "konyv-93c63.firebasestorage.app",
+            messagingSenderId: "349471560585",
+            appId: "1:349471560585:web:55c6e78499ebbca0540758"
+        };
+
+        const app = getApps().length ? getApp() : initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+        const db = getDatabase(app);
+
+        // DOM elemek
+        const loginForm = document.getElementById("login-form");
+        const loginMsg = document.getElementById("login-msg");
+        const loginContainer = document.getElementById("login-container");
+        const appContainer = document.getElementById("app");
+        const logoutBtn = document.getElementById("logout-btn");
+        const profileBtn = document.getElementById("profile-btn");
+        const profileDropdown = document.getElementById("profile-dropdown");
+        const usernameDisplay = document.getElementById("username-display");
+        const profileName = document.getElementById("profile-name");
+        const homeBtn = document.getElementById('home-btn');
+        const watchedList = document.getElementById('watched-list');
+        const searchBtn = document.getElementById('search-btn');
+        const searchContainer = document.getElementById('search-container');
+        const searchInput = document.getElementById('search-input');
+        const searchClearBtn = document.getElementById('search-clear-btn');
+        const mainPage = document.getElementById('mainPage');
+        const seriesPage = document.getElementById('seriesPage');
+        const videoList = document.getElementById('videoList');
+        const seriesTitle = document.getElementById('seriesTitle');
+        const backBtn = document.getElementById('back-btn');
+        const nextEpisodeBtn = document.getElementById('nextEpisodeBtn');
+        const dynamicBackground = document.getElementById('dynamicBackground');
+        const theaterBtn = document.getElementById('theaterBtn');
+        const ambilightWrapper = document.getElementById('ambilightWrapper');
+
+        let allProgressData = {};
+
+        // --- SOROZAT ADATOK ---
+        const seriesData = {
+            "chainsaw-movie": {
+                title: "Chainsaw Man - The Movie: Reze Arc",
+                videos: [
+                    { title: "1. rész", src: "https://vkvideo.ru/video_ext.php?oid=-234629758&id=456239018&hd=4", type: 'vkvideo' }
+                ]
+            },
+            "chainsaw-series": {
+                "title": "Chainsaw Man",
+                "videos": [
+                    { "title": "01. rész", "src": "https://mega.nz/embed/i34jHaxJ#2rze3ZC4mwLkf233l-cT-gNNElnZAtvoHJOJPfMilUI", "type": "videa" },
+                    { "title": "02. rész", "src": "https://mega.nz/embed/nv4gVSgR#Ft3LTdB4j06VkdD4mxHcsfUhWnFtJqCI5Xj0jbHK6Yk", "type": "videa" },
+                    { "title": "03. rész", "src": "https://mega.nz/embed/iiIShLKL#nfuCwaaQAIyPJlM-DAjJRAq-lM1JbjEe4L6D1xFAQ94", "type": "videa" },
+                    { "title": "04. rész", "src": "https://mega.nz/embed/vyB3RK5Z#yImAcZSdffDJEAFCIaDVjci340cn8bfkfd3orp-gH4Q", "type": "videa" },
+                    { "title": "05. rész", "src": "https://mega.nz/embed/7rRXRDZC#m0RE2jUHgznTcGPFrclDNP-xEyBCjHUeUYUu8FWdI0U", "type": "videa" },
+                    { "title": "06. rész", "src": "https://mega.nz/embed/LqxzWTbb#eEDmR3m8_zIpeT-BdNfrKbp27yfZN7ZrYP5Ip2CwQjo", "type": "videa" },
+                    { "title": "07. rész", "src": "https://mega.nz/embed/jvJiAAZD#ibghVyfWrp9WfpvkfBuC0O_yqgXpmU4IEb3uXgcqpMw", "type": "videa" },
+                    { "title": "08. rész", "src": "https://mega.nz/embed/SrA3AaST#VlRTaCkuB3nnP_iRgd08_0T2HEOcWuoGLbblizEaY-Y", "type": "videa" },
+                    { "title": "09. rész", "src": "https://mega.nz/embed/b7Yi1SCD#xLRyzn2Wd6QQ-ccEdA9o47GyrtAtMP8-CxJ7k9O1lGM", "type": "videa" },
+                    { "title": "10. rész", "src": "https://mega.nz/embed/Hv5xDRZB#amCkiNUifgnaKxywkoCRWPNGV1c6NlpmdFxkQ95N1Ys", "type": "videa" },
+                    { "title": "11. rész", "src": "https://mega.nz/embed/L2wREYAS#cULzLMKs-GY_V9btuCPko-L1jBENQNttm34Hsb14U5o", "type": "videa" },
+                    { "title": "12. rész", "src": "https://mega.nz/embed/q3pDGRrR#OfHfr_Nxmxbi2Fplt3LnFaLtd_R9RpTQeiZIdTVf5Hg", "type": "videa" }
+                ]
+            },
+            "deathnote": {
+                title: "Death Note",
+                videos: [
+                    { title: "01. rész", src: "//embed.indavideo.hu/player/video/0b203b1c34", type: 'indavideo' },
+                    { title: "02. rész", src: "//embed.indavideo.hu/player/video/6933aa54b7", type: 'indavideo' },
+                    { title: "03. rész", src: "//embed.indavideo.hu/player/video/e5784af123", type: 'indavideo' },
+                    { title: "04. rész", src: "//embed.indavideo.hu/player/video/9a5c7dd313", type: 'indavideo' },
+                    { title: "05. rész", src: "//embed.indavideo.hu/player/video/937eff53b8", type: 'indavideo' },
+                    { title: "06. rész", src: "//embed.indavideo.hu/player/video/b943513e4f", type: 'indavideo' },
+                    { title: "07. rész", src: "//embed.indavideo.hu/player/video/1970930830", type: 'indavideo' },
+                    { title: "08. rész", src: "//embed.indavideo.hu/player/video/50222e8add", type: 'indavideo' },
+                    { title: "09. rész", src: "//embed.indavideo.hu/player/video/d686d50524", type: 'indavideo' },
+                    { title: "10. rész", src: "//embed.indavideo.hu/player/video/4d14107766", type: 'indavideo' },
+                    { title: "11. rész", src: "//embed.indavideo.hu/player/video/795f8e280b", type: 'indavideo' },
+                    { title: "12. rész", src: "//embed.indavideo.hu/player/video/70f38bd78a", type: 'indavideo' },
+                    { title: "13. rész", src: "//embed.indavideo.hu/player/video/e3f848b673", type: 'indavideo' },
+                    { title: "14. rész", src: "//embed.indavideo.hu/player/video/ea4479c6e8", type: 'indavideo' },
+                    { title: "15. rész", src: "//embed.indavideo.hu/player/video/a7983034e3", type: 'indavideo' },
+                    { title: "16. rész", src: "//embed.indavideo.hu/player/video/932d9f3317", type: 'indavideo' },
+                    { title: "17. rész", src: "//embed.indavideo.hu/player/video/a4e723f5dc", type: 'indavideo' },
+                    { title: "18. rész", src: "//embed.indavideo.hu/player/video/e477654a6e", type: 'indavideo' },
+                    { title: "19. rész", src: "//embed.indavideo.hu/player/video/80db743f48", type: 'indavideo' },
+                    { title: "20. rész", src: "//embed.indavideo.hu/player/video/72af6efb0e", type: 'indavideo' },
+                    { title: "21. rész", src: "//embed.indavideo.hu/player/video/c0f69ac19f", type: 'indavideo' },
+                    { title: "22. rész", src: "//embed.indavideo.hu/player/video/a49b91ceea", type: 'indavideo' },
+                    { title: "23. rész", src: "//embed.indavideo.hu/player/video/e4b2d6b6a0", type: 'indavideo' },
+                    { title: "24. rész", src: "//embed.indavideo.hu/player/video/a8567542e9", type: 'indavideo' },
+                    { title: "25. rész", src: "//embed.indavideo.hu/player/video/bf9a83c341", type: 'indavideo' },
+                    { title: "26. rész", src: "//embed.indavideo.hu/player/video/21c605c3b4", type: 'indavideo' },
+                    { title: "27. rész", src: "//embed.indavideo.hu/player/video/56a36e5761", type: 'indavideo' },
+                    { title: "28. rész", src: "//embed.indavideo.hu/player/video/0a052a561b", type: 'indavideo' },
+                    { title: "29. rész", src: "//embed.indavideo.hu/player/video/28f5893006", type: 'indavideo' },
+                    { title: "30. rész", src: "//embed.indavideo.hu/player/video/3fc53facf0", type: 'indavideo' },
+                    { title: "31. rész", src: "//embed.indavideo.hu/player/video/79dce3a53c", type: 'indavideo' },
+                    { title: "32. rész", src: "//embed.indavideo.hu/player/video/8e2b8742a1", type: 'indavideo' },
+                    { title: "33. rész", src: "//embed.indavideo.hu/player/video/56149fc81e", type: 'indavideo' },
+                    { title: "34. rész", src: "//embed.indavideo.hu/player/video/c7d9f3c339", type: 'indavideo' },
+                    { title: "35. rész", src: "//embed.indavideo.hu/player/video/e39a796763", type: 'indavideo' },
+                    { title: "36. rész", src: "//embed.indavideo.hu/player/video/1120cae12f", type: 'indavideo' },
+                    { title: "37. rész", src: "//embed.indavideo.hu/player/video/c987a5b573", type: 'indavideo' },
+
+
+
+
+                ]
+            },
+            "record-of-ragnarok-s1": {
+                title: "Record of Ragnarok: Season 1",
+                videos: [
+                    { title: "01. rész", src: "//embed.indavideo.hu/player/video/47eba82d74", type: 'indavideo' },
+                    { title: "02. rész", src: "//embed.indavideo.hu/player/video/64bcd4632e", type: 'indavideo' },
+                    { title: "03. rész", src: "//embed.indavideo.hu/player/video/415715ab33", type: 'indavideo' },
+                    { title: "04. rész", src: "//embed.indavideo.hu/player/video/db57f4f66f", type: 'indavideo' },
+                    { title: "05. rész", src: "//embed.indavideo.hu/player/video/0981a0913f", type: 'indavideo' },
+                    { title: "06. rész", src: "//embed.indavideo.hu/player/video/53fe4c1471", type: 'indavideo' },
+                    { title: "07. rész", src: "//embed.indavideo.hu/player/video/a2fad56e36", type: 'indavideo' },
+                    { title: "08. rész", src: "//embed.indavideo.hu/player/video/2590d2b062", type: 'indavideo' },
+                    { title: "09. rész", src: "//embed.indavideo.hu/player/video/8425e0a195", type: 'indavideo' },
+                    { title: "10. rész", src: "//embed.indavideo.hu/player/video/556f010595", type: 'indavideo' },
+                    { title: "11. rész", src: "//embed.indavideo.hu/player/video/7ee6e9fe63", type: 'indavideo' },
+                    { title: "12. rész", src: "//embed.indavideo.hu/player/video/38d878ec19", type: 'indavideo' },
+                ]
+            },
+            "record-of-ragnarok-s2": {
+                title: "Record of Ragnarok: Season 2",
+                videos: [
+                    { title: "01. rész", src: "//embed.indavideo.hu/player/video/b36154b500", type: 'indavideo' },
+                    { title: "02. rész", src: "//embed.indavideo.hu/player/video/e2292c54d4", type: 'indavideo' },
+                    { title: "03. rész", src: "//embed.indavideo.hu/player/video/072ed4adbf", type: 'indavideo' },
+                    { title: "04. rész", src: "//embed.indavideo.hu/player/video/0598413057", type: 'indavideo' },
+                    { title: "05. rész", src: "//embed.indavideo.hu/player/video/f305511ae3", type: 'indavideo' },
+                    { title: "06. rész", src: "//embed.indavideo.hu/player/video/1cd39537c6", type: 'indavideo' },
+                    { title: "07. rész", src: "//embed.indavideo.hu/player/video/d5ac5b4dad", type: 'indavideo' },
+                    { title: "08. rész", src: "//embed.indavideo.hu/player/video/bcf75d3a74", type: 'indavideo' },
+                    { title: "09. rész", src: "//embed.indavideo.hu/player/video/7b2bfcfb8b", type: 'indavideo' },
+                    { title: "10. rész", src: "//embed.indavideo.hu/player/video/e3f5985a19", type: 'indavideo' },
+                    { title: "11. rész", src: "//embed.indavideo.hu/player/video/d85f2d750b", type: 'indavideo' },
+                    { title: "12. rész", src: "//embed.indavideo.hu/player/video/94bb4ca873", type: 'indavideo' },
+                    { title: "13. rész", src: "//embed.indavideo.hu/player/video/5e5efceb4b", type: 'indavideo' },
+                    { title: "14. rész", src: "//embed.indavideo.hu/player/video/49fcdfb7bd", type: 'indavideo' },
+                    { title: "15. rész", src: "//embed.indavideo.hu/player/video/f2cec55687", type: 'indavideo' },
+                ]
+            },
+            "record-of-ragnarok-s3": {
+                title: "Record of Ragnarok: Season 3",
+                videos: [
+                    { title: "01. rész", src: "//videa.hu/player?v=fg5MMPRNCX0ArOrR", type: 'videa' },
+                    { title: "02. rész", src: "//videa.hu/player?v=ZDf2cP8SmAXsEKrU", type: 'videa' },
+                    { title: "03. rész", src: "//videa.hu/player?v=CHUtrQYTZQgl6T2j", type: 'videa' },
+                    { title: "04. rész", src: "//videa.hu/player?v=QogXviAtwW63DrJE", type: 'videa' },
+                    { title: "05. rész", src: "//videa.hu/player?v=eJZqfRGV1qrmYVh3", type: 'videa' },
+                    { title: "06. rész", src: "//videa.hu/player?v=T8R4Y0FCfUV0TOG6", type: 'videa' },
+                    { title: "07. rész", src: "//videa.hu/player?v=fTxYD90gq6lKy8Ud", type: 'videa' },
+                    { title: "08. rész", src: "//videa.hu/player?v=Rt3codXW3Fuo7oc4", type: 'videa' },
+                    { title: "09. rész", src: "//videa.hu/player?v=VxeSoFo0dKL3Hccf", type: 'videa' },
+                    { title: "10. rész", src: "//videa.hu/player?v=rEDfQlR8loKDN9qn", type: 'videa' },
+                    { title: "11. rész", src: "//videa.hu/player?v=I2zmWVBtqu6w0obg", type: 'videa' },
+                    { title: "12. rész", src: "//videa.hu/player?v=7Jtoc1SjPAK0ery9", type: 'videa' },
+                    { title: "13. rész", src: "//videa.hu/player?v=GzkmQWEW6MrNYDZq", type: 'videa' },
+                    { title: "14. rész", src: "//videa.hu/player?v=uJD5594gZbZq5q40", type: 'videa' },
+                    { title: "15. rész", src: "//videa.hu/player?v=vibakbKKhkPZX3Y9", type: 'videa' }
+                ]
+            },
+            "Evangelion": {
+                title: "Neon Genesis Evangelion",
+                videos: [
+                    { title: "01. rész", src: "//embed.indavideo.hu/player/video/286a5eeac9", type: 'indavideo' },
+                    { title: "02. rész", src: "//embed.indavideo.hu/player/video/dcb4c643c4", type: 'indavideo' },
+                    { title: "03. rész", src: "//embed.indavideo.hu/player/video/729a1a303c", type: 'indavideo' },
+                    { title: "04. rész", src: "//embed.indavideo.hu/player/video/0cad784310", type: 'indavideo' },
+                    { title: "05. rész", src: "//embed.indavideo.hu/player/video/10982e58f7", type: 'indavideo' },
+                    { title: "06. rész", src: "//embed.indavideo.hu/player/video/5c22325712", type: 'indavideo' },
+                    { title: "07. rész", src: "//embed.indavideo.hu/player/video/15210731f0", type: 'indavideo' },
+                    { title: "08. rész", src: "//embed.indavideo.hu/player/video/d3131c29a5", type: 'indavideo' },
+                    { title: "09. rész", src: "//embed.indavideo.hu/player/video/8571557e9c", type: 'indavideo' },
+                    { title: "10. rész", src: "//embed.indavideo.hu/player/video/205b9a6324", type: 'indavideo' },
+                    { title: "11. rész", src: "//embed.indavideo.hu/player/video/9958e80402", type: 'indavideo' },
+                    { title: "12. rész", src: "//embed.indavideo.hu/player/video/41d4d74d6a", type: 'indavideo' },
+                    { title: "13. rész", src: "//embed.indavideo.hu/player/video/c9436061a6", type: 'indavideo' },
+                    { title: "14. rész", src: "//embed.indavideo.hu/player/video/e651c54cdd", type: 'indavideo' },
+                    { title: "15. rész", src: "//embed.indavideo.hu/player/video/b9e82c6005", type: 'indavideo' },
+                    { title: "16. rész", src: "//embed.indavideo.hu/player/video/59a49ab193", type: 'indavideo' },
+                    { title: "17. rész", src: "//embed.indavideo.hu/player/video/c8cddeaa1b", type: 'indavideo' },
+                    { title: "18. rész", src: "//embed.indavideo.hu/player/video/a273ea4497", type: 'indavideo' },
+                    { title: "19. rész", src: "//embed.indavideo.hu/player/video/f3ce246582", type: 'indavideo' },
+                    { title: "20. rész", src: "//embed.indavideo.hu/player/video/e5da6af423", type: 'indavideo' },
+                    { title: "21. rész", src: "//embed.indavideo.hu/player/video/77979c4cac", type: 'indavideo' },
+                    { title: "22. rész", src: "//embed.indavideo.hu/player/video/9e2463619c", type: 'indavideo' },
+                    { title: "23. rész", src: "//embed.indavideo.hu/player/video/99c0d5fb6b", type: 'indavideo' },
+                    { title: "24. rész", src: "//embed.indavideo.hu/player/video/71cd1036af", type: 'indavideo' },
+                    { title: "25. rész", src: "//embed.indavideo.hu/player/video/c1e3575648", type: 'indavideo' },
+                    { title: "26. rész", src: "//embed.indavideo.hu/player/video/a1c1127501", type: 'indavideo' },
+
+
+                ]
+            },
+            "endofevangelion": {
+                title: "Neon Genesis Evangelion: The End of Evangelion",
+                videos: [
+                    { title: "01. rész", src: "https://vkvideo.ru/video_ext.php?oid=-234646183&id=456239019&hash=7524c94b7253d358&hd=3", type: 'vkvideo' },
+
+                ]
+            },
+            "youarenotalone": {
+                title: "Evangelion - 1.0 You Are (Not) Alone",
+                videos: [
+                    { title: "01. rész", src: "//embed.indavideo.hu/player/video/fac950fd5d", type: 'indavideo' },
+
+                ]
+            },
+            "youcannotadvance": {
+                title: "Evangelion - 2.0 You Can (Not) Advance",
+                videos: [
+                    { title: "01. rész", src: "//embed.indavideo.hu/player/video/cc72e67144", type: 'indavideo' },
+
+                ]
+            },
+            "youcannotredo": {
+                title: "Evangelion 3.0 You Can (Not) Redo",
+                videos: [
+                    { title: "01. rész", src: "https://vkvideo.ru/video_ext.php?oid=-234646183&id=456239020&hash=ac5e8053805aa170&hd=3", type: 'vkvideo' },
+
+                ]
+            },
+            "thriceuponatime": {
+                title: "Evangelion: 3.0+1.0 Thrice Upon a Time",
+                videos: [
+                    { title: "01. rész", src: "//embed.indavideo.hu/player/video/7b69d8bfb6", type: 'indavideo' },
+
+                ]
+            },
+            "infinitedarkness": {
+                title: "Resident Evil: Infinite Darkness",
+                videos: [
+                    { title: "01. rész", src: "///videa.hu/player?v=oVHAEHEE60URUsdG", type: 'videa' },
+                    { title: "02. rész", src: "//videa.hu/player?v=sE41KsoAgb30Pd33", type: 'videa' },
+                    { title: "03. rész", src: "//videa.hu/player?v=H96WiG6MlfGIs1Lb", type: 'videa' },
+                    { title: "04. rész", src: "//videa.hu/player?v=kb7Dp5ZV0AuPINTe", type: 'videa' },
+
+
+                ]
+            },
+            "degeneration": {
+                title: "Resident Evil: Degeneration",
+                videos: [
+                    { title: "01. rész", src: "https://vkvideo.ru/video_ext.php?oid=-234646183&id=456239021&hash=07ac20bef7a9f659&hd=3", type: 'vkvideo' },
+
+                ]
+            },
+
+            "damnation": {
+                title: "Resident Evil: Damnation",
+                videos: [
+                    { title: "01. rész", src: "https://vkvideo.ru/video_ext.php?oid=-234646183&id=456239022&hash=fcd3a516e4019856&hd=3", type: 'vkvideo' },
+
+                ]
+            },
+
+            "vendetta": {
+                title: "Resident Evil: Vendetta",
+                videos: [
+                    { title: "01. rész", src: "https://vkvideo.ru/video_ext.php?oid=-234646183&id=456239023&hash=01ba2a83353b4699&hd=3", type: 'vkvideo' },
+
+                ]
+            },
+
+            "deathisland": {
+                title: "Resident Evil: Death Island",
+                videos: [
+                    { title: "01. rész", src: "https://vkvideo.ru/video_ext.php?oid=-234646183&id=456239024&hash=e03590ee5b52ea5e&hd=3", type: 'vkvideo' },
+
+                ]
+            },
+            "fallouts1": {
+                title: "Fallout Season 1 ",
+                videos: [
+                    { title: "01. rész", src: "//videa.hu/player?v=uaCPRuuRCXKE1NH2", type: 'videa' },
+                    { title: "02. rész", src: "//videa.hu/player?v=RkIVpmcl8YlfeJUU", type: 'videa' },
+                    { title: "03. rész", src: "//videa.hu/player?v=vIjAAHGVUWIRBXG6", type: 'videa' },
+                    { title: "04. rész", src: "//videa.hu/player?v=fmt4IRaiCFUmPb62", type: 'videa' },
+                    { title: "05. rész", src: "//videa.hu/player?v=SyItqMEDq2WNXSdu", type: 'videa' },
+                    { title: "06. rész", src: "//videa.hu/player?v=EkOXQeZyDz1LMxCZ", type: 'videa' },
+                    { title: "07. rész", src: "//videa.hu/player?v=svzyOQ3DLjMh6LnY", type: 'videa' },
+                    { title: "08. rész", src: "//videa.hu/player?v=BfsGwgSU4IS9hK2Y", type: 'videa' },
+                ]
+            },
+            "fallouts2": {
+                title: "Fallout Season 2",
+                videos: [
+                    {
+                        title: "01. rész",
+                        src: "https://vkvideo.ru/video_ext.php?oid=-234646183&id=456239036&hash=9c03a0bb706aed15&hd=3",
+                        type: 'vkvideo',
+
+                    },
+                    { title: "02. rész", src: "https://vkvideo.ru/video_ext.php?oid=-234646183&id=456239078&hash=44c613dc577a672f&hd=3", type: 'vkvideo' },
+
+                ]
+            },
+            "codegeasss1": {
+                title: "Code Geass Season 1",
+                videos: [
+
+                    { title: "01. rész", src: "//embed.indavideo.hu/player/video/6a8bcf9a94", type: 'indavideo' },
+                    { title: "02. rész", src: "//embed.indavideo.hu/player/video/b7a9882035", type: 'indavideo' },
+                    { title: "03. rész", src: "//embed.indavideo.hu/player/video/bce6dbd8bd", type: 'indavideo' },
+                    { title: "04. rész", src: "//embed.indavideo.hu/player/video/c03c78f5c7", type: 'indavideo' },
+                    { title: "05. rész", src: "//embed.indavideo.hu/player/video/84ff5fbc7e", type: 'indavideo' },
+                    { title: "06. rész", src: "//embed.indavideo.hu/player/video/d23ad64446", type: 'indavideo' },
+                    { title: "07. rész", src: "//embed.indavideo.hu/player/video/71283c7de9", type: 'indavideo' },
+                    { title: "08. rész", src: "//embed.indavideo.hu/player/video/1bd63f81fd", type: 'indavideo' },
+                    { title: "09. rész", src: "//embed.indavideo.hu/player/video/02843ec67f", type: 'indavideo' },
+                    { title: "10. rész", src: "//embed.indavideo.hu/player/video/bce5e8efe4", type: 'indavideo' },
+                    { title: "11. rész", src: "//embed.indavideo.hu/player/video/61666af110", type: 'indavideo' },
+                    { title: "12. rész", src: "//embed.indavideo.hu/player/video/3fa3d5b2b7", type: 'indavideo' },
+                    { title: "13. rész", src: "//embed.indavideo.hu/player/video/1187ae89eb", type: 'indavideo' },
+                    { title: "14. rész", src: "//embed.indavideo.hu/player/video/c0cbdd8573", type: 'indavideo' },
+                    { title: "15. rész", src: "//embed.indavideo.hu/player/video/03166a185a", type: 'indavideo' },
+                    { title: "16. rész", src: "//embed.indavideo.hu/player/video/9700f7c3cf", type: 'indavideo' },
+                    { title: "17. rész", src: "//embed.indavideo.hu/player/video/b34b58e0db", type: 'indavideo' },
+                    { title: "18. rész", src: "//embed.indavideo.hu/player/video/5c47f813c2", type: 'indavideo' },
+                    { title: "19. rész", src: "//embed.indavideo.hu/player/video/da062e1eea", type: 'indavideo' },
+                    { title: "20. rész", src: "//embed.indavideo.hu/player/video/1c7c7c22f2", type: 'indavideo' },
+                    { title: "21. rész", src: "//embed.indavideo.hu/player/video/410ca8d323", type: 'indavideo' },
+                    { title: "22. rész", src: "//embed.indavideo.hu/player/video/6fb059c43f", type: 'indavideo' },
+                    { title: "23. rész", src: "//embed.indavideo.hu/player/video/641b0078ff", type: 'indavideo' },
+                    { title: "24. rész", src: "//embed.indavideo.hu/player/video/13013e6aee", type: 'indavideo' },
+                    { title: "25. rész", src: "//embed.indavideo.hu/player/video/17121eff67", type: 'indavideo' },
+                ]
+            },
+            "codegeasss2": {
+                title: "Code Geass Season 2",
+                videos: [
+
+                    { title: "01. rész", src: "//embed.indavideo.hu/player/video/fe51db26e1", type: 'indavideo' },
+                    { title: "02. rész", src: "//embed.indavideo.hu/player/video/81f81d57cb", type: 'indavideo' },
+                    { title: "03. rész", src: "//embed.indavideo.hu/player/video/b28a1100ec", type: 'indavideo' },
+                    { title: "04. rész", src: "//embed.indavideo.hu/player/video/8131b57477", type: 'indavideo' },
+                    { title: "05. rész", src: "//embed.indavideo.hu/player/video/c76c9ef5a9", type: 'indavideo' },
+                    { title: "06. rész", src: "//embed.indavideo.hu/player/video/9513805548", type: 'indavideo' },
+                    { title: "07. rész", src: "//embed.indavideo.hu/player/video/3f52c1f837", type: 'indavideo' },
+                    { title: "08. rész", src: "//embed.indavideo.hu/player/video/7f32826157", type: 'indavideo' },
+                    { title: "09. rész", src: "//embed.indavideo.hu/player/video/f35c06e45c", type: 'indavideo' },
+                    { title: "10. rész", src: "//embed.indavideo.hu/player/video/82891c2b5f", type: 'indavideo' },
+                    { title: "11. rész", src: "//embed.indavideo.hu/player/video/61974773e9", type: 'indavideo' },
+                    { title: "12. rész", src: "//embed.indavideo.hu/player/video/06faac3d1c", type: 'indavideo' },
+                    { title: "13. rész", src: "//embed.indavideo.hu/player/video/c450a7aa23", type: 'indavideo' },
+                    { title: "14. rész", src: "//embed.indavideo.hu/player/video/ab3f4d79aa", type: 'indavideo' },
+                    { title: "15. rész", src: "//embed.indavideo.hu/player/video/98650b79ae", type: 'indavideo' },
+                    { title: "16. rész", src: "//embed.indavideo.hu/player/video/dc982c77e1", type: 'indavideo' },
+                    { title: "17. rész", src: "//embed.indavideo.hu/player/video/80acc09620", type: 'indavideo' },
+                    { title: "18. rész", src: "//embed.indavideo.hu/player/video/96d6a1ddfc", type: 'indavideo' },
+                    { title: "19. rész", src: "//embed.indavideo.hu/player/video/bdb9cf51e8", type: 'indavideo' },
+                    { title: "20. rész", src: "//embed.indavideo.hu/player/video/dacddec6be", type: 'indavideo' },
+                    { title: "21. rész", src: "//embed.indavideo.hu/player/video/fb2f1e1f72", type: 'indavideo' },
+                    { title: "22. rész", src: "//embed.indavideo.hu/player/video/19b896ac01", type: 'indavideo' },
+                    { title: "23. rész", src: "//embed.indavideo.hu/player/video/5fb8f358c9", type: 'indavideo' },
+                    { title: "24. rész", src: "//embed.indavideo.hu/player/video/26a6c19178", type: 'indavideo' },
+                    { title: "25. rész", src: "//embed.indavideo.hu/player/video/847e1b87b5", type: 'indavideo' },
+                ]
+            },
+            "realsteel": {
+                title: "Real Steel",
+                videos: [
+
+                    { title: "01. rész", src: "https://vk.com/video_ext.php?oid=749867145&id=456245247&hash=64954b4a78a80f77&hd=3", type: 'vkvideo' },
+
+                ]
+            },
+            "alita": {
+                title: "Alita: Battle Angel",
+                videos: [
+
+                    { title: "01. rész", src: "//videa.hu/player?v=3Xj71DTJ6exfvRq3", type: 'videa' },
+
+                ]
+            },
+            "bladerunner2049": {
+                title: "Blade Runner 2049",
+                videos: [
+
+                    { title: "01. rész", src: "//videa.hu/player?v=9rM9AZkNeOcGMxWp", type: 'videa' },
+
+                ]
+            },
+            "bladerunner1": {
+                title: "Blade Runner 1",
+                videos: [
+
+                    { title: "01. rész", src: "https://vkvideo.ru/video_ext.php?oid=-234646183&id=456239042&hd=3", type: 'vkvideo' },
+
+                ]
+            },
+            "sw3": {
+                title: "Star Wars III: Revenge of the Sith",
+                videos: [
+
+                    { title: "01. rész", src: "https://vkvideo.ru/video_ext.php?oid=-234646183&id=456239037&hash=67e3f5831e312672&hd=3", type: 'vkvideo' },
+
+                ]
+            },
+            "sw1": {
+                title: "Star Wars I: The Phantom Menace",
+                videos: [
+
+                    { title: "01. rész", src: "//videa.hu/player?v=LpiWqUFCM1zpjDLm", type: 'vkvideo' },
+
+                ]
+            },
+            "sw2": {
+                title: "Star Wars II: Attack of the Clones",
+                videos: [
+
+                    { title: "01. rész", src: "https://vkvideo.ru/video_ext.php?oid=-234646183&id=456239062&hash=7253625098e7d400&hd=3", type: 'vkvideo' },
+
+                ]
+            },
+            "sw4": {
+                title: "Star Wars IV: A New Hope",
+                videos: [
+
+                    { title: "01. rész", src: "//videa.hu/player?v=nWMf2Sdtz5TuAkun", type: 'vkvideo' },
+
+                ]
+            },
+            "sw5": {
+                title: "Star Wars V: The Empire Strikes Back",
+                videos: [
+
+                    { title: "01. rész", src: "//videa.hu/player?v=Z3NIovVwB1X0a4v7", type: 'vkvideo' },
+
+                ]
+            },
+            "sw6": {
+                title: "Star Wars VI: Return of the Jedi",
+                videos: [
+
+                    { title: "01. rész", src: "//videa.hu/player?v=lEKn1KIKuGbX9qtN", type: 'vkvideo' },
+
+                ]
+            },
+            "sw7": {
+                title: "Star Wars VII: The Force Awakens",
+                videos: [
+
+                    { title: "01. rész", src: "/hamarosan.html", type: 'vkvideo' },
+
+                ]
+            },
+            "sw8": {
+                title: "Star Wars VIII: The Last Jedi",
+                videos: [
+
+                    { title: "01. rész", src: "//videa.hu/player?v=HYVEAWL1MxayzneK", type: 'vkvideo' },
+
+                ]
+            },
+            "sw9": {
+                title: "Star Wars IX: The Rise of Skywalker",
+                videos: [
+
+                    { title: "01. rész", src: "/hamarosan.html", type: 'vkvideo' },
+
+                ]
+            },
+            "solo": {
+                title: "Solo: A Star Wars Story",
+                videos: [
+
+                    { title: "01. rész", src: "//videa.hu/player?v=XLYNRJlDp6vZLeJV", type: 'vkvideo' },
+
+                ]
+            },
+            "rogueone": {
+                title: "Rogue One: A Star Wars Story",
+                videos: [
+
+                    { title: "01. rész", src: "//videa.hu/player?v=qzX1caRcRqypLS0V", type: 'vkvideo' },
+
+                ]
+            },
+
+            "invincible1": {
+                title: "Invincible Season 1",
+                videos: [
+                    { title: "00. rész", src: "//videa.hu/player?v=05A00hi0VCpw2dXc", type: 'videa' },
+                    { title: "01. rész", src: "//videa.hu/player?v=S3qni2yZFzl3vmEC", type: 'videa' },
+                    { title: "02. rész", src: "//videa.hu/player?v=Sow1dxWuG8JtdhJc", type: 'videa' },
+                    { title: "03. rész", src: "//videa.hu/player?v=Kspz66dP8jBKiehQ", type: 'videa' },
+                    { title: "04. rész", src: "//videa.hu/player?v=a1nvDJ2JmQ0fg8Py", type: 'videa' },
+                    { title: "05. rész", src: "//videa.hu/player?v=bN98ieUTTJ9SPMP0", type: 'videa' },
+                    { title: "06. rész", src: "//videa.hu/player?v=dM8vHCeXgfGvyUgh", type: 'videa' },
+                    { title: "07. rész", src: "//videa.hu/player?v=YZQR9avRRkyxALb4", type: 'videa' },
+                    { title: "08. rész", src: "//videa.hu/player?v=mX1ZH7koEmCzsOS0", type: 'videa' },
+
+                ]
+            },
+            "invincible2": {
+                title: "Invincible Season 2",
+                videos: [
+
+                    { title: "01. rész", src: "/hamarosan.html", type: 'videa' },
+                    { title: "02. rész", src: "/hamarosan.html", type: 'videa' },
+                    { title: "03. rész", src: "/hamarosan.html", type: 'videa' },
+                    { title: "04. rész", src: "/hamarosan.html", type: 'videa' },
+                    { title: "05. rész", src: "/hamarosan.html", type: 'videa' },
+                    { title: "06. rész", src: "/hamarosan.html", type: 'videa' },
+                    { title: "07. rész", src: "/hamarosan.html", type: 'videa' },
+                    { title: "08. rész", src: "/hamarosan.html", type: 'videa' },
+
+                ]
+            },
+            "invincible3": {
+                title: "Invincible Season 3",
+                videos: [
+
+                    { title: "01. rész", src: "/hamarosan.html", type: 'videa' },
+                    { title: "02. rész", src: "/hamarosan.html", type: 'videa' },
+                    { title: "03. rész", src: "/hamarosan.html", type: 'videa' },
+                    { title: "04. rész", src: "/hamarosan.html", type: 'videa' },
+                    { title: "05. rész", src: "/hamarosan.html", type: 'videa' },
+                    { title: "06. rész", src: "/hamarosan.html", type: 'videa' },
+                    { title: "07. rész", src: "/hamarosan.html", type: 'videa' },
+                    { title: "08. rész", src: "/hamarosan.html", type: 'videa' },
+
+                ]
+            },
+            "superman": {
+                title: "Superman",
+                videos: [
+
+                    { title: "01. rész", src: "//videa.hu/player?v=cj2pql04d8fLc8AM", type: 'videa' },
+
+                ]
+            },
+            "re1": {
+                title: "Resident Evil",
+                videos: [
+
+                    { title: "01. rész", src: "https://vkvideo.ru/video_ext.php?oid=-234646183&id=456239072&hash=0a21918661049a8f&hd=3", type: 'videa' },
+
+                ]
+            },
+            "re2": {
+                title: "Resident Evil: Apocalypse",
+                videos: [
+
+                    { title: "01. rész", src: "https://vkvideo.ru/video_ext.php?oid=-234646183&id=456239073&hash=0bde963e7f8a52e8&hd=3", type: 'videa' },
+
+                ]
+            },
+            "re3": {
+                title: "Resident Evil: Extinction",
+                videos: [
+
+                    { title: "01. rész", src: "https://vkvideo.ru/video_ext.php?oid=-234646183&id=456239074&hash=b3514a39afbd9e86&hd=3", type: 'videa' },
+
+                ]
+            },
+            "re4": {
+                title: "Resident Evil: Afterlife",
+                videos: [
+
+                    { title: "01. rész", src: "https://vkvideo.ru/video_ext.php?oid=-234646183&id=456239075&hash=731ad0ce0cbed2ec&hd=3", type: 'videa' },
+
+                ]
+            },
+            "re5": {
+                title: "Resident Evil: Retribution",
+                videos: [
+
+                    { title: "01. rész", src: "https://vkvideo.ru/video_ext.php?oid=-234646183&id=456239076&hash=8badcba0354c09b3&hd=3", type: 'videa' },
+
+                ]
+            },
+            "re6": {
+                title: "Resident Evil: The Final Chapter",
+                videos: [
+
+                    { title: "01. rész", src: "https://vkvideo.ru/video_ext.php?oid=-234646183&id=456239077&hash=fbb42356e31bca24&hd=3", type: 'videa' },
+
+                ]
+            },
+
+            "dune1": {
+                title: "Dune",
+                videos: [
+
+                    { title: "01. rész", src: "https://vkvideo.ru/video_ext.php?oid=-234646183&id=456239065&hash=76895d28797dfd2f&hd=3", type: 'videa' },
+
+                ]
+            },
+            "dune2": {
+                title: "Dune: Part Two",
+                videos: [
+
+                    { title: "01. rész", src: "//videa.hu/player?v=4lK9WLRYnzErJVkH", type: 'videa' },
+
+                ]
+            },
+            "hungergames": {
+                title: "The Hunger Games",
+                videos: [
+
+                    { title: "01. rész", src: "//videa.hu/player?v=dDvuZ22eMJ5FhItx", type: 'videa' },
+
+                ]
+            },
+            "hungergames2": {
+                title: "The Hunger Games: Catching Fire",
+                videos: [
+
+                    { title: "01. rész", src: "//videa.hu/player?v=7yipKuWBxOCsQPzE", type: 'videa' },
+
+                ]
+            },
+            "hungergames3": {
+                title: "The Hunger Games: Mockingjay Part 1",
+                videos: [
+
+                    { title: "01. rész", src: "///videa.hu/player?v=PJRFiNCtivtgQqDM", type: 'videa' },
+
+                ]
+            },
+            "hungergames4": {
+                title: "The Hunger Games: Mockingjay Part 2",
+                videos: [
+
+                    { title: "01. rész", src: "//videa.hu/player?v=HQnvIhi5ZyRdhOTp", type: 'videa' },
+
+                ]
+            },
+            "hungermid": {
+                title: "The Hunger Games: The Ballad of Songbirds & Snakes",
+                videos: [
+
+                    { title: "01. rész", src: "//videa.hu/player?v=pQTXKbbxE9Pbenib", type: 'videa' },
+
+                ]
+            },
+            "interstellar": {
+                title: "Interstellar",
+                videos: [
+
+                    { title: "01. rész", src: "//videa.hu/player?v=hxLw0eCdqCndZCAc", type: 'videa' },
+
+                ]
+            },
+            "fnaf": {
+                title: "Five Nights at Freddy's",
+                videos: [
+
+                    { title: "01. rész", src: "//videa.hu/player?v=w8xGtr71f2OPtQct", type: 'videa' },
+
+                ]
+            },
+            "fnaf2": {
+                title: "Five Nights at Freddy's 2",
+                videos: [
+
+                    { title: "01. rész", src: "https://vkvideo.ru/video_ext.php?oid=-226903386&id=456239331&hash=134e588b45b758da&hd=3", type: 'videa' },
+
+                ]
+            },
+            "sweetpea": {
+                title: "Sweetpea",
+                videos: [
+
+                    { title: "01. rész", src: "/hamarosan.html", type: 'videa' },
+
+                ]
+            },
+            "prisonschool": {
+                title: "Prison School",
+                videos: [
+
+                    { title: "01. rész", src: "https://mega.nz/embed/ColEhLCA#W5u1DtCMH7ZFDwM8hGuE-ttqhjSpHuvllQ-wNbO7Iic", type: 'videa' },
+                    { title: "02. rész", src: "https://mega.nz/embed/T8cnCSwC#jsLk6FzyUyxDPJeypd3Ogsj1ORQlauLKAV7WKxfSGW8", type: 'videa' },
+                    { title: "03. rész", src: "https://mega.nz/embed/r5tjFTzQ#ssvuTNvdfUlwgxCMmWyPK3kicpdZK8Ggz5dto0CNnEA", type: 'videa' },
+                    { title: "04. rész", src: "https://mega.nz/embed/20UViR4T#QTSd2UVFS74VqFanFPr2IaEqQiH0od6IMP_b2ILFN2k", type: 'videa' },
+                    { title: "05. rész", src: "https://mega.nz/embed/i0kBhJaR#9BVEJ1aMGJ3196CcKb35vMg-STZWDrZghu-wMXUFd94", type: 'videa' },
+                    { title: "06. rész", src: "https://mega.nz/embed/jt8FFTYA#0yqcfbkpycUouFl85XlRx4sLDmet-B6szBRXbyKZdPQ", type: 'videa' },
+                    { title: "07. rész", src: "https://mega.nz/embed/akFXwZrY#0ifz3LgicplUTXkwZ6pmQAcKr48mUqmwiwjPYfw4uIE", type: 'videa' },
+                    { title: "08. rész", src: "https://mega.nz/embed/OtFhGByI#qy8oQCFfgwQf--Ii2RK5wGFVet0qOoPGxA2ukZqGfAg", type: 'videa' },
+                    { title: "09. rész", src: "https://mega.nz/embed/mgtC1C4A#-m5aJPmTPYeo0BsLgCZztVfLC4WU93yriAr66lzWgdk", type: 'videa' },
+                    { title: "10. rész", src: "https://mega.nz/embed/7lEEHIgB#hcEohezRTKeDRyYJE9rasQDxPi-skuvPM5C25qkMYyE", type: 'videa' },
+                    { title: "11. rész", src: "https://mega.nz/embed/rtUjDIoS#JWo19v1ojstpxpaCUEeicIl-HofvCflDpR6jdVXrNeI", type: 'videa' },
+                    { title: "12. rész", src: "https://mega.nz/embed/fkdFyBbQ#kSxAxIfjvm3j_9ALsno-E-hE2C8MRLxfd1z5jTpWEtA", type: 'videa' },
+                    { title: "13. rész", src: "https://mega.nz/embed/S1U3mD4A#gXvkIYu3f14ssOnDfVa740SrX9imWivn1UfYLcc66Gk", type: 'videa' },
+
+                ]
+            },
+            "twinpeakss1": {
+                title: "Twin Peaks Season 1",
+                videos: [
+
+                    { title: "01. rész", src: "/hamarosan.html", type: 'videa' },
+                    { title: "02. rész", src: "/hamarosan.html", type: 'videa' },
+                    { title: "03. rész", src: "/hamarosan.html", type: 'videa' },
+                    { title: "04. rész", src: "/hamarosan.html", type: 'videa' },
+                    { title: "05. rész", src: "/hamarosan.html", type: 'videa' },
+                    { title: "06. rész", src: "/hamarosan.html", type: 'videa' },
+                    { title: "07. rész", src: "/hamarosan.html", type: 'videa' },
+                    { title: "08. rész", src: "/hamarosan.html", type: 'videa' },
+
+                ]
+            },
+            "twinpeakss2": {
+                title: "Twin Peaks Season 2",
+                videos: [
+
+                    { title: "01. rész", src: "/hamarosan.html", type: 'videa' },
+                    { title: "02. rész", src: "/hamarosan.html", type: 'videa' },
+                    { title: "03. rész", src: "/hamarosan.html", type: 'videa' },
+                    { title: "04. rész", src: "/hamarosan.html", type: 'videa' },
+                    { title: "05. rész", src: "/hamarosan.html", type: 'videa' },
+                    { title: "06. rész", src: "/hamarosan.html", type: 'videa' },
+                    { title: "07. rész", src: "/hamarosan.html", type: 'videa' },
+                    { title: "08. rész", src: "/hamarosan.html", type: 'videa' },
+                    { title: "09. rész", src: "/hamarosan.html", type: 'videa' },
+                    { title: "10. rész", src: "/hamarosan.html", type: 'videa' },
+                    { title: "11. rész", src: "/hamarosan.html", type: 'videa' },
+                    { title: "12. rész", src: "/hamarosan.html", type: 'videa' },
+                    { title: "13. rész", src: "/hamarosan.html", type: 'videa' },
+                    { title: "14. rész", src: "/hamarosan.html", type: 'videa' },
+                    { title: "15. rész", src: "/hamarosan.html", type: 'videa' },
+                    { title: "16. rész", src: "/hamarosan.html", type: 'videa' },
+                    { title: "17. rész", src: "/hamarosan.html", type: 'videa' },
+                    { title: "18. rész", src: "/hamarosan.html", type: 'videa' },
+
+                ]
+            },
+            "twinpeakss3": {
+                title: "Twin Peaks Season 3",
+                videos: [
+
+                    { title: "01. rész", src: "/hamarosan.html", type: 'videa' },
+                    { title: "02. rész", src: "/hamarosan.html", type: 'videa' },
+                    { title: "03. rész", src: "/hamarosan.html", type: 'videa' },
+                    { title: "04. rész", src: "/hamarosan.html", type: 'videa' },
+                    { title: "05. rész", src: "/hamarosan.html", type: 'videa' },
+                    { title: "06. rész", src: "/hamarosan.html", type: 'videa' },
+                    { title: "07. rész", src: "/hamarosan.html", type: 'videa' },
+                    { title: "08. rész", src: "/hamarosan.html", type: 'videa' },
+                    { title: "09. rész", src: "/hamarosan.html", type: 'videa' },
+                    { title: "10. rész", src: "/hamarosan.html", type: 'videa' },
+                    { title: "11. rész", src: "/hamarosan.html", type: 'videa' },
+                    { title: "12. rész", src: "/hamarosan.html", type: 'videa' },
+                    { title: "13. rész", src: "/hamarosan.html", type: 'videa' },
+                    { title: "14. rész", src: "/hamarosan.html", type: 'videa' },
+                    { title: "15. rész", src: "/hamarosan.html", type: 'videa' },
+                    { title: "16. rész", src: "/hamarosan.html", type: 'videa' },
+                    { title: "17. rész", src: "/hamarosan.html", type: 'videa' },
+                    { title: "18. rész", src: "/hamarosan.html", type: 'videa' },
+
+                ]
+            },
+
+            "twinpeaksmovie": {
+                title: "Twin Peaks: Fire Walk with Me",
+                videos: [
+
+                    { title: "01. rész", src: "/hamarosan.html", type: 'videa' },
+
+
+                ]
+            },
+            "dmc": {
+                title: "Devil May Cry",
+                videos: [
+
+                    { title: "01. rész", src: "//embed.indavideo.hu/player/video/ca1803d997", type: 'videa' },
+                    { title: "02. rész", src: "//embed.indavideo.hu/player/video/f05482bf3b", type: 'videa' },
+                    { title: "03. rész", src: "//embed.indavideo.hu/player/video/1dd8752cb9", type: 'videa' },
+                    { title: "04. rész", src: "//embed.indavideo.hu/player/video/6ac1c9dcff", type: 'videa' },
+                    { title: "05. rész", src: "//embed.indavideo.hu/player/video/74acc685aa", type: 'videa' },
+                    { title: "06. rész", src: "//embed.indavideo.hu/player/video/585b6f62ac", type: 'videa' },
+                    { title: "07. rész", src: "//embed.indavideo.hu/player/video/032283fb2c", type: 'videa' },
+                    { title: "08. rész", src: "//embed.indavideo.hu/player/video/98439635ca", type: 'videa' },
+
+
+
+                ]
+            },
+            "cyberpunkedgerunners": {
+                title: "Cyberpunk: Edgerunners",
+                videos: [
+
+                    { title: "01. rész", src: "https://mega.nz/embed/X1dSVSzL#TTLPCZtNhWRjAE6cAbVUS1Su321H85J1W2_9NPDhkBg", type: 'videa' },
+                    { title: "02. rész", src: "https://mega.nz/embed/P9NSXJpI#cZtp2i8LEoDJnNyop9m1NaHqSXXcUmJXHK9sIG1AtdM", type: 'videa' },
+                    { title: "03. rész", src: "https://mega.nz/embed/3gshGBAT#NWQn3h78erS540thkxhLpc6VZgxxGmlu8Psoup09Ubs", type: 'videa' },
+                    { title: "04. rész", src: "https://mega.nz/embed/b9U2ULwQ#BmrijshOWNy79gkVyo9YBF_-M_ouOwRtc0kLp3Kehuo", type: 'videa' },
+                    { title: "05. rész", src: "https://mega.nz/embed/L1klkQIQ#LWNnN9zc_o4PRx_1CZ6xMYbUpydAQlSY4iLOmbP1EgE", type: 'videa' },
+                    { title: "06. rész", src: "https://mega.nz/embed/m8EnHSpK#GrG8IoyWOI0P9PVMnJo3r28fUGfBaC3qg6FMhLgtulU", type: 'videa' },
+                    { title: "07. rész", src: "https://mega.nz/embed/PglVEDxC#3uRPYKTdsH6MRqRO4c3RJWx2Yn6gmIt4zckDt246Y3A", type: 'videa' },
+                    { title: "08. rész", src: "https://mega.nz/embed/yl0W3aRI#hplGfJ8AbWHOAbZTULtehecaqnQDlLapKT_x7jbsH3M", type: 'videa' },
+                    { title: "09. rész", src: "https://mega.nz/embed/6lMgjKhb#sZmES4JY56lCiThGtzZ03bI0s2gSESi96XuzOnfFnoo", type: 'videa' },
+                    { title: "10. rész", src: "https://mega.nz/embed/j0t3gIoT#o1TWzJFgVHHlsp-NI9d3Ex1qU2HELfVPwTqnA01sYiM", type: 'videa' },
+
+                ]
+            },
+            "matrix1": {
+                title: "The Matrix",
+                videos: [
+
+                    { title: "01. rész", src: "/hamarosan.html", type: 'videa' },
+
+
+                ]
+            },
+            "matrix2": {
+                title: "The Matrix: Reloaded",
+                videos: [
+
+                    { title: "01. rész", src: "/hamarosan.html", type: 'videa' },
+
+
+                ]
+            },
+            "matrix3": {
+                title: "The Matrix: Revolutions",
+                videos: [
+
+                    { title: "01. rész", src: "/hamarosan.html", type: 'videa' },
+
+
+                ]
+            },
+            "matrix4": {
+                title: "The Matrix: Resurrections",
+                videos: [
+
+                    { title: "01. rész", src: "/hamarosan.html", type: 'videa' },
+
+
+                ]
+            },
+            "flashpointparadox": {
+                title: "Justice League: The Flashpoint Paradox",
+                videos: [
+
+                    { title: "01. rész", src: "//videa.hu/player?v=Ky2FiXVZLep1frU1", type: 'videa' },
+
+
+                ]
+            },
+            "hellsparadiseseason2": {
+                title: "Hell's Paradise Season 2",
+                videos: [
+
+                    { title: "01. rész", src: "//videa.hu/player?v=VRJX6FB0Js2kffge", type: 'videa' },
+
+
+                ]
+            },
+            "dexters1": {
+                title: "Dexter Season 1",
+                videos: [
+
+                    { title: "01. rész", src: "/hamarosan.html", type: 'videa' },
+                    { title: "02. rész", src: "/hamarosan.html", type: 'videa' },
+                    { title: "03. rész", src: "/hamarosan.html", type: 'videa' },
+                    { title: "04. rész", src: "/hamarosan.html", type: 'videa' },
+                    { title: "05. rész", src: "/hamarosan.html", type: 'videa' },
+                    { title: "06. rész", src: "/hamarosan.html", type: 'videa' },
+                    { title: "07. rész", src: "/hamarosan.html", type: 'videa' },
+                    { title: "08. rész", src: "/hamarosan.html", type: 'videa' },
+                    { title: "09. rész", src: "/hamarosan.html", type: 'videa' },
+                    { title: "10. rész", src: "/hamarosan.html", type: 'videa' },
+                    { title: "11. rész", src: "/hamarosan.html", type: 'videa' },
+                    { title: "12. rész", src: "/hamarosan.html", type: 'videa' },
+                ]
+            },
+            "dexters2": {
+                title: "Dexter Season 2",
+                videos: [
+
+                    { title: "01. rész", src: "/hamarosan.html", type: 'videa' },
+                    { title: "02. rész", src: "/hamarosan.html", type: 'videa' },
+                    { title: "03. rész", src: "/hamarosan.html", type: 'videa' },
+                    { title: "04. rész", src: "/hamarosan.html", type: 'videa' },
+                    { title: "05. rész", src: "/hamarosan.html", type: 'videa' },
+                    { title: "06. rész", src: "/hamarosan.html", type: 'videa' },
+                    { title: "07. rész", src: "/hamarosan.html", type: 'videa' },
+                    { title: "08. rész", src: "/hamarosan.html", type: 'videa' },
+                    { title: "09. rész", src: "/hamarosan.html", type: 'videa' },
+                    { title: "10. rész", src: "/hamarosan.html", type: 'videa' },
+                    { title: "11. rész", src: "/hamarosan.html", type: 'videa' },
+                    { title: "12. rész", src: "/hamarosan.html", type: 'videa' },
+                ]
+            },
+            "dexters3": {
+                title: "Dexter Season 3",
+                videos: [
+
+                    { title: "01. rész", src: "/hamarosan.html", type: 'videa' },
+                    { title: "02. rész", src: "/hamarosan.html", type: 'videa' },
+                    { title: "03. rész", src: "/hamarosan.html", type: 'videa' },
+                    { title: "04. rész", src: "/hamarosan.html", type: 'videa' },
+                    { title: "05. rész", src: "/hamarosan.html", type: 'videa' },
+                    { title: "06. rész", src: "/hamarosan.html", type: 'videa' },
+                    { title: "07. rész", src: "/hamarosan.html", type: 'videa' },
+                    { title: "08. rész", src: "/hamarosan.html", type: 'videa' },
+                    { title: "09. rész", src: "/hamarosan.html", type: 'videa' },
+                    { title: "10. rész", src: "/hamarosan.html", type: 'videa' },
+                    { title: "11. rész", src: "/hamarosan.html", type: 'videa' },
+                    { title: "12. rész", src: "/hamarosan.html", type: 'videa' },
+                ]
+            },
+            "dexters4": {
+                title: "Dexter Season 4",
+                videos: [
+
+                    { title: "01. rész", src: "/hamarosan.html", type: 'videa' },
+                    { title: "02. rész", src: "/hamarosan.html", type: 'videa' },
+                    { title: "03. rész", src: "/hamarosan.html", type: 'videa' },
+                    { title: "04. rész", src: "/hamarosan.html", type: 'videa' },
+                    { title: "05. rész", src: "/hamarosan.html", type: 'videa' },
+                    { title: "06. rész", src: "/hamarosan.html", type: 'videa' },
+                    { title: "07. rész", src: "/hamarosan.html", type: 'videa' },
+                    { title: "08. rész", src: "/hamarosan.html", type: 'videa' },
+                    { title: "09. rész", src: "/hamarosan.html", type: 'videa' },
+                    { title: "10. rész", src: "/hamarosan.html", type: 'videa' },
+                    { title: "11. rész", src: "/hamarosan.html", type: 'videa' },
+                    { title: "12. rész", src: "/hamarosan.html", type: 'videa' },
+                ]
+            },
+            "dexters5": {
+                title: "Dexter Season 5",
+                videos: [
+
+                    { title: "01. rész", src: "/hamarosan.html", type: 'videa' },
+                    { title: "02. rész", src: "/hamarosan.html", type: 'videa' },
+                    { title: "03. rész", src: "/hamarosan.html", type: 'videa' },
+                    { title: "04. rész", src: "/hamarosan.html", type: 'videa' },
+                    { title: "05. rész", src: "/hamarosan.html", type: 'videa' },
+                    { title: "06. rész", src: "/hamarosan.html", type: 'videa' },
+                    { title: "07. rész", src: "/hamarosan.html", type: 'videa' },
+                    { title: "08. rész", src: "/hamarosan.html", type: 'videa' },
+                    { title: "09. rész", src: "/hamarosan.html", type: 'videa' },
+                    { title: "10. rész", src: "/hamarosan.html", type: 'videa' },
+                    { title: "11. rész", src: "/hamarosan.html", type: 'videa' },
+                    { title: "12. rész", src: "/hamarosan.html", type: 'videa' },
+                ]
+            },
+            "dexters6": {
+                title: "Dexter Season 6",
+                videos: [
+
+                    { title: "01. rész", src: "/hamarosan.html", type: 'videa' },
+                    { title: "02. rész", src: "/hamarosan.html", type: 'videa' },
+                    { title: "03. rész", src: "/hamarosan.html", type: 'videa' },
+                    { title: "04. rész", src: "/hamarosan.html", type: 'videa' },
+                    { title: "05. rész", src: "/hamarosan.html", type: 'videa' },
+                    { title: "06. rész", src: "/hamarosan.html", type: 'videa' },
+                    { title: "07. rész", src: "/hamarosan.html", type: 'videa' },
+                    { title: "08. rész", src: "/hamarosan.html", type: 'videa' },
+                    { title: "09. rész", src: "/hamarosan.html", type: 'videa' },
+                    { title: "10. rész", src: "/hamarosan.html", type: 'videa' },
+                    { title: "11. rész", src: "/hamarosan.html", type: 'videa' },
+                    { title: "12. rész", src: "/hamarosan.html", type: 'videa' },
+                ]
+            },
+            "dexters7": {
+                title: "Dexter Season 7",
+                videos: [
+
+                    { title: "01. rész", src: "/hamarosan.html", type: 'videa' },
+                    { title: "02. rész", src: "/hamarosan.html", type: 'videa' },
+                    { title: "03. rész", src: "/hamarosan.html", type: 'videa' },
+                    { title: "04. rész", src: "/hamarosan.html", type: 'videa' },
+                    { title: "05. rész", src: "/hamarosan.html", type: 'videa' },
+                    { title: "06. rész", src: "/hamarosan.html", type: 'videa' },
+                    { title: "07. rész", src: "/hamarosan.html", type: 'videa' },
+                    { title: "08. rész", src: "/hamarosan.html", type: 'videa' },
+                    { title: "09. rész", src: "/hamarosan.html", type: 'videa' },
+                    { title: "10. rész", src: "/hamarosan.html", type: 'videa' },
+                    { title: "11. rész", src: "/hamarosan.html", type: 'videa' },
+                    { title: "12. rész", src: "/hamarosan.html", type: 'videa' },
+                ]
+            },
+            "dexters8": {
+                title: "Dexter Season 8",
+                videos: [
+
+                    { title: "01. rész", src: "/hamarosan.html", type: 'videa' },
+                    { title: "02. rész", src: "/hamarosan.html", type: 'videa' },
+                    { title: "03. rész", src: "/hamarosan.html", type: 'videa' },
+                    { title: "04. rész", src: "/hamarosan.html", type: 'videa' },
+                    { title: "05. rész", src: "/hamarosan.html", type: 'videa' },
+                    { title: "06. rész", src: "/hamarosan.html", type: 'videa' },
+                    { title: "07. rész", src: "/hamarosan.html", type: 'videa' },
+                    { title: "08. rész", src: "/hamarosan.html", type: 'videa' },
+                    { title: "09. rész", src: "/hamarosan.html", type: 'videa' },
+                    { title: "10. rész", src: "/hamarosan.html", type: 'videa' },
+                    { title: "11. rész", src: "/hamarosan.html", type: 'videa' },
+                    { title: "12. rész", src: "/hamarosan.html", type: 'videa' },
+                ]
+            },
+            "dexternewblood": {
+                title: "Dexter: New Blood",
+                videos: [
+
+                    { title: "01. rész", src: "/hamarosan.html", type: 'videa' },
+                    { title: "02. rész", src: "/hamarosan.html", type: 'videa' },
+                    { title: "03. rész", src: "/hamarosan.html", type: 'videa' },
+                    { title: "04. rész", src: "/hamarosan.html", type: 'videa' },
+                    { title: "05. rész", src: "/hamarosan.html", type: 'videa' },
+                    { title: "06. rész", src: "/hamarosan.html", type: 'videa' },
+                    { title: "07. rész", src: "/hamarosan.html", type: 'videa' },
+                    { title: "08. rész", src: "/hamarosan.html", type: 'videa' },
+                    { title: "09. rész", src: "/hamarosan.html", type: 'videa' },
+                    { title: "10. rész", src: "/hamarosan.html", type: 'videa' },
+                ]
+            },
+            "dexteroriginalsin": {
+                title: "Dexter: Original Sin",
+                videos: [
+
+                    { title: "01. rész", src: "/hamarosan.html", type: 'videa' },
+                    { title: "02. rész", src: "/hamarosan.html", type: 'videa' },
+                    { title: "03. rész", src: "/hamarosan.html", type: 'videa' },
+                    { title: "04. rész", src: "/hamarosan.html", type: 'videa' },
+                    { title: "05. rész", src: "/hamarosan.html", type: 'videa' },
+                    { title: "06. rész", src: "/hamarosan.html", type: 'videa' },
+                    { title: "07. rész", src: "/hamarosan.html", type: 'videa' },
+                    { title: "08. rész", src: "/hamarosan.html", type: 'videa' },
+                    { title: "09. rész", src: "/hamarosan.html", type: 'videa' },
+                    { title: "10. rész", src: "/hamarosan.html", type: 'videa' },
+                ]
+            },
+            "dexterresurrection": {
+                title: "Dexter: Resurrection",
+                videos: [
+
+                    { title: "01. rész", src: "/hamarosan.html", type: 'videa' },
+                    { title: "02. rész", src: "/hamarosan.html", type: 'videa' },
+                    { title: "03. rész", src: "/hamarosan.html", type: 'videa' },
+                    { title: "04. rész", src: "/hamarosan.html", type: 'videa' },
+                    { title: "05. rész", src: "/hamarosan.html", type: 'videa' },
+                    { title: "06. rész", src: "/hamarosan.html", type: 'videa' },
+                    { title: "07. rész", src: "/hamarosan.html", type: 'videa' },
+                    { title: "08. rész", src: "/hamarosan.html", type: 'videa' },
+                    { title: "09. rész", src: "/hamarosan.html", type: 'videa' },
+                    { title: "10. rész", src: "/hamarosan.html", type: 'videa' },
+                ]
+            },
+
+        };
+
+
+        // --- SEGÉDFÜGGVÉNYEK ---
+function revealMsg(node, text, type = "") { if (!node) return; node.textContent = text; node.className = "form-msg" + (type ? " " + type : ""); }
+
+        function checkTitleOverflow() {
+             document.querySelectorAll('.video-card-title').forEach(container => {
+                const span = container.querySelector('span');
+                if (span && span.offsetWidth > container.offsetWidth) {
+                    container.classList.add('scrolling');
+                }
+            });
+        }
+
+        function debounce(fn, wait) {
+            let t = null;
+            return function (...args) {
+                clearTimeout(t);
+                t = setTimeout(() => fn.apply(this, args), wait);
+            };
+        }
+
+        function createIframe(src, type) {
+            const iframe = document.createElement('iframe');
+            iframe.allowFullscreen = true;
+            iframe.scrolling = 'no';
+            iframe.src = src;
+            iframe.frameBorder = '0';
+            iframe.allow = 'autoplay; fullscreen';
+            if (type === 'indavideo') iframe.classList.add('indavideo-player');
+            return iframe;
+        }
+
+        // --- 2. JAVÍTÁS: UPDATEPLAYER FÜGGVÉNY EGYSZERŰSÍTÉSE ÉS JAVÍTÁSA ---
+        function updatePlayer(src, type) {
+            const videoContainer = document.querySelector('.video-frame-container');
+            const glowContainer = document.getElementById('ambilightGlowContainer');
+
+            if (!videoContainer || !glowContainer) return;
+
+            videoContainer.innerHTML = '';
+            glowContainer.innerHTML = '';
+
+            const separator = src.includes('?') ? '&' : '?';
+            const glowSrc = src + separator + "autoplay=1&mute=1&muted=1&controls=0&background=1";
+
+            const mainIframe = createIframe(src, type);
+            const glowIframe = createIframe(glowSrc, type);
+
+            mainIframe.id = "main-vid";
+            glowIframe.id = "glow-vid";
+
+            glowContainer.appendChild(glowIframe);
+            videoContainer.appendChild(mainIframe);
+
+            // Ha mozi módban vagyunk, azonnal kapcsoljuk be a fényt
+            if (document.body.classList.contains('theater-mode-on')) {
+                 glowContainer.style.display = 'block';
+                 // Kényszerített stílusfrissítés
+                 glowContainer.style.backdropFilter = "blur(80px) brightness(1.5) saturate(1.8)";
+            }
+
+            const sync = () => {
+                const g = document.getElementById('glow-vid');
+                if (g) g.src = glowSrc;
+            };
+            videoContainer.addEventListener('mousedown', sync, { once: true });
+        }
+
+        // --- FIREBASE FUNKCIÓK ---
+        async function saveProgress(seriesKey, videoIndex) {
+            const user = auth.currentUser;
+            if (!user) return;
+            await set(ref(db, `progress/${user.uid}/${seriesKey}`), { index: videoIndex, timestamp: Date.now() });
+        }
+
+        async function loadProgress(seriesKey) {
+            const user = auth.currentUser;
+            if (!user) return 0;
+            const snapshot = await get(child(ref(db), `progress/${user.uid}/${seriesKey}`));
+            return snapshot.exists() ? snapshot.val().index : 0;
+        }
+
+        function updateContinueWatching(progressData) {
+            const continueSection = document.getElementById('continueWatchingSection');
+            const continueList = document.getElementById('continueList');
+            
+            // Ha még nincs a HTML-ben ez a szekció, hozzuk létre dinamikusan (biztonsági háló)
+            if(!continueList) return; 
+
+            continueList.innerHTML = '';
+
+            const items = [];
+            
+            // Adatok összefésülése a seriesData-val (csak ha létezik a kulcs)
+            if(progressData && seriesData) {
+                Object.keys(progressData).forEach(key => {
+                    if(seriesData[key]) {
+                        items.push({ 
+                            key: key, 
+                            ...seriesData[key], 
+                            ...progressData[key] 
+                        });
+                    }
+                });
+            }
+
+            const sortedItems = items.sort((a, b) => b.timestamp - a.timestamp).slice(0, 5);
+
+            if (sortedItems.length > 0) {
+                if(continueSection) continueSection.style.display = 'block';
+                sortedItems.forEach(item => {
+                    // Ellenőrizzük, hogy van-e következő rész
+                    const nextEpIndex = item.index; // A mentett index az utolsó megnyitott
+                    const nextEpTitle = item.videos[nextEpIndex] ? item.videos[nextEpIndex].title : "Folytatás";
+
+                    const chip = document.createElement('div');
+                    chip.className = 'continue-chip';
+                    chip.innerHTML = `
+                        <div class="series-name">${item.title}</div>
+                        <div class="episode-name">${nextEpTitle}</div>
+                    `;
+                    chip.onclick = () => {
+                        loadSeries(item.key);
+                        mainPage.style.display = 'none';
+                        if(continueSection) continueSection.style.display = 'none';
+                        seriesPage.style.display = 'flex';
+                    };
+                    continueList.appendChild(chip);
+                });
+            } else {
+                 if(continueSection) continueSection.style.display = 'none';
+            }
+        }
+
+        function loadAllProgress() {
+            const user = auth.currentUser;
+            if (!user) return;
+            onValue(ref(db, `progress/${user.uid}`), (snapshot) => {
+                if (snapshot.exists()) {
+                    allProgressData = snapshot.val();
+                    populateWatchedList(allProgressData);
+                    updateContinueWatching(allProgressData);
+                } else {
+                    watchedList.innerHTML = '<p style="font-size: 0.85rem; color: #777;">Még nem néztél sorozatot.</p>';
+                    const contSec = document.getElementById('continueWatchingSection');
+                    if(contSec) contSec.style.display = 'none';
+                }
+            }); // removed onlyOnce: true to allow realtime updates
+        }
+
+        function populateWatchedList(progressData) {
+            watchedList.innerHTML = '';
+            
+            // Biztonsági ellenőrzés
+            if(!seriesData) return;
+
+            const watchedItems = Object.keys(progressData).map(key => {
+                const info = seriesData[key];
+                if (!info) return null;
+                return { key, ...info, watchedIndex: progressData[key].index, timestamp: progressData[key].timestamp };
+            }).filter(i => i).sort((a, b) => b.timestamp - a.timestamp).slice(0, 5);
+
+            watchedItems.forEach(item => {
+                const watchedCount = Math.min(item.watchedIndex + 1, item.videos.length);
+                const progressPercent = (watchedCount / item.videos.length) * 100;
+                const itemDiv = document.createElement('div');
+                itemDiv.className = 'watched-item';
+                itemDiv.innerHTML = `
+                    <div class="watched-title">${item.title}</div>
+                    <div class="watched-progress-text">${watchedCount}/${item.videos.length} rész</div>
+                    <div class="progress-container"><div class="progress-bar" style="width: ${progressPercent}%"></div></div>
+                `;
+                itemDiv.onclick = () => { 
+                    profileDropdown.style.display = 'none'; 
+                    loadSeries(item.key); 
+                    mainPage.style.display = 'none'; 
+                    seriesPage.style.display = 'flex'; 
+                };
+                watchedList.appendChild(itemDiv);
+            });
+        }
+
+        function setupPresence() {
+            const user = auth.currentUser;
+            if (!user) return;
+            const myStatusRef = ref(db, `status/${user.uid}`);
+            onValue(ref(db, ".info/connected"), (snap) => {
+                if (snap.val() === true) {
+                    onDisconnect(myStatusRef).remove();
+                    set(myStatusRef, Date.now());
+                }
+            });
+        }
+
+        // --- ESEMÉNYKEZELŐK ---
+        loginForm.onsubmit = async (e) => {
+            e.preventDefault();
+            const email = document.getElementById("loginEmail").value.trim();
+            const pass = document.getElementById("loginPassword").value;
+            try {
+                await setPersistence(auth, browserLocalPersistence);
+                await signInWithEmailAndPassword(auth, email, pass);
+            } catch (err) { revealMsg(loginMsg, "❌ Hibás belépés.", "error"); }
+        };
+
+        function stopAndCleanupVideo() {
+            const videoContainer = document.querySelector('.video-frame-container');
+            const glowContainer = document.getElementById('ambilightGlowContainer');
+
+            if (videoContainer) videoContainer.innerHTML = '';
+            if (glowContainer) glowContainer.innerHTML = '';
+
+            document.body.classList.remove('theater-mode-on');
+            if (ambilightWrapper) ambilightWrapper.classList.remove('ambilight-active');
+            
+            // Gomb visszaállítása
+            theaterBtn.innerHTML = '<i class="fa-solid fa-expand"></i> Mozi mód';
+            theaterBtn.classList.remove('active');
+        }
+
+        logoutBtn.onclick = () => {
+            stopAndCleanupVideo();
+            signOut(auth);
+        };
+
+        profileBtn.onclick = (e) => {
+            e.stopPropagation();
+            loadAllProgress(); // Frissítés nyitáskor
+            profileDropdown.style.display = profileDropdown.style.display === "block" ? "none" : "block";
+        };
+
+        document.onclick = (e) => {
+            if (!profileDropdown.contains(e.target) && e.target !== profileBtn) profileDropdown.style.display = 'none';
+            if (!searchContainer.contains(e.target) && e.target !== searchBtn && searchInput.value === "") searchContainer.classList.remove('active');
+        };
+
+        onAuthStateChanged(auth, (user) => {
+            if (user) {
+                loginContainer.style.display = "none";
+                appContainer.style.display = "flex";
+                setTimeout(() => appContainer.style.opacity = "1", 10);
+                usernameDisplay.textContent = user.displayName || user.email.split('@')[0];
+                profileName.textContent = usernameDisplay.textContent;
+                setupPresence();
+                loadAllProgress();
+            } else {
+                appContainer.style.display = "none";
+                loginContainer.style.display = "flex";
+            }
+        });
+
+        // 3. JAVÍTÁS: A VISSZA ÉS HOME GOMBOK EGYSZERŰSÍTÉSE
+        const goHome = () => {
+            stopAndCleanupVideo();
+            seriesPage.style.display = 'none';
+            mainPage.style.display = 'flex';
+            
+            // Ha van continue section, mutassuk újra, ha van adat
+            const contSec = document.getElementById('continueWatchingSection');
+            if(contSec && Object.keys(allProgressData).length > 0) contSec.style.display = 'block';
+
+            searchBtn.style.display = 'flex';
+            dynamicBackground.classList.remove('visible');
+            window.scrollTo(0, 0);
+        };
+
+        homeBtn.onclick = goHome;
+        backBtn.onclick = goHome;
+
+        // Mozi mód
+        theaterBtn.onclick = () => {
+            const isOn = document.body.classList.toggle('theater-mode-on');
+            const glow = document.getElementById('ambilightGlowContainer');
+            
+            ambilightWrapper.classList.toggle('ambilight-active');
+            theaterBtn.classList.toggle('active');
+
+            if (isOn) {
+                if (glow) {
+                    glow.style.display = 'block';
+                    glow.style.backdropFilter = "blur(80px) brightness(1.5) saturate(1.8)";
+                }
+                theaterBtn.innerHTML = '<i class="fa-solid fa-compress"></i> Normál nézet';
+                window.scrollTo({ top: 0, behavior: 'smooth' });
+            } else {
+                if (glow) {
+                    glow.style.display = 'none';
+                }
+                theaterBtn.innerHTML = '<i class="fa-solid fa-expand"></i> Mozi mód';
+            }
+        };
+
+        // Egér figyelés mozi módban
+        let mouseTimer;
+        document.addEventListener('mousemove', () => {
+            if (document.body.classList.contains('theater-mode-on')) {
+                theaterBtn.style.opacity = "1";
+                clearTimeout(mouseTimer);
+                mouseTimer = setTimeout(() => {
+                    theaterBtn.style.opacity = "0";
+                }, 3000);
+            }
+        });
+
+        searchBtn.onclick = (e) => {
+            e.stopPropagation();
+            const isActive = searchContainer.classList.toggle('active');
+            if (isActive) {
+                searchInput.focus();
+            } else {
+                searchInput.value = "";
+                searchClearBtn.style.display = 'none';
+                document.querySelectorAll('.series-card').forEach(card => card.style.display = 'flex');
+            }
+        };
+
+        searchInput.oninput = () => {
+            const q = searchInput.value.toLowerCase().trim();
+            searchClearBtn.style.display = q ? 'flex' : 'none';
+            document.querySelectorAll('.series-card').forEach(card => {
+                const titleText = card.querySelector('.series-title span').textContent.toLowerCase();
+                card.style.display = titleText.includes(q) ? 'flex' : 'none';
+            });
+        };
+
+        searchClearBtn.onclick = (e) => {
+            e.stopPropagation();
+            searchInput.value = "";
+            searchClearBtn.style.display = 'none';
+            searchInput.focus();
+            document.querySelectorAll('.series-card').forEach(card => card.style.display = 'flex');
+        };
+
+        // FŐ FÜGGVÉNY: Sorozat betöltése
+        async function loadSeries(key) {
+            // Ellenőrizzük, hogy létezik-e az adat
+            if (!seriesData[key]) {
+                console.error("Sorozat nem található: " + key);
+                return;
+            }
+
+            const s = seriesData[key];
+            seriesTitle.textContent = s.title;
+            videoList.innerHTML = "";
+            
+            // Betöltésjelző vagy alapértelmezett indítás
+            let lastIdx = 0;
+            try {
+                lastIdx = await loadProgress(key);
+            } catch(e) {
+                console.log("Progress betöltési hiba, 0. rész", e);
+            }
+
+            // Biztos ami biztos ellenőrzés
+            if(s.videos && s.videos.length > 0 && s.videos[lastIdx]) {
+                updatePlayer(s.videos[lastIdx].src, s.videos[lastIdx].type);
+            }
+
+            const img = document.querySelector(`.series-card[data-series="${key}"] img`);
+            if (img) {
+                dynamicBackground.style.backgroundImage = `url('${img.src}')`;
+                dynamicBackground.classList.add('visible');
+            }
+
+            if(s.videos) {
+                s.videos.forEach((v, i) => {
+                    const card = document.createElement('div');
+                    card.className = 'video-card' + (i === lastIdx ? ' active' : '');
+                    card.innerHTML = `<div class="video-card-title"><span>${v.title}</span></div>`;
+
+                    card.onclick = () => {
+                        updatePlayer(v.src, v.type);
+                        document.querySelectorAll('.video-card').forEach(c => c.classList.remove('active'));
+                        card.classList.add('active');
+                        saveProgress(key, i);
+                    };
+                    videoList.appendChild(card);
+                });
+            }
+            
+            // Címek ellenőrzése görgetéshez
+            setTimeout(checkTitleOverflow, 100);
+        }
+
+        // 4. JAVÍTÁS: ESEMÉNYKEZELŐK EGYSZERŰSÍTÉSE
+        // Csak egyszer csatoljuk a kártyákhoz az eseményt!
+        document.querySelectorAll('.series-card').forEach(card => {
+            card.onclick = () => {
+                const seriesKey = card.dataset.series;
+                if(seriesKey) {
+                    loadSeries(seriesKey);
+                    mainPage.style.display = 'none';
+                    const contSec = document.getElementById('continueWatchingSection');
+                    if(contSec) contSec.style.display = 'none';
+                    seriesPage.style.display = 'flex';
+                }
+            };
+        });
+
+        // Animáció indítása
+        const cards = document.querySelectorAll('.series-card');
+        cards.forEach((card, index) => {
+            setTimeout(() => {
+                card.classList.add('visible');
+            }, index * 50);
+        });
+
+        window.addEventListener('resize', debounce(checkTitleOverflow, 150));
+
+    </script>
+</body>
+
+
+</html>
