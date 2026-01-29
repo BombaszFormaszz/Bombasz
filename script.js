@@ -1,6 +1,7 @@
 // ==========================================
 // BOMBASZ - Exploding Navigation v24
 // IMPROVEMENTS: Linear nav, proper scroll, back to intro
+// + háttér gúlák nagyobbak robbanás után
 // ==========================================
 
 // --- KATEGÓRIÁK ADATAI ---
@@ -48,7 +49,7 @@ let hoveredItem = -1;
 
 let isAnimating = false;
 let scrollAccumulator = 0;
-const SCROLL_THRESHOLD = isMobile ? 40 : 60;
+const SCROLL_THRESHOLD = isMobile ? 30 : 45; 
 
 // --- THREE.JS SETUP ---
 const canvas = document.getElementById('hero-canvas');
@@ -59,7 +60,6 @@ renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
 const scene = new THREE.Scene();
 const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
 
-// Raycaster a kattintáshoz
 const raycaster = new THREE.Raycaster();
 const mouse = new THREE.Vector2();
 
@@ -71,10 +71,9 @@ let targetMainExplosion = 0;
 let subExplosion = 0;
 let targetSubExplosion = 0;
 
-// Lassabb lerp = simább animáció
-const LERP_SLOW = 0.03;
-const LERP_MED = 0.08;
-const LERP_FAST = 0.15;
+const LERP_SLOW  = 0.08;
+const LERP_MED   = 0.12;
+const LERP_FAST  = 0.2;
 
 // --- HÁTTÉR GÖMB ---
 const sphereRadius = isMobile ? 2.0 : 2.5;
@@ -85,7 +84,7 @@ const triangleCount = posAttr.count / 3;
 
 // --- CSOPORTOK ---
 const backgroundGroup = new THREE.Group();
-const menuGroup = new THREE.Group(); // Lineáris menü (gúlák egymás alatt)
+const menuGroup = new THREE.Group();
 const subItemGroup = new THREE.Group();
 
 scene.add(backgroundGroup);
@@ -94,7 +93,7 @@ scene.add(subItemGroup);
 
 // --- KATEGÓRIA GÚLÁK (LINEAR MENU) ---
 const mainFragments = [];
-const VERTICAL_SPACING = isMobile ? 4.0 : 5.5; // Távolság a gúlák között (megnövelve)
+const VERTICAL_SPACING = isMobile ? 4.0 : 5.5;
 
 categories.forEach((cat, idx) => {
     const pyramidGeo = new THREE.TetrahedronGeometry(isMobile ? 0.8 : 0.7, 0);
@@ -112,11 +111,9 @@ categories.forEach((cat, idx) => {
     const pyramid = new THREE.Mesh(pyramidGeo, pyramidMat);
     pyramid.add(hitMesh);
     
-    // Vertikális pozíció - középső elem (idx=1 ha 3 kategória) van középen
     const centerIdx = Math.floor(categories.length / 2);
     const yPos = (centerIdx - idx) * VERTICAL_SPACING;
     
-    // Cikk-cakk vízszintes eltolás (bal-jobb váltakozás)
     const zigzagOffset = isMobile ? 1.5 : 2.5;
     const xPos = (idx % 2 === 0) ? -zigzagOffset : zigzagOffset;
     
@@ -126,8 +123,8 @@ categories.forEach((cat, idx) => {
     mainFragments.push({
         mesh: pyramid,
         hitMesh: hitMesh,
-        baseY: yPos, // Alaphelyzet Y koordináta
-        baseX: xPos, // Alaphelyzet X koordináta (cikk-cakk)
+        baseY: yPos,
+        baseX: xPos,
         rotationAxis: new THREE.Vector3(Math.random(), Math.random(), Math.random()).normalize(),
         rotationSpeed: 0.005,
         currentOpacity: 0,
@@ -154,7 +151,9 @@ for (let i = 0; i < triangleCount; i++) {
     ]);
     triGeo.setAttribute('position', new THREE.BufferAttribute(vertices, 3));
     
-    const pyramidGeo = new THREE.TetrahedronGeometry(isMobile ? 0.06 : 0.08, 0);
+    // JAVÍTÁS itt: nagyobb gúlák robbanás után
+    const pyramidGeo = new THREE.TetrahedronGeometry(isMobile ? 0.14 : 0.24, 0);
+    
     const material = new THREE.MeshBasicMaterial({ 
         color: 0xffffff, 
         wireframe: true, 
@@ -172,7 +171,7 @@ for (let i = 0; i < triangleCount; i++) {
         originalPos: center.clone(),
         originalRotation: mesh.rotation.clone(),
         explosionDir: center.clone().normalize(),
-        explosionDistance: isMobile ? 5.5 : 8.0, // Megnövelve a távolságot (szabadabb elrendezés)
+        explosionDistance: isMobile ? 5.5 : 8.0,
         rotationAxis: new THREE.Vector3(Math.random(), Math.random(), Math.random()).normalize(),
         rotationSpeed: (Math.random()-0.5)*0.015,
         currentGeometry: 'tri',
@@ -227,13 +226,11 @@ categories.forEach((cat, catIdx) => {
         if (item.download) {
             label.setAttribute('download', '');
         } else if (!item.external) {
-            // Belső linkek - smooth transition
             label.addEventListener('click', (e) => {
                 e.preventDefault();
                 smoothPageTransition(item.url);
             });
         } else {
-            // Külső linkek - target blank marad
             label.setAttribute('target', '_blank');
         }
         
@@ -288,21 +285,14 @@ scene.add(particles);
 // --- HELPER ---
 let isTransitioning = false;
 
-// ==========================================
-// ÚJ INDULÁSI ANIMÁCIÓ (Quantum Jump)
-// Cseréld le a régi smoothPageTransition függvényt erre az index.html-ben!
-// ==========================================
-
 function smoothPageTransition(url) {
     if (isTransitioning) return;
     isTransitioning = true;
     
-    // Állapot mentése a visszatéréshez
     sessionStorage.setItem('bombasz_returning', 'true');
     sessionStorage.setItem('bombasz_level', currentLevel);
     sessionStorage.setItem('bombasz_category', currentCategory);
     
-    // 1. FEHÉR VILLANÁS LÉTREHOZÁSA (Warp Tunnel)
     const overlay = document.createElement('div');
     overlay.style.cssText = `
         position: fixed;
@@ -312,49 +302,32 @@ function smoothPageTransition(url) {
         z-index: 9999999;
         opacity: 0;
         pointer-events: none;
-        transition: opacity 0.4s cubic-bezier(0.55, 0.085, 0.68, 0.53); /* Gyorsuló görbe */
+        transition: opacity 0.4s cubic-bezier(0.55, 0.085, 0.68, 0.53);
         will-change: opacity;
     `;
     document.body.appendChild(overlay);
 
-    // 2. CANVAS ANIMÁCIÓ (Csak a mozgás illúziója miatt)
-    // Nem nagyítunk túl nagyot, hogy ne akadjon be a GPU
     canvas.style.transition = 'transform 0.6s cubic-bezier(0.7, 0, 0.3, 1), filter 0.6s ease';
     canvas.style.willChange = 'transform, filter';
     
-    // Elrejtjük a UI elemeket azonnal
     const labels = document.querySelectorAll('.item-label');
     labels.forEach(l => l.style.opacity = '0');
     const catLabel = document.getElementById('category-label');
     if(catLabel) catLabel.style.opacity = '0';
 
     requestAnimationFrame(() => {
-        // Indulás!
-        canvas.style.transform = 'scale(3)'; // Mérsékelt zoom, hogy sima maradjon
-        canvas.style.filter = 'blur(10px)';  // A sebesség elmosása
+        canvas.style.transform = 'scale(3)';
+        canvas.style.filter = 'blur(10px)';
         
-        // A fehér fény elvakít
         setTimeout(() => {
             overlay.style.opacity = '1';
-        }, 50); // Pici késleltetés, hogy a zoom már látszódjon előtte
+        }, 50);
 
-        // 3. NAVIGÁLÁS
-        // Amikor már tiszta fehér a képernyő, akkor váltunk
         setTimeout(() => {
             window.location.href = url;
         }, 450);
     });
 }
-// Visszalépés smooth transition
-// ==========================================
-// ÚJ RETURN ANIMÁCIÓ (Quantum Entry)
-// Cseréld le a régi handleBackNavigation függvényt erre!
-// ==========================================
-
-// ==========================================
-// GARANTÁLT ZOOM ARRIVAL (Index.html)
-// Cseréld le a régi handleBackNavigation-t erre!
-// ==========================================
 
 function handleBackNavigation() {
     if (sessionStorage.getItem('bombasz_returning') === 'true') {
@@ -363,7 +336,6 @@ function handleBackNavigation() {
         const savedLevel = parseInt(sessionStorage.getItem('bombasz_level')) || 1;
         const savedCategory = parseInt(sessionStorage.getItem('bombasz_category')) || 0;
 
-        // 1. Fehér réteg (hogy ne látszódjon a betöltés pillanata)
         const overlay = document.createElement('div');
         overlay.style.cssText = `
             position: fixed; top: 0; left: 0; width: 100vw; height: 100vh;
@@ -372,13 +344,10 @@ function handleBackNavigation() {
         `;
         document.body.appendChild(overlay);
 
-        // 2. CANVAS KEZDŐÁLLAPOT: HATALMAS (scale 5)
-        // Innen fogunk visszahúzódni normál méretre
         canvas.style.transition = 'none';
         canvas.style.transform = 'scale(5)'; 
         canvas.style.filter = 'blur(0px)'; 
 
-        // Adatok visszaállítása
         currentLevel = savedLevel;
         targetMainExplosion = 1; mainExplosion = 1;
         if (savedLevel === 2) {
@@ -389,30 +358,22 @@ function handleBackNavigation() {
         }
         updateUI();
 
-        // 3. ANIMÁCIÓ INDÍTÁSA
         requestAnimationFrame(() => {
             setTimeout(() => {
-                // Fehérség eltűnik
                 overlay.style.opacity = '0';
                 
-                // Canvas visszahúzódik: scale(5) -> scale(1)
-                // Ez adja az érzést, hogy megérkeztél a zoomolásból
                 canvas.style.transition = 'transform 1s cubic-bezier(0.19, 1, 0.22, 1)';
                 canvas.style.transform = 'scale(1)';
                 
-                // Overlay törlése
                 setTimeout(() => overlay.remove(), 1000);
             }, 50);
         });
     }
 }
 
-// Induláskor ellenőrizzük
 window.addEventListener('load', handleBackNavigation);
 
-// BACK BUTTON létrehozása (ezt rakd a HTML-be vagy hívd meg amikor kell)
 function createBackButton() {
-    // Csak akkor jelenítsük meg, ha az előző oldal index.html volt
     if (sessionStorage.getItem('bombasz_returning') !== 'true') {
         return null;
     }
@@ -452,7 +413,6 @@ function createBackButton() {
     });
     
     backBtn.addEventListener('click', () => {
-        // Hyperspace jump transition
         sessionStorage.setItem('bombasz_returning', 'true');
         sessionStorage.setItem('bombasz_level', '1');
         sessionStorage.setItem('bombasz_category', '0');
@@ -535,12 +495,9 @@ function updateUI() {
     }
 }
 
-// --- LOGIKA: SCROLL & CLICK ---
-
 function handleScroll(delta) {
     if (isAnimating) return;
     
-    // Level 0: Le görgetés -> Level 1 (belépés a menübe)
     if (currentLevel === 0) {
         if (delta > 0) {
             currentLevel = 1;
@@ -550,33 +507,25 @@ function handleScroll(delta) {
         return;
     }
     
-    // Level 1: LINEAR NAVIGATION
-    // Fel görgetés (delta < 0) = előző kategória
-    // Le görgetés (delta > 0) = következő kategória
     if (currentLevel === 1) {
         if (delta < 0) {
-            // Fel görgetés
             if (targetCategory > 0) {
                 targetCategory--;
                 updateUI();
             } else {
-                // Ha az első elemen vagyunk, vissza az intro-hoz
                 currentLevel = 0;
                 targetMainExplosion = 0;
                 targetCategory = 0;
                 updateUI();
             }
         } else {
-            // Le görgetés
             if (targetCategory < categories.length - 1) {
                 targetCategory++;
                 updateUI();
             }
-            // Ha az utolsó elemen vagyunk, nem csinálunk semmit (nem körbemegy)
         }
     }
     
-    // Level 2: Fel vagy Le görgetés -> vissza Level 1-re
     if (currentLevel === 2) {
         currentLevel = 1;
         targetSubExplosion = 0;
@@ -607,7 +556,6 @@ function handleClick(event) {
                 if (clickedIndex === targetCategory) {
                     enterCategory(clickedIndex);
                 } else {
-                    // Rákattintás egy másik kategóriára -> oda ugrunk
                     targetCategory = clickedIndex;
                     updateUI();
                 }
@@ -635,12 +583,10 @@ window.addEventListener('wheel', (e) => {
 
 let touchStartX = 0;
 let touchStartY = 0;
-let isDragging = false;
 
 window.addEventListener('mousedown', (e) => {
     touchStartX = e.clientX;
     touchStartY = e.clientY;
-    isDragging = false;
 });
 
 window.addEventListener('mouseup', (e) => {
@@ -679,13 +625,12 @@ function animate() {
     requestAnimationFrame(animate);
     time += 0.016;
     
-    // Lassabb lerp = simább mozgás
     mainExplosion += (targetMainExplosion - mainExplosion) * LERP_SLOW;
     subExplosion += (targetSubExplosion - subExplosion) * LERP_SLOW;
 
-    // 1. Háttér Gömb
     backgroundGroup.rotation.z += 0.0001;
     fragments.forEach(frag => {
+        // Geometria váltás - most már a nagyobb pyramidGeo van használva
         if (mainExplosion > 0.5 && frag.currentGeometry !== 'pyramid') { 
             frag.mesh.geometry = frag.pyramidGeo; 
             frag.currentGeometry = 'pyramid'; 
@@ -715,8 +660,6 @@ function animate() {
         frag.mesh.material.opacity += ((mainExplosion > 0.3 ? 0.15 : 0.3) - frag.mesh.material.opacity) * LERP_FAST;
     });
 
-    // 2. LINEAR MENU (Gúlák egymás alatt)
-    // A menuGroup Y pozícióját állítjuk, hogy a targetCategory legyen középen
     const targetGroupY = mainFragments[targetCategory].baseY;
     menuGroup.position.y += (-targetGroupY - menuGroup.position.y) * LERP_SLOW;
     
@@ -728,28 +671,23 @@ function animate() {
             tOpacity = 0;
         } 
         else if (currentLevel === 1) {
-            // Középső (targetCategory) teljes fényerővel
             if (idx === targetCategory) {
                 tOpacity = 1;
             } else {
-                // Többi halvány
                 tOpacity = 0.3;
             }
             tScale = 1;
             
-            // Kis lebegés cikk-cakk pozícióval
             const floatX = Math.sin(time * 0.8 + idx * 0.5) * 0.15;
             const floatY = Math.sin(time * 1.0 + idx) * 0.2;
             frag.mesh.position.x = frag.baseX + floatX;
             frag.mesh.position.y = frag.baseY + floatY;
             
-            // Forgás
             frag.mesh.rotation.y += 0.005;
             frag.mesh.rotation.x += 0.002;
         } 
         else if (currentLevel === 2) {
             if (idx === currentCategory) {
-                // Shatter
                 tScale = 1 - subExplosion; 
                 tOpacity = tScale; 
             } else {
@@ -765,7 +703,6 @@ function animate() {
     
     menuGroup.scale.setScalar(mainExplosion);
 
-    // 3. SubItems (Shatter Effect)
     categorySubFragments.forEach((subFrags, catIdx) => {
         const isActiveCategory = catIdx === currentCategory;
         const shouldShow = isActiveCategory && (currentLevel === 2 || subExplosion > 0.01);
@@ -807,7 +744,6 @@ function animate() {
         });
     });
     
-    // Részecskék
     const partPos = pGeometry.attributes.position.array;
     for (let i = 0; i < particleCount; i++) {
         partPos[i*3] += pVelocities[i].x; 
