@@ -218,8 +218,12 @@ categories.forEach((cat, catIdx) => {
         label.className = 'item-label';
         label.innerHTML = `<i class="fa-solid ${item.icon}"></i><span>${item.name}</span>`;
         label.href = item.url;
-        if (item.download) label.setAttribute('download', '');
-        else label.setAttribute('target', '_blank');
+        if (item.download) {
+            label.setAttribute('download', '');
+        } else if (item.external) {
+            label.setAttribute('target', '_blank');
+        }
+        // Belső linkeknek nincs target="_blank" - ezeket a transition.js kezeli
         label.style.opacity = '0';
         label.style.pointerEvents = 'none';
         
