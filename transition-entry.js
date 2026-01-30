@@ -1,70 +1,113 @@
 // ==========================================
-// BOMBASZ - Particle Accelerator Transition v5
-// Szétrobbanás → Összeállás → Pörgés → FLASH
+// BOMBASZ - PERFECT Homepage Rebuild v15
+// OLDAL szétrobban -> gömb TÖKÉLETESEN összeáll
 // ==========================================
 
 (function() {
     
+    const cameFromHome = sessionStorage.getItem('stargate-entry') || sessionStorage.getItem('came-from-home');
+    const isMobile = window.innerWidth < 768;
+    
     // === VISSZA GOMB ===
     function addBackButton() {
+        if (!cameFromHome) return;
         if (document.getElementById('stargate-back-btn')) return;
         
-        const btn = document.createElement('a');
+        sessionStorage.setItem('came-from-home', 'true');
+        
+        const btn = document.createElement('button');
         btn.id = 'stargate-back-btn';
-        btn.href = 'index.html';
-        btn.innerHTML = '← Vissza';
-        btn.title = 'Vissza a főoldalra';
+        btn.innerHTML = 'FŐOLDAL';
         
-        btn.style.cssText = `
-            position: fixed;
-            top: 15px;
-            left: 15px;
-            padding: 8px 16px;
-            background: rgba(255, 255, 255, 0.1);
-            border: 1px solid rgba(255, 255, 255, 0.2);
-            border-radius: 20px;
-            color: rgba(255, 255, 255, 0.7);
-            font-family: 'Segoe UI', sans-serif;
-            font-size: 14px;
-            text-decoration: none;
-            cursor: pointer;
-            z-index: 9999;
-            backdrop-filter: blur(10px);
-            -webkit-backdrop-filter: blur(10px);
-            transition: all 0.3s ease;
-        `;
+        if (isMobile) {
+            btn.style.cssText = `
+                position:fixed;top:15px;left:20px;
+                font-family:'Orbitron',sans-serif;font-size:9px;font-weight:700;
+                letter-spacing:1px;padding:8px 14px;
+                border:1px solid #fff;background:black;color:#fff;
+                cursor:pointer;z-index:9999;transition:all 0.3s ease;
+            `;
+        } else {
+            btn.style.cssText = `
+                position:fixed;top:20px;left:40px;
+                font-family:'Orbitron',sans-serif;font-size:10px;font-weight:700;
+                letter-spacing:2px;padding:10px 20px;
+                border:1px solid #fff;background:black;color:#fff;
+                cursor:pointer;z-index:9999;transition:all 0.3s ease;
+            `;
+        }
         
-        btn.addEventListener('mouseenter', () => {
-            btn.style.background = 'rgba(255, 255, 255, 0.2)';
-            btn.style.color = 'rgba(255, 255, 255, 1)';
-        });
-        btn.addEventListener('mouseleave', () => {
-            btn.style.background = 'rgba(255, 255, 255, 0.1)';
-            btn.style.color = 'rgba(255, 255, 255, 0.7)';
-        });
-        
-        btn.addEventListener('click', (e) => {
+        btn.onmouseenter = () => { btn.style.background='#fff'; btn.style.color='#000'; };
+        btn.onmouseleave = () => { btn.style.background='black'; btn.style.color='#fff'; };
+        btn.onclick = (e) => {
             e.preventDefault();
-            playAcceleratorAnimation('index.html');
-        });
+            sessionStorage.removeItem('came-from-home');
+            playRebuildAnimation('index.html');
+        };
         
         document.body.appendChild(btn);
     }
     
-    // === PARTICLE ACCELERATOR ANIMÁCIÓ ===
-    function playAcceleratorAnimation(targetUrl) {
+    // === ICOSAHEDRON ===
+    function generateIcosahedron(subdivisions) {
+        const t = (1 + Math.sqrt(5)) / 2;
+        
+        let vertices = [
+            norm([-1,t,0]), norm([1,t,0]), norm([-1,-t,0]), norm([1,-t,0]),
+            norm([0,-1,t]), norm([0,1,t]), norm([0,-1,-t]), norm([0,1,-t]),
+            norm([t,0,-1]), norm([t,0,1]), norm([-t,0,-1]), norm([-t,0,1])
+        ];
+        
+        let faces = [
+            [0,11,5],[0,5,1],[0,1,7],[0,7,10],[0,10,11],
+            [1,5,9],[5,11,4],[11,10,2],[10,7,6],[7,1,8],
+            [3,9,4],[3,4,2],[3,2,6],[3,6,8],[3,8,9],
+            [4,9,5],[2,4,11],[6,2,10],[8,6,7],[9,8,1]
+        ];
+        
+        for (let s = 0; s < subdivisions; s++) {
+            const newFaces = [];
+            const midCache = {};
+            faces.forEach(f => {
+                const ab = getMid(vertices, midCache, f[0], f[1]);
+                const bc = getMid(vertices, midCache, f[1], f[2]);
+                const ca = getMid(vertices, midCache, f[2], f[0]);
+                newFaces.push([f[0],ab,ca], [f[1],bc,ab], [f[2],ca,bc], [ab,bc,ca]);
+            });
+            faces = newFaces;
+        }
+        
+        return { vertices, faces };
+    }
+    
+    function norm(v) {
+        const len = Math.sqrt(v[0]*v[0]+v[1]*v[1]+v[2]*v[2]);
+        return [v[0]/len, v[1]/len, v[2]/len];
+    }
+    
+    function getMid(verts, cache, a, b) {
+        const key = a<b ? `${a}_${b}` : `${b}_${a}`;
+        if (cache[key] !== undefined) return cache[key];
+        const va=verts[a], vb=verts[b];
+        const mid = norm([(va[0]+vb[0])/2, (va[1]+vb[1])/2, (va[2]+vb[2])/2]);
+        verts.push(mid);
+        cache[key] = verts.length - 1;
+        return cache[key];
+    }
+    
+    // === ANIMÁCIÓ ===
+    function playRebuildAnimation(targetUrl) {
         const backBtn = document.getElementById('stargate-back-btn');
         if (backBtn) backBtn.style.display = 'none';
         
+        // Font
+        const link = document.createElement('link');
+        link.href = 'https://fonts.googleapis.com/css2?family=Orbitron:wght@400;500;600;700;800;900&display=swap';
+        link.rel = 'stylesheet';
+        document.head.appendChild(link);
+        
         const canvas = document.createElement('canvas');
-        canvas.style.cssText = `
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            z-index: 999999;
-        `;
+        canvas.style.cssText = 'position:fixed;top:0;left:0;width:100%;height:100%;z-index:999999;';
         document.body.appendChild(canvas);
         
         const ctx = canvas.getContext('2d');
@@ -78,232 +121,224 @@
         const cx = W / 2;
         const cy = H / 2;
         
-        // === FRAGMENTEK LÉTREHOZÁSA ===
-        const fragments = [];
-        const gridSize = 50;
+        // === GÖMB MÉRETEK ===
+        const threeRadius = isMobile ? 1.8 : 2.5;
+        const cameraZ = isMobile ? 12 : 10;
+        const fov = 75;
+        const fovRad = fov * Math.PI / 180;
+        const finalSphereRadius = (threeRadius / (Math.tan(fovRad/2) * cameraZ)) * (H / 2);
+        const bigSphereRadius = Math.min(W, H) * 0.42;
         
-        for (let y = -gridSize; y < H + gridSize; y += gridSize * 0.75) {
-            let offset = (Math.floor(y / (gridSize * 0.75)) % 2) * (gridSize / 2);
-            for (let x = -gridSize; x < W + gridSize; x += gridSize) {
-                const px = x + offset + Math.random() * 10;
+        const ico = generateIcosahedron(2);
+        
+        // === OLDAL FRAGMENTEK (GRID) ===
+        const pageFragments = [];
+        const gridSize = isMobile ? 60 : 45;
+        const maxDist = Math.sqrt(W*W + H*H) * 0.6;
+        
+        for (let y = 0; y < H + gridSize; y += gridSize) {
+            for (let x = 0; x < W + gridSize; x += gridSize) {
+                const px = x + Math.random() * 10;
                 const py = y + Math.random() * 10;
                 
                 const dx = px - cx;
                 const dy = py - cy;
-                const dist = Math.sqrt(dx * dx + dy * dy);
                 const angle = Math.atan2(dy, dx);
                 
-                fragments.push({
-                    // Pozíciók
-                    originalX: px,
-                    originalY: py,
-                    x: px,
-                    y: py,
-                    // Robbanás
-                    explodeAngle: angle,
-                    explodeSpeed: 15 + Math.random() * 20,
-                    // Forgás
+                pageFragments.push({
+                    startX: px,
+                    startY: py,
+                    angle: angle,
+                    size: gridSize * (0.7 + Math.random() * 0.3),
                     rotation: 0,
-                    rotationSpeed: (Math.random() - 0.5) * 0.2,
-                    orbitAngle: angle,
-                    orbitRadius: 0,
-                    // Tulajdonságok
-                    size: 20 + Math.random() * 30,
-                    dist: dist,
-                    opacity: 1,
-                    // Trail
-                    trail: []
+                    rotSpeed: (Math.random() - 0.5) * 0.03,
+                    delay: Math.random() * 0.2
                 });
             }
         }
         
+        // === GÖMB FRAGMENTEK ===
+        // Minden háromszögnek van egy OFFSET-je ahonnan indul (kintről)
+        const sphereFragments = [];
+        
+        ico.faces.forEach((face, i) => {
+            const v0 = ico.vertices[face[0]];
+            const v1 = ico.vertices[face[1]];
+            const v2 = ico.vertices[face[2]];
+            
+            // Háromszög középpontja (3D, egységgömbön)
+            const center3D = norm([
+                (v0[0]+v1[0]+v2[0])/3,
+                (v0[1]+v1[1]+v2[1])/3,
+                (v0[2]+v1[2]+v2[2])/3
+            ]);
+            
+            // Kezdő OFFSET - minden háromszög a gömb középpontjától KIFELÉ indul
+            // Az offset iránya a háromszög normálvektora (center3D)
+            const offsetMultiplier = maxDist * (1.5 + Math.random() * 0.5);
+            
+            sphereFragments.push({
+                face,
+                v0, v1, v2,
+                center3D,
+                // Az offset amit hozzáadunk a pozícióhoz (ez csökken 0-ra)
+                offsetX: center3D[0] * offsetMultiplier,
+                offsetY: -center3D[1] * offsetMultiplier, // Y fordított
+                delay: Math.random() * 0.4
+            });
+        });
+        
+        // === CSILLAGOK ===
+        const stars = [];
+        for (let i = 0; i < (isMobile ? 60 : 120); i++) {
+            stars.push({
+                x: Math.random() * W,
+                y: Math.random() * H,
+                size: Math.random() * 1.2 + 0.3,
+                opacity: Math.random() * 0.3 + 0.1
+            });
+        }
+        
         // === FÁZISOK ===
-        // 1: Szétrobbanás (0 - 0.8s)
-        // 2: Összeállás középre (0.8 - 1.6s)
-        // 3: Gyorsuló pörgés (1.6 - 2.8s)
-        // 4: Flash és navigáció (2.8 - 3.2s)
+        // 1: Oldal szétrobban (0 - 3s)
+        // 2: Gömb összeáll NAGYBAN (3 - 8s)
+        // 3: Gömb zsugorodik (8 - 10s)
+        // 4: UI megjelenik (10 - 12s)
         
-        const phases = {
-            explode: { start: 0, end: 0.8 },
-            collapse: { start: 0.8, end: 1.6 },
-            spin: { start: 1.6, end: 2.8 },
-            flash: { start: 2.8, end: 3.2 }
-        };
-        
-        const totalDuration = 3.2;
+        const totalDuration = 12.0;
         const startTime = performance.now();
-        
-        let flashIntensity = 0;
-        let screenShake = 0;
+        let sphereRotation = 0;
         
         function animate() {
             const elapsed = (performance.now() - startTime) / 1000;
-            const progress = Math.min(1, elapsed / totalDuration);
             
-            // Screen shake offset
-            const shakeX = (Math.random() - 0.5) * screenShake;
-            const shakeY = (Math.random() - 0.5) * screenShake;
-            
-            // Háttér
             ctx.fillStyle = '#000';
             ctx.fillRect(0, 0, W, H);
             
-            ctx.save();
-            ctx.translate(shakeX, shakeY);
+            sphereRotation += 0.002;
             
-            // === FÁZIS 1: SZÉTROBBANÁS ===
-            if (elapsed < phases.explode.end) {
-                const t = elapsed / phases.explode.end;
-                const eased = easeOutCubic(t);
+            // === FÁZIS 1: OLDAL SZÉTROBBAN (0 - 3s) ===
+            if (elapsed < 3.0) {
+                const t = elapsed / 3.0;
                 
-                fragments.forEach(frag => {
-                    const explodeDist = frag.explodeSpeed * eased * 30;
-                    frag.x = frag.originalX + Math.cos(frag.explodeAngle) * explodeDist;
-                    frag.y = frag.originalY + Math.sin(frag.explodeAngle) * explodeDist;
-                    frag.rotation += frag.rotationSpeed;
-                    frag.opacity = 1;
+                pageFragments.forEach(frag => {
+                    const localT = Math.max(0, (t - frag.delay) / (1 - frag.delay));
+                    const eased = easeOutCubic(localT);
                     
-                    drawTriangle(ctx, frag.x, frag.y, frag.size, frag.rotation, frag.opacity);
+                    const moveDist = maxDist * eased;
+                    const x = frag.startX + Math.cos(frag.angle) * moveDist;
+                    const y = frag.startY + Math.sin(frag.angle) * moveDist;
+                    
+                    frag.rotation += frag.rotSpeed;
+                    
+                    const opacity = 1 - eased * 0.8;
+                    const size = frag.size * (1 - eased * 0.3);
+                    
+                    if (opacity > 0.02) {
+                        drawPageTriangle(ctx, x, y, size, frag.rotation, opacity);
+                    }
                 });
             }
             
-            // === FÁZIS 2: ÖSSZEÁLLÁS ===
-            else if (elapsed < phases.collapse.end) {
-                const t = (elapsed - phases.collapse.start) / (phases.collapse.end - phases.collapse.start);
+            // === FÁZIS 2: GÖMB ÖSSZEÁLL NAGYBAN (3 - 8s) ===
+            else if (elapsed < 8.0) {
+                const t = (elapsed - 3.0) / 5.0;
+                const globalEased = easeInOutCubic(t);
+                
+                // Csillagok
+                stars.forEach(star => {
+                    ctx.fillStyle = `rgba(255,255,255,${star.opacity * globalEased * 0.5})`;
+                    ctx.beginPath();
+                    ctx.arc(star.x, star.y, star.size, 0, Math.PI * 2);
+                    ctx.fill();
+                });
+                
+                // Minden gömb háromszöget rajzolunk
+                // Az offset fokozatosan csökken 0-ra
+                ctx.strokeStyle = `rgba(255,255,255,${0.15 + globalEased * 0.1})`;
+                ctx.lineWidth = 0.8;
+                
+                sphereFragments.forEach(frag => {
+                    const localT = Math.max(0, Math.min(1, (t - frag.delay) / (1 - frag.delay)));
+                    const localEased = easeInOutCubic(localT);
+                    
+                    // Az offset csökken: kezdetben nagy, végén 0
+                    const currentOffsetX = frag.offsetX * (1 - localEased);
+                    const currentOffsetY = frag.offsetY * (1 - localEased);
+                    
+                    // A gömb háromszög 3 csúcsát projektáljuk
+                    // A pozíciójuk: gömb pozíció + offset
+                    const p0 = project3D(frag.v0, cx, cy, bigSphereRadius, sphereRotation);
+                    const p1 = project3D(frag.v1, cx, cy, bigSphereRadius, sphereRotation);
+                    const p2 = project3D(frag.v2, cx, cy, bigSphereRadius, sphereRotation);
+                    
+                    // Rajzoljuk az offsettel
+                    ctx.beginPath();
+                    ctx.moveTo(p0.x + currentOffsetX, p0.y + currentOffsetY);
+                    ctx.lineTo(p1.x + currentOffsetX, p1.y + currentOffsetY);
+                    ctx.lineTo(p2.x + currentOffsetX, p2.y + currentOffsetY);
+                    ctx.closePath();
+                    ctx.stroke();
+                });
+            }
+            
+            // === FÁZIS 3: GÖMB ZSUGORODIK (8 - 10s) ===
+            else if (elapsed < 10.0) {
+                const t = (elapsed - 8.0) / 2.0;
                 const eased = easeInOutCubic(t);
                 
-                fragments.forEach(frag => {
-                    // Kezdő pozíció (szétrobbant állapot)
-                    const explodedX = frag.originalX + Math.cos(frag.explodeAngle) * frag.explodeSpeed * 30;
-                    const explodedY = frag.originalY + Math.sin(frag.explodeAngle) * frag.explodeSpeed * 30;
-                    
-                    // Cél: középpont körüli kis sugarú kör
-                    const targetRadius = 80 + Math.random() * 40;
-                    const targetX = cx + Math.cos(frag.orbitAngle) * targetRadius;
-                    const targetY = cy + Math.sin(frag.orbitAngle) * targetRadius;
-                    
-                    frag.x = explodedX + (targetX - explodedX) * eased;
-                    frag.y = explodedY + (targetY - explodedY) * eased;
-                    frag.orbitRadius = targetRadius;
-                    frag.rotation += frag.rotationSpeed * (1 + eased * 2);
-                    frag.size = frag.size * (1 - eased * 0.3) + 15 * eased;
-                    
-                    drawTriangle(ctx, frag.x, frag.y, Math.max(10, frag.size), frag.rotation, 1);
+                // Csillagok
+                stars.forEach(star => {
+                    ctx.fillStyle = `rgba(255,255,255,${star.opacity * 0.5})`;
+                    ctx.beginPath();
+                    ctx.arc(star.x, star.y, star.size, 0, Math.PI * 2);
+                    ctx.fill();
                 });
                 
-                // Kezdődő energia gyűrű
-                const ringOpacity = eased * 0.3;
-                drawEnergyRing(ctx, cx, cy, 100, ringOpacity, elapsed * 2);
+                // Gömb: NAGY -> végső
+                const currentRadius = bigSphereRadius + (finalSphereRadius - bigSphereRadius) * eased;
+                drawSphereWireframe(ctx, ico, cx, cy, currentRadius, sphereRotation, 0.25);
+                
+                // BOMBASZ felirat
+                if (t > 0.3) {
+                    drawTitle(ctx, cx, cy, (t - 0.3) / 0.7, W, isMobile);
+                }
             }
             
-            // === FÁZIS 3: GYORSULÓ PÖRGÉS ===
-            else if (elapsed < phases.spin.end) {
-                const t = (elapsed - phases.spin.start) / (phases.spin.end - phases.spin.start);
-                const eased = easeInCubic(t); // Gyorsulás!
-                
-                // Gyorsuló pörgési sebesség
-                const spinSpeed = 0.02 + eased * 0.5;
-                // Zsugorodó sugár
-                const radiusMultiplier = 1 - eased * 0.85;
-                // Screen shake növekszik
-                screenShake = eased * 15;
-                
-                fragments.forEach(frag => {
-                    frag.orbitAngle += spinSpeed;
-                    const currentRadius = frag.orbitRadius * radiusMultiplier;
-                    
-                    // Trail hozzáadása
-                    if (frag.trail.length > 15) frag.trail.shift();
-                    frag.trail.push({ x: frag.x, y: frag.y, opacity: 0.5 });
-                    
-                    frag.x = cx + Math.cos(frag.orbitAngle) * currentRadius;
-                    frag.y = cy + Math.sin(frag.orbitAngle) * currentRadius;
-                    frag.rotation += 0.1 + eased * 0.5;
-                    
-                    // Trail rajzolása
-                    frag.trail.forEach((tp, i) => {
-                        const trailOpacity = (i / frag.trail.length) * 0.4 * (1 - eased * 0.5);
-                        ctx.fillStyle = `rgba(100, 200, 255, ${trailOpacity})`;
-                        ctx.beginPath();
-                        ctx.arc(tp.x, tp.y, 2, 0, Math.PI * 2);
-                        ctx.fill();
-                    });
-                    
-                    // Fragment méret csökken
-                    const size = Math.max(5, 15 * (1 - eased * 0.7));
-                    drawTriangle(ctx, frag.x, frag.y, size, frag.rotation, 1);
-                });
-                
-                // Intenzív energia gyűrűk
-                const ringCount = 3 + Math.floor(eased * 5);
-                for (let i = 0; i < ringCount; i++) {
-                    const ringRadius = 80 * radiusMultiplier + i * 20;
-                    const ringOpacity = 0.3 + eased * 0.5;
-                    drawEnergyRing(ctx, cx, cy, ringRadius, ringOpacity, elapsed * (5 + i * 2));
-                }
-                
-                // Központi energia gömb
-                const coreSize = 20 + eased * 60;
-                const coreGradient = ctx.createRadialGradient(cx, cy, 0, cx, cy, coreSize);
-                coreGradient.addColorStop(0, `rgba(255, 255, 255, ${0.5 + eased * 0.5})`);
-                coreGradient.addColorStop(0.3, `rgba(150, 220, 255, ${0.4 + eased * 0.4})`);
-                coreGradient.addColorStop(0.7, `rgba(100, 150, 255, ${0.2 + eased * 0.3})`);
-                coreGradient.addColorStop(1, 'rgba(50, 100, 255, 0)');
-                ctx.fillStyle = coreGradient;
-                ctx.beginPath();
-                ctx.arc(cx, cy, coreSize, 0, Math.PI * 2);
-                ctx.fill();
-                
-                // Villámok
-                if (eased > 0.5) {
-                    const boltCount = Math.floor((eased - 0.5) * 20);
-                    for (let i = 0; i < boltCount; i++) {
-                        drawLightningBolt(ctx, cx, cy, 50 + Math.random() * 100, Math.random() * Math.PI * 2);
-                    }
-                }
-                
-                flashIntensity = eased * 0.3;
-            }
-            
-            // === FÁZIS 4: FLASH ===
+            // === FÁZIS 4: UI (10 - 12s) ===
             else {
-                const t = (elapsed - phases.flash.start) / (phases.flash.end - phases.flash.start);
-                flashIntensity = easeOutCubic(t);
-                screenShake = 15 * (1 - t);
+                const t = Math.min(1, (elapsed - 10.0) / 2.0);
+                const eased = easeOutCubic(t);
                 
-                // Utolsó pörgő mag
-                const finalRadius = 10 * (1 - t);
-                fragments.forEach(frag => {
-                    frag.orbitAngle += 0.5;
-                    frag.x = cx + Math.cos(frag.orbitAngle) * finalRadius;
-                    frag.y = cy + Math.sin(frag.orbitAngle) * finalRadius;
-                    
-                    if (t < 0.5) {
-                        drawTriangle(ctx, frag.x, frag.y, 3, frag.rotation, 1 - t * 2);
-                    }
+                // Csillagok
+                stars.forEach(star => {
+                    ctx.fillStyle = `rgba(255,255,255,${star.opacity * 0.5})`;
+                    ctx.beginPath();
+                    ctx.arc(star.x, star.y, star.size, 0, Math.PI * 2);
+                    ctx.fill();
                 });
                 
-                // Központi vakító fény
-                const flashGradient = ctx.createRadialGradient(cx, cy, 0, cx, cy, W);
-                flashGradient.addColorStop(0, `rgba(255, 255, 255, 1)`);
-                flashGradient.addColorStop(0.1, `rgba(200, 230, 255, ${0.9})`);
-                flashGradient.addColorStop(0.3, `rgba(150, 200, 255, ${0.6 * flashIntensity})`);
-                flashGradient.addColorStop(1, `rgba(100, 150, 255, 0)`);
-                ctx.fillStyle = flashGradient;
-                ctx.fillRect(0, 0, W, H);
+                // Gömb
+                drawSphereWireframe(ctx, ico, cx, cy, finalSphereRadius, sphereRotation, 0.25);
+                
+                // Címsor
+                drawTitle(ctx, cx, cy, 1, W, isMobile);
+                
+                // Header
+                drawHeader(ctx, W, eased, isMobile);
+                
+                // Scroll hint
+                if (t > 0.3) {
+                    drawScrollHint(ctx, cx, H, (t-0.3)/0.7, isMobile);
+                }
+                
+                // Óra
+                if (t > 0.4) {
+                    drawClock(ctx, cx, H, (t-0.4)/0.6, isMobile);
+                }
             }
             
-            ctx.restore();
-            
-            // Globális flash overlay
-            if (flashIntensity > 0) {
-                ctx.fillStyle = `rgba(255, 255, 255, ${flashIntensity})`;
-                ctx.fillRect(0, 0, W, H);
-            }
-            
-            // Navigáció
             if (elapsed >= totalDuration) {
-                sessionStorage.setItem('stargate-entry', 'true');
                 window.location.href = targetUrl;
                 return;
             }
@@ -311,24 +346,34 @@
             requestAnimationFrame(animate);
         }
         
-        animate();
+        setTimeout(animate, 100);
     }
     
-    // === RAJZOLÓ FÜGGVÉNYEK ===
+    // === 3D PROJEKCIÓ ===
+    function project3D(point, cx, cy, radius, rot) {
+        const cosR = Math.cos(rot);
+        const sinR = Math.sin(rot);
+        const x = point[0] * cosR - point[2] * sinR;
+        const z = point[0] * sinR + point[2] * cosR;
+        const y = point[1];
+        return { x: cx + x * radius, y: cy - y * radius, z: z };
+    }
     
-    function drawTriangle(ctx, x, y, size, rotation, opacity) {
+    // === OLDAL HÁROMSZÖG ===
+    function drawPageTriangle(ctx, x, y, size, rot, opacity) {
         ctx.save();
         ctx.translate(x, y);
-        ctx.rotate(rotation);
+        ctx.rotate(rot);
         
-        ctx.strokeStyle = `rgba(255, 255, 255, ${opacity})`;
-        ctx.fillStyle = `rgba(255, 255, 255, ${opacity * 0.1})`;
-        ctx.lineWidth = 1.5;
+        ctx.strokeStyle = `rgba(255,255,255,${opacity})`;
+        ctx.fillStyle = `rgba(255,255,255,${opacity * 0.03})`;
+        ctx.lineWidth = 0.8;
         
+        const h = size * 0.866;
         ctx.beginPath();
-        ctx.moveTo(0, -size * 0.6);
-        ctx.lineTo(size * 0.5, size * 0.4);
-        ctx.lineTo(-size * 0.5, size * 0.4);
+        ctx.moveTo(0, -h * 0.6);
+        ctx.lineTo(size * 0.5, h * 0.4);
+        ctx.lineTo(-size * 0.5, h * 0.4);
         ctx.closePath();
         ctx.fill();
         ctx.stroke();
@@ -336,63 +381,143 @@
         ctx.restore();
     }
     
-    function drawEnergyRing(ctx, x, y, radius, opacity, time) {
-        ctx.strokeStyle = `rgba(100, 200, 255, ${opacity})`;
-        ctx.lineWidth = 2;
-        ctx.setLineDash([5, 10]);
-        ctx.lineDashOffset = -time * 50;
+    // === GÖMB WIREFRAME ===
+    function drawSphereWireframe(ctx, ico, cx, cy, radius, rot, opacity) {
+        ctx.strokeStyle = `rgba(255,255,255,${opacity})`;
+        ctx.lineWidth = 0.8;
         
-        ctx.beginPath();
-        ctx.arc(x, y, radius, 0, Math.PI * 2);
-        ctx.stroke();
-        
-        ctx.setLineDash([]);
+        ico.faces.forEach(face => {
+            const p0 = project3D(ico.vertices[face[0]], cx, cy, radius, rot);
+            const p1 = project3D(ico.vertices[face[1]], cx, cy, radius, rot);
+            const p2 = project3D(ico.vertices[face[2]], cx, cy, radius, rot);
+            
+            ctx.beginPath();
+            ctx.moveTo(p0.x, p0.y);
+            ctx.lineTo(p1.x, p1.y);
+            ctx.lineTo(p2.x, p2.y);
+            ctx.closePath();
+            ctx.stroke();
+        });
     }
     
-    function drawLightningBolt(ctx, cx, cy, length, angle) {
-        ctx.strokeStyle = `rgba(150, 200, 255, ${0.3 + Math.random() * 0.5})`;
-        ctx.lineWidth = 1 + Math.random() * 2;
+    // === BOMBASZ CÍMSOR ===
+    function drawTitle(ctx, cx, cy, opacity, W, mobile) {
+        const fontSize = mobile ? Math.min(W * 0.1, 50) : Math.min(120, Math.max(40, W * 0.12));
+        const spacing = fontSize * (mobile ? 0.1 : 0.2);
         
-        ctx.beginPath();
-        let x = cx;
-        let y = cy;
-        ctx.moveTo(x, y);
+        ctx.font = `900 ${fontSize}px Orbitron, sans-serif`;
+        ctx.fillStyle = `rgba(255,255,255,${opacity})`;
+        ctx.textAlign = 'center';
+        ctx.textBaseline = 'middle';
         
-        const segments = 5 + Math.floor(Math.random() * 5);
-        for (let i = 0; i < segments; i++) {
-            const segLength = length / segments;
-            angle += (Math.random() - 0.5) * 1;
-            x += Math.cos(angle) * segLength;
-            y += Math.sin(angle) * segLength;
-            ctx.lineTo(x, y);
+        const text = 'BOMBASZ';
+        let totalW = 0;
+        for (let i = 0; i < text.length; i++) {
+            totalW += ctx.measureText(text[i]).width + (i < text.length-1 ? spacing : 0);
         }
+        
+        let xPos = cx - totalW/2;
+        for (let i = 0; i < text.length; i++) {
+            const charW = ctx.measureText(text[i]).width;
+            ctx.fillText(text[i], xPos + charW/2, cy);
+            xPos += charW + spacing;
+        }
+    }
+    
+    // === HEADER ===
+    function drawHeader(ctx, W, opacity, mobile) {
+        const padX = mobile ? 20 : 40;
+        const padY = mobile ? 15 : 20;
+        const logoSize = mobile ? 11 : 14;
+        const btnSize = mobile ? 9 : 10;
+        const btnPadX = mobile ? 14 : 20;
+        const btnPadY = mobile ? 8 : 10;
+        
+        ctx.font = `900 ${logoSize}px Orbitron, sans-serif`;
+        ctx.fillStyle = `rgba(255,255,255,${opacity})`;
+        ctx.textAlign = 'left';
+        ctx.textBaseline = 'top';
+        ctx.fillText('BOMBASZ', padX, padY);
+        
+        ctx.font = `700 ${btnSize}px Orbitron, sans-serif`;
+        const btnText = 'BELÉPÉS';
+        const btnTextW = ctx.measureText(btnText).width;
+        const btnW = btnTextW + btnPadX * 2;
+        const btnH = btnSize + btnPadY * 2;
+        const btnX = W - padX - btnW;
+        const btnY = padY;
+        
+        ctx.strokeStyle = `rgba(255,255,255,${opacity})`;
+        ctx.lineWidth = 1;
+        ctx.strokeRect(btnX, btnY, btnW, btnH);
+        
+        ctx.fillStyle = `rgba(255,255,255,${opacity})`;
+        ctx.textAlign = 'center';
+        ctx.textBaseline = 'middle';
+        ctx.fillText(btnText, btnX + btnW/2, btnY + btnH/2);
+    }
+    
+    // === SCROLL HINT ===
+    function drawScrollHint(ctx, cx, H, t, mobile) {
+        const bottom = mobile ? 30 : 50;
+        const fontSize = mobile ? 9 : 10;
+        const opacity = Math.min(0.3, t * 0.3);
+        const y = H - bottom;
+        
+        ctx.font = `400 ${fontSize}px Orbitron, sans-serif`;
+        ctx.fillStyle = `rgba(255,255,255,${opacity})`;
+        ctx.textAlign = 'center';
+        ctx.textBaseline = 'middle';
+        ctx.fillText('SCROLL', cx, y - 20);
+        
+        ctx.strokeStyle = `rgba(255,255,255,${opacity})`;
+        ctx.lineWidth = 1.5;
+        ctx.lineCap = 'round';
+        ctx.beginPath();
+        ctx.moveTo(cx - 6, y - 5);
+        ctx.lineTo(cx, y + 2);
+        ctx.lineTo(cx + 6, y - 5);
         ctx.stroke();
+    }
+    
+    // === ÓRA ===
+    function drawClock(ctx, cx, H, t, mobile) {
+        const bottom = mobile ? 15 : 25;
+        const fontSize = mobile ? 9 : 11;
+        const opacity = t * 0.25;
+        
+        const time = new Date().toLocaleTimeString('hu-HU', {
+            hour:'2-digit', minute:'2-digit', second:'2-digit', hour12:false
+        });
+        
+        ctx.font = `400 ${fontSize}px Orbitron, sans-serif`;
+        ctx.fillStyle = `rgba(136,136,136,${opacity})`;
+        ctx.textAlign = 'center';
+        ctx.textBaseline = 'middle';
+        ctx.fillText(time, cx, H - bottom);
     }
     
     // === EASING ===
-    function easeOutCubic(t) { return 1 - Math.pow(1 - t, 3); }
-    function easeInCubic(t) { return t * t * t; }
-    function easeInOutCubic(t) { return t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2; }
+    function easeOutCubic(t) { return 1-Math.pow(1-t,3); }
+    function easeInOutCubic(t) { return t<0.5 ? 4*t*t*t : 1-Math.pow(-2*t+2,3)/2; }
     
-    // === BELÉPÉSI ANIMÁCIÓ (egyszerű fade) ===
+    // === BELÉPÉSI ANIMÁCIÓ ===
     function playEntryAnimation() {
+        sessionStorage.setItem('came-from-home', 'true');
+        
         const overlay = document.createElement('div');
         overlay.style.cssText = `
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: white;
-            z-index: 999999;
-            pointer-events: none;
-            transition: opacity 0.4s ease;
+            position:fixed;top:0;left:0;width:100%;height:100%;
+            background:#000;z-index:999999;pointer-events:none;
+            transition:opacity 0.8s ease;
         `;
         document.body.appendChild(overlay);
         
         requestAnimationFrame(() => {
-            overlay.style.opacity = '0';
-            setTimeout(() => overlay.remove(), 400);
+            requestAnimationFrame(() => {
+                overlay.style.opacity = '0';
+                setTimeout(() => overlay.remove(), 800);
+            });
         });
     }
     
