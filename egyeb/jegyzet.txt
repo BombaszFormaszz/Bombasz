@@ -1,20 +1,33 @@
-html - hypertext markup language
-a webws szövegek jelölő nyelve
+Fogalmak:
 
-http - hypertext transfer protocol
-webes adatok szállításának a szabályrendszere
+request = A kliens küldi a szerver felé, kommunikációs kérés/csatorna, adatkezelés céljából.
 
-kliens, szerver
+response = A szerver küldi a kliens felé, kommunikációs kérés/csatorna, adatkezelés céljából.
 
-request - kérés klienstől szerverhez 
-response - válasz szervertől klienshez 
+HTML = HyperText Markup Language
+HTTP = HyperText Transfer Protocol
 
-CRUD		AJAX
-read -> 	get
-create -> 	post
-update -> 	put / patch
-delete -> 	delete
+AJAX = Asynchronous JavaScript And XML, JavaScript objektumokat szöveges formára alakítja és küldi tovább, régen XML nyelvre alakította, ma már ilyen formában nem használatos, mert ma már JSON formátumra alakítunk, de elméleti szinten a CRUD műveletek kezelését mai napig így hívjuk.
+X - xml rövidítés de ma mát JSON-t használ
+CRUD = Create, Read, Update, Delete
+Create: adat létrehozása
+Read: adat kiolvasása
+Update: adat frissítése
+Delete: adat törlése 
 
-AJAX - az adatkezezlás 4 műveletéhez használt (crud) 4 metódusának a gyűjtőneve -> GET, POST, PUT, DELETE
-(Asynchronous JavaScript and XML)
-XML helyett ma már JSON
+A CRUD az egy informatikában általánosságban használt rövidítés.
+
+AJAX-ban a megfelelői:
+Create: POST
+Read: GET
+Update: PUT
+Delete: DELETE
+
+MVC modell = Model - View - Controller (Adatkezelés - Megjelenítés - Vezérlés) -> Vezérlés a kettő között
+A Model kezeli az adatbázist, de a kettő nem egyezik meg!!
+
+action = felhasználói esemény
+
+user interface (UI) = a JavaScript modellben a megjelenítésért felel
+
+template = sablon. A HTML + CSS kódok, melyeket a user interface rajzol ki grafikusan. (része a frontendnek)
