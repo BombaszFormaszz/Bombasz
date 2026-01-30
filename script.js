@@ -1,847 +1,305 @@
-// ==========================================
-// BOMBASZ - Exploding Navigation v24
-// IMPROVEMENTS: Linear nav, proper scroll, back to intro
-// ==========================================
+// --- GLOBÁLIS VÁLTOZÓK ---
+let sphereAnimationParams = { explosion: 0 }; 
 
-// --- KATEGÓRIÁK ADATAI ---
-const categories = [
-    {
-        name: "ALOLDALAK",
-        items: [
-            { name: "Bombasz Chat", icon: "fa-comments", url: "social.html" },
-            { name: "Könyvek", icon: "fa-book-open", url: "konyv.html" },
-            { name: "Vids", icon: "fa-play", url: "vids.html" },
-            { name: "UNCS (régi)", icon: "fa-check-double", url: "uncs.html" },
-            { name: "UNCS (ős)", icon: "fa-check-double", url: "old.html" },
-            { name: "Történelem", icon: "fa-landmark", url: "tori.html" },
-            { name: "CBZ Olvasó", icon: "fa-book-open", url: "cbz.html" },
-        ]
-    },
-    {
-        name: "JÁTÉKOK",
-        items: [
-            { name: "Mikulás", icon: "fa-gamepad", url: "mikulas.html" },
-            { name: "FPS Shooter", icon: "fa-crosshairs", url: "fps.html" },
-            { name: "UFO Játék", icon: "fa-rocket", url: "jatek.html" },
-        ]
-    },
-    {
-        name: "LETÖLTÉSEK",
-        items: [
-            { name: "Chat Setup", icon: "fa-download", url: "egyeb/Bombasz Chat Setup 1.0.1.exe", download: true },
-            { name: "Chat Portable", icon: "fa-box-archive", url: "https://drive.google.com/file/d/1xuKcJ2v9WyYMUw6O1AZQhTnJWcihYFgV/view", external: true },
-            { name: "Zene Letöltő", icon: "fa-music", url: "https://drive.google.com/file/d/1Ly64r0g0RMKuSsabj9iegmRgCB5U_8Ea/view", external: true },
-            { name: "SRT Időzítő", icon: "fa-clock", url: "egyeb/sub.py", download: true },
-            { name: "CBZ Tool", icon: "fa-file-zipper", url: "egyeb/cbz.py", download: true },
-        ]
+// --- THREE.JS ANIMÁCIÓ & LOGIKA (HÁTTÉR) ---
+(function () {
+    const canvas = document.getElementById('hero-canvas');
+    if (!canvas) return;
+
+    const renderer = new THREE.WebGLRenderer({ canvas, alpha: true, antialias: true });
+    renderer.setSize(window.innerWidth, window.innerHeight);
+    renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+
+    const scene = new THREE.Scene();
+    scene.fog = new THREE.FogExp2(0x000000, 0.02); 
+
+    const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+    
+    // Mobil vs Monitor kamera távolság
+    if (window.innerWidth < 768) {
+        camera.position.z = 16; 
+    } else {
+        camera.position.z = 10; 
     }
-];
 
-// --- MOBIL DETEKTÁLÁS ---
-const isMobile = window.innerWidth < 768;
+    const mainGroup = new THREE.Group();
+    scene.add(mainGroup);
 
-// --- ÁLLAPOT ---
-let currentLevel = 0; // 0: Intro, 1: Menu (linear), 2: SubItems
-let currentCategory = 0;
-let targetCategory = 0;
-let hoveredItem = -1;
+    // --- 1. RÉSZECSKÉK ---
+    const particleCount = 700;
+    const pPositions = new Float32Array(particleCount * 3);
+    const velocities = [];
+    for (let i = 0; i < particleCount; i++) {
+        pPositions[i * 3] = (Math.random() - 0.5) * 30;
+        pPositions[i * 3 + 1] = (Math.random() - 0.5) * 30;
+        pPositions[i * 3 + 2] = (Math.random() - 0.5) * 30;
+        velocities.push({
+            x: (Math.random() - 0.5) * 0.01,
+            y: (Math.random() - 0.5) * 0.01,
+            z: (Math.random() - 0.5) * 0.01
+        });
+    }
+    const pGeometry = new THREE.BufferGeometry();
+    pGeometry.setAttribute('position', new THREE.BufferAttribute(pPositions, 3));
+    const pMaterial = new THREE.PointsMaterial({
+        color: 0xffffff, size: 0.03, transparent: true, opacity: 0.4, blending: THREE.AdditiveBlending
+    });
+    const particles = new THREE.Points(pGeometry, pMaterial);
+    scene.add(particles);
 
+    // --- 2. GÖMB (ICO) ---
+    const baseGeo = new THREE.IcosahedronGeometry(2, 2); 
+    const nonIndexedGeo = baseGeo.toNonIndexed();
+    const posAttribute = nonIndexedGeo.attributes.position;
+    const vertexCount = posAttribute.count;
+    
+    const originalPositions = new Float32Array(vertexCount * 3);
+    const directions = new Float32Array(vertexCount * 3);
+
+    for (let i = 0; i < vertexCount; i += 3) {
+        const x1 = posAttribute.getX(i), y1 = posAttribute.getY(i), z1 = posAttribute.getZ(i);
+        const x2 = posAttribute.getX(i+1), y2 = posAttribute.getY(i+1), z2 = posAttribute.getZ(i+1);
+        const x3 = posAttribute.getX(i+2), y3 = posAttribute.getY(i+2), z3 = posAttribute.getZ(i+2);
+
+        originalPositions[i*3] = x1; originalPositions[i*3+1] = y1; originalPositions[i*3+2] = z1;
+        originalPositions[(i+1)*3] = x2; originalPositions[(i+1)*3+1] = y2; originalPositions[(i+1)*3+2] = z2;
+        originalPositions[(i+2)*3] = x3; originalPositions[(i+2)*3+1] = y3; originalPositions[(i+2)*3+2] = z3;
+
+        const cx = (x1 + x2 + x3) / 3, cy = (y1 + y2 + y3) / 3, cz = (z1 + z2 + z3) / 3;
+        const len = Math.sqrt(cx*cx + cy*cy + cz*cz);
+        const dx = cx / len, dy = cy / len, dz = cz / len;
+        const driftX = (Math.random() - 0.5) * 0.5, driftY = (Math.random() - 0.5) * 0.5, driftZ = (Math.random() - 0.5) * 0.5;
+
+        for(let k=0; k<3; k++) {
+            directions[(i+k)*3] = dx + driftX;
+            directions[(i+k)*3+1] = dy + driftY;
+            directions[(i+k)*3+2] = dz + driftZ;
+        }
+    }
+    nonIndexedGeo.setAttribute('position', new THREE.BufferAttribute(originalPositions.slice(), 3));
+
+    const icoMat = new THREE.MeshBasicMaterial({
+        color: 0xffffff, wireframe: true, transparent: true, opacity: 0.2, side: THREE.DoubleSide
+    });
+    const ico = new THREE.Mesh(nonIndexedGeo, icoMat);
+    mainGroup.add(ico);
+
+    // --- ANIMÁCIÓS LOOP ---
+    let mouseX = 0, mouseY = 0;
+    document.addEventListener('mousemove', (e) => {
+        mouseX = (e.clientX / window.innerWidth - 0.5) * 2;
+        mouseY = (e.clientY / window.innerHeight - 0.5) * 2;
+    });
+
+    function animate() {
+        requestAnimationFrame(animate);
+        const mouseInfluence = Math.max(0, 1 - sphereAnimationParams.explosion * 2);
+
+        mainGroup.rotation.x += (mouseY * 0.5 - mainGroup.rotation.x) * 0.02 * mouseInfluence;
+        mainGroup.rotation.y += (mouseX * 0.5 - mainGroup.rotation.y) * 0.02 * mouseInfluence;
+        mainGroup.rotation.z += 0.0005; 
+
+        const pos = nonIndexedGeo.attributes.position.array;
+        const exp = sphereAnimationParams.explosion; 
+
+        if (exp > 0.001) {
+            for (let i = 0; i < vertexCount; i++) {
+                pos[i*3]   = originalPositions[i*3]   + directions[i*3]   * exp * 15;
+                pos[i*3+1] = originalPositions[i*3+1] + directions[i*3+1] * exp * 15;
+                pos[i*3+2] = originalPositions[i*3+2] + directions[i*3+2] * exp * 15;
+            }
+        } else {
+            for (let i = 0; i < vertexCount * 3; i++) {
+                pos[i] = originalPositions[i];
+            }
+        }
+        nonIndexedGeo.attributes.position.needsUpdate = true;
+
+        const partPos = pGeometry.attributes.position.array;
+        for (let i = 0; i < particleCount; i++) {
+            partPos[i * 3] += velocities[i].x;
+            partPos[i * 3 + 1] += velocities[i].y;
+            partPos[i * 3 + 2] += velocities[i].z;
+            if (partPos[i*3] > 15) velocities[i].x *= -1;
+            if (partPos[i*3] < -15) velocities[i].x *= -1;
+            if (partPos[i*3+1] > 15) velocities[i].y *= -1;
+            if (partPos[i*3+1] < -15) velocities[i].y *= -1;
+        }
+        pGeometry.attributes.position.needsUpdate = true;
+        renderer.render(scene, camera);
+    }
+    animate();
+
+    window.addEventListener('resize', () => {
+        camera.aspect = window.innerWidth / window.innerHeight;
+        camera.updateProjectionMatrix();
+        renderer.setSize(window.innerWidth, window.innerHeight);
+        if (window.innerWidth < 768) { camera.position.z = 16; } else { camera.position.z = 10; }
+    });
+
+    window.update3DTheme = function(isLightMode) {
+        const colorHex = isLightMode ? 0x000000 : 0xffffff;
+        const fogColor = isLightMode ? 0xe0e0e0 : 0x000000;
+        pMaterial.color.setHex(colorHex);
+        icoMat.color.setHex(colorHex);
+        scene.fog.color.setHex(fogColor);
+        const blend = isLightMode ? THREE.NormalBlending : THREE.AdditiveBlending;
+        pMaterial.blending = blend;
+    };
+})();
+
+
+// --- 3. SWIPE SCROLL & OPTIMALIZÁLT BELSŐ GÖRGETÉS ---
+gsap.registerPlugin(Observer);
+
+const sections = document.querySelectorAll("section, .footer");
+const totalSections = sections.length;
+let currentIndex = 0;
 let isAnimating = false;
-let scrollAccumulator = 0;
-const SCROLL_THRESHOLD = isMobile ? 40 : 60;
 
-// --- THREE.JS SETUP ---
-const canvas = document.getElementById('hero-canvas');
-const renderer = new THREE.WebGLRenderer({ canvas, alpha: true, antialias: true });
-renderer.setSize(window.innerWidth, window.innerHeight);
-renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+gsap.set(sections, { zIndex: 0, autoAlpha: 0 });
+gsap.set(sections[0], { zIndex: 1, autoAlpha: 1 });
 
-const scene = new THREE.Scene();
-const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
-
-// Raycaster a kattintáshoz
-const raycaster = new THREE.Raycaster();
-const mouse = new THREE.Vector2();
-
-camera.position.z = isMobile ? 12 : 10;
-
-// --- ANIMATION PARAMS ---
-let mainExplosion = 0;
-let targetMainExplosion = 0;
-let subExplosion = 0;
-let targetSubExplosion = 0;
-
-// Lassabb lerp = simább animáció
-const LERP_SLOW = 0.03;
-const LERP_MED = 0.08;
-const LERP_FAST = 0.15;
-
-// --- HÁTTÉR GÖMB ---
-const sphereRadius = isMobile ? 2.0 : 2.5;
-const baseGeo = new THREE.IcosahedronGeometry(sphereRadius, 2); 
-const nonIndexedGeo = baseGeo.toNonIndexed();
-const posAttr = nonIndexedGeo.attributes.position;
-const triangleCount = posAttr.count / 3;
-
-// --- CSOPORTOK ---
-const backgroundGroup = new THREE.Group();
-const menuGroup = new THREE.Group(); // Lineáris menü (gúlák egymás alatt)
-const subItemGroup = new THREE.Group();
-
-scene.add(backgroundGroup);
-scene.add(menuGroup);
-scene.add(subItemGroup);
-
-// --- KATEGÓRIA GÚLÁK (LINEAR MENU) ---
-const mainFragments = [];
-const VERTICAL_SPACING = isMobile ? 4.0 : 5.5; // Távolság a gúlák között (megnövelve)
-
-categories.forEach((cat, idx) => {
-    const pyramidGeo = new THREE.TetrahedronGeometry(isMobile ? 0.8 : 0.7, 0);
-    const pyramidMat = new THREE.MeshBasicMaterial({ 
-        color: 0xffffff, 
-        wireframe: true,
-        transparent: true, 
-        opacity: 0,
-        side: THREE.DoubleSide
-    });
+function gotoSection(index, direction) {
+    if (isAnimating || index < 0 || index >= totalSections) return;
     
-    const fillGeo = new THREE.TetrahedronGeometry(isMobile ? 0.75 : 0.65, 0);
-    const hitMesh = new THREE.Mesh(fillGeo, new THREE.MeshBasicMaterial({ visible: false }));
-    
-    const pyramid = new THREE.Mesh(pyramidGeo, pyramidMat);
-    pyramid.add(hitMesh);
-    
-    // Vertikális pozíció - középső elem (idx=1 ha 3 kategória) van középen
-    const centerIdx = Math.floor(categories.length / 2);
-    const yPos = (centerIdx - idx) * VERTICAL_SPACING;
-    
-    // Cikk-cakk vízszintes eltolás (bal-jobb váltakozás)
-    const zigzagOffset = isMobile ? 1.5 : 2.5;
-    const xPos = (idx % 2 === 0) ? -zigzagOffset : zigzagOffset;
-    
-    pyramid.position.set(xPos, yPos, 0);
-    pyramid.lookAt(camera.position);
-    
-    mainFragments.push({
-        mesh: pyramid,
-        hitMesh: hitMesh,
-        baseY: yPos, // Alaphelyzet Y koordináta
-        baseX: xPos, // Alaphelyzet X koordináta (cikk-cakk)
-        rotationAxis: new THREE.Vector3(Math.random(), Math.random(), Math.random()).normalize(),
-        rotationSpeed: 0.005,
-        currentOpacity: 0,
-        targetOpacity: 0
-    });
-    
-    menuGroup.add(pyramid);
-});
+    isAnimating = true;
+    const currentSection = sections[currentIndex];
+    const nextSection = sections[index];
 
-// --- HÁTTÉR DARABOK ---
-const fragments = [];
-for (let i = 0; i < triangleCount; i++) {
-    const idx = i * 3;
-    const v1 = new THREE.Vector3(posAttr.getX(idx), posAttr.getY(idx), posAttr.getZ(idx));
-    const v2 = new THREE.Vector3(posAttr.getX(idx + 1), posAttr.getY(idx + 1), posAttr.getZ(idx + 1));
-    const v3 = new THREE.Vector3(posAttr.getX(idx + 2), posAttr.getY(idx + 2), posAttr.getZ(idx + 2));
-    const center = new THREE.Vector3().addVectors(v1, v2).add(v3).divideScalar(3);
-    
-    const triGeo = new THREE.BufferGeometry();
-    const vertices = new Float32Array([
-        v1.x - center.x, v1.y - center.y, v1.z - center.z,
-        v2.x - center.x, v2.y - center.y, v2.z - center.z,
-        v3.x - center.x, v3.y - center.y, v3.z - center.z,
-    ]);
-    triGeo.setAttribute('position', new THREE.BufferAttribute(vertices, 3));
-    
-    const pyramidGeo = new THREE.TetrahedronGeometry(isMobile ? 0.06 : 0.08, 0);
-    const material = new THREE.MeshBasicMaterial({ 
-        color: 0xffffff, 
-        wireframe: true, 
-        transparent: true, 
-        opacity: 0.2, 
-        side: THREE.DoubleSide 
-    });
-    const mesh = new THREE.Mesh(triGeo, material);
-    mesh.position.copy(center);
-    
-    fragments.push({
-        mesh,
-        triGeo,
-        pyramidGeo,
-        originalPos: center.clone(),
-        originalRotation: mesh.rotation.clone(),
-        explosionDir: center.clone().normalize(),
-        explosionDistance: isMobile ? 5.5 : 8.0, // Megnövelve a távolságot (szabadabb elrendezés)
-        rotationAxis: new THREE.Vector3(Math.random(), Math.random(), Math.random()).normalize(),
-        rotationSpeed: (Math.random()-0.5)*0.015,
-        currentGeometry: 'tri',
-        floatPhase: Math.random() * Math.PI * 2,
-        floatSpeed: 0.1 + Math.random() * 0.2,
-        floatVector: new THREE.Vector3(Math.random()-0.5, Math.random()-0.5, Math.random()-0.5).normalize()
-    });
-    backgroundGroup.add(mesh);
-}
+    // Gömb robbanás effekt
+    if (index > 0) {
+        gsap.to(sphereAnimationParams, { explosion: 1, duration: 1.5, ease: "power2.inOut" });
+    } else {
+        gsap.to(sphereAnimationParams, { explosion: 0, duration: 1.5, ease: "power2.inOut" });
+    }
 
-// --- ALOLDALAK (SUB-ITEMS) ---
-const categorySubFragments = [];
-const labelsContainer = document.getElementById('labels-container');
+    // Swipe Irány
+    const enterFrom = direction === 1 ? 100 : -100;
+    const leaveTo = direction === 1 ? -100 : 100;
 
-categories.forEach((cat, catIdx) => {
-    const subFrags = [];
-    const itemCount = cat.items.length;
-    
-    cat.items.forEach((item, itemIdx) => {
-        let targetX, targetY, targetZ;
-        
-        if (isMobile) {
-            const spacing = 1.3;
-            const totalHeight = (itemCount - 1) * spacing;
-            const startY = totalHeight / 2;
-            targetX = 0; 
-            targetY = startY - (itemIdx * spacing); 
-            targetZ = 2.0; 
-        } else {
-            const angleStep = (Math.PI * 2) / itemCount;
-            const angle = -Math.PI / 2 + (itemIdx * angleStep);
-            const radius = 3.2;
-            targetX = Math.cos(angle) * radius; 
-            targetY = Math.sin(angle) * radius; 
-            targetZ = 0;
+    const tl = gsap.timeline({
+        onComplete: () => {
+            isAnimating = false;
+            currentIndex = index;
+            gsap.set(currentSection, { zIndex: 0, autoAlpha: 0 });
         }
-
-        const finalPosition = new THREE.Vector3(targetX, targetY, targetZ);
-        const subGeo = new THREE.TetrahedronGeometry(isMobile ? 0.15 : 0.2, 0);
-        const material = new THREE.MeshBasicMaterial({ 
-            color: 0xffffff, 
-            wireframe: true, 
-            transparent: true, 
-            opacity: 0 
-        });
-        const mesh = new THREE.Mesh(subGeo, material);
-        
-        const label = document.createElement('a');
-        label.className = 'item-label';
-        label.innerHTML = `<i class="fa-solid ${item.icon}"></i><span>${item.name}</span>`;
-        label.href = item.url;
-        if (item.download) {
-            label.setAttribute('download', '');
-        } else if (!item.external) {
-            // Belső linkek - smooth transition
-            label.addEventListener('click', (e) => {
-                e.preventDefault();
-                smoothPageTransition(item.url);
-            });
-        } else {
-            // Külső linkek - target blank marad
-            label.setAttribute('target', '_blank');
-        }
-        
-        label.style.opacity = '0';
-        label.style.pointerEvents = 'none';
-        
-        label.addEventListener('mouseenter', () => { hoveredItem = itemIdx; });
-        label.addEventListener('mouseleave', () => { if (hoveredItem === itemIdx) hoveredItem = -1; });
-        label.addEventListener('touchstart', () => { hoveredItem = itemIdx; }, { passive: true });
-        
-        labelsContainer.appendChild(label);
-        
-        subFrags.push({
-            mesh, 
-            finalPosition, 
-            label,
-            rotationAxis: new THREE.Vector3(Math.random(), Math.random(), Math.random()).normalize(),
-            rotationSpeed: 0.04,
-            currentOpacity: 0
-        });
-        subItemGroup.add(mesh);
     });
-    categorySubFragments.push(subFrags);
-});
 
-// --- PORSZEMEK ---
-const particleCount = isMobile ? 1500 : 4000;
-const pPositions = new Float32Array(particleCount * 3);
-const pVelocities = [];
-for (let i = 0; i < particleCount; i++) {
-    const spread = isMobile ? 90 : 150;
-    pPositions[i*3] = (Math.random()-0.5) * spread;
-    pPositions[i*3+1] = (Math.random()-0.5) * spread;
-    pPositions[i*3+2] = (Math.random()-0.5) * spread;
-    pVelocities.push({ 
-        x: (Math.random()-0.5)*0.02, 
-        y: (Math.random()-0.5)*0.02, 
-        z: (Math.random()-0.5)*0.02 
-    });
+    gsap.set(nextSection, { zIndex: 2, autoAlpha: 1, yPercent: enterFrom });
+    gsap.set(currentSection, { zIndex: 1 });
+
+    tl.to(currentSection, { yPercent: leaveTo, duration: 1.0, ease: "power3.inOut" }, 0);
+    tl.to(nextSection, { yPercent: 0, duration: 1.0, ease: "power3.inOut" }, 0);
 }
-const pGeometry = new THREE.BufferGeometry();
-pGeometry.setAttribute('position', new THREE.BufferAttribute(pPositions, 3));
-const pMaterial = new THREE.PointsMaterial({ 
-    color: 0xffffff, 
-    size: isMobile ? 0.03 : 0.02, 
-    transparent: true, 
-    opacity: 0.6 
-});
-const particles = new THREE.Points(pGeometry, pMaterial);
-scene.add(particles);
 
-// --- HELPER ---
-let isTransitioning = false;
+// --- JAVÍTOTT OBSERVER: KÉNYELMES SEBESSÉG ---
+// --- JAVÍTOTT OBSERVER: KÜLÖN MOBIL ÉRZÉKENYSÉG ---
+Observer.create({
+    target: window,
+    type: "wheel,touch,pointer",
+    wheelSpeed: -1, 
+    tolerance: 10,
+    preventDefault: true,
 
-// ==========================================
-// ÚJ INDULÁSI ANIMÁCIÓ (Quantum Jump)
-// Cseréld le a régi smoothPageTransition függvényt erre az index.html-ben!
-// ==========================================
+    onChange: (self) => {
+        if (isAnimating) return;
 
-function smoothPageTransition(url) {
-    if (isTransitioning) return;
-    isTransitioning = true;
-    
-    // Állapot mentése a visszatéréshez
-    sessionStorage.setItem('bombasz_returning', 'true');
-    sessionStorage.setItem('bombasz_level', currentLevel);
-    sessionStorage.setItem('bombasz_category', currentCategory);
-    
-    // 1. FEHÉR VILLANÁS LÉTREHOZÁSA (Warp Tunnel)
-    const overlay = document.createElement('div');
-    overlay.style.cssText = `
-        position: fixed;
-        top: 0; left: 0;
-        width: 100vw; height: 100vh;
-        background: #ffffff;
-        z-index: 9999999;
-        opacity: 0;
-        pointer-events: none;
-        transition: opacity 0.4s cubic-bezier(0.55, 0.085, 0.68, 0.53); /* Gyorsuló görbe */
-        will-change: opacity;
-    `;
-    document.body.appendChild(overlay);
+        const delta = self.deltaY; 
+        const scrollable = self.event.target.closest('.pages-grid');
 
-    // 2. CANVAS ANIMÁCIÓ (Csak a mozgás illúziója miatt)
-    // Nem nagyítunk túl nagyot, hogy ne akadjon be a GPU
-    canvas.style.transition = 'transform 0.6s cubic-bezier(0.7, 0, 0.3, 1), filter 0.6s ease';
-    canvas.style.willChange = 'transform, filter';
-    
-    // Elrejtjük a UI elemeket azonnal
-    const labels = document.querySelectorAll('.item-label');
-    labels.forEach(l => l.style.opacity = '0');
-    const catLabel = document.getElementById('category-label');
-    if(catLabel) catLabel.style.opacity = '0';
-
-    requestAnimationFrame(() => {
-        // Indulás!
-        canvas.style.transform = 'scale(3)'; // Mérsékelt zoom, hogy sima maradjon
-        canvas.style.filter = 'blur(10px)';  // A sebesség elmosása
+        // MOBIL ÉRZÉKELÉS
+        const isMobile = window.innerWidth < 768;
         
-        // A fehér fény elvakít
-        setTimeout(() => {
-            overlay.style.opacity = '1';
-        }, 50); // Pici késleltetés, hogy a zoom már látszódjon előtte
+        // ITT ÁLLÍTSD AZ ERŐSSÉGET!
+        // Ha mobil: 3.5 (könnyű görgetés), Ha gép: 1.5 (precíz görgetés)
+        const scrollForce = isMobile ? 5.0 : 1.5; 
 
-        // 3. NAVIGÁLÁS
-        // Amikor már tiszta fehér a képernyő, akkor váltunk
-        setTimeout(() => {
-            window.location.href = url;
-        }, 450);
-    });
-}
-// Visszalépés smooth transition
-// ==========================================
-// ÚJ RETURN ANIMÁCIÓ (Quantum Entry)
-// Cseréld le a régi handleBackNavigation függvényt erre!
-// ==========================================
+        // 1. ESET: KÁRTYÁK GÖRGETÉSE
+        if (scrollable) {
+            const maxScroll = scrollable.scrollHeight - scrollable.clientHeight;
+            const currentScroll = scrollable.scrollTop;
 
-// ==========================================
-// GARANTÁLT ZOOM ARRIVAL (Index.html)
-// Cseréld le a régi handleBackNavigation-t erre!
-// ==========================================
-
-function handleBackNavigation() {
-    if (sessionStorage.getItem('bombasz_returning') === 'true') {
-        sessionStorage.removeItem('bombasz_returning');
-        
-        const savedLevel = parseInt(sessionStorage.getItem('bombasz_level')) || 1;
-        const savedCategory = parseInt(sessionStorage.getItem('bombasz_category')) || 0;
-
-        // 1. Fehér réteg (hogy ne látszódjon a betöltés pillanata)
-        const overlay = document.createElement('div');
-        overlay.style.cssText = `
-            position: fixed; top: 0; left: 0; width: 100vw; height: 100vh;
-            background: #ffffff; z-index: 9999999; opacity: 1;
-            transition: opacity 0.8s ease-out; pointer-events: none;
-        `;
-        document.body.appendChild(overlay);
-
-        // 2. CANVAS KEZDŐÁLLAPOT: HATALMAS (scale 5)
-        // Innen fogunk visszahúzódni normál méretre
-        canvas.style.transition = 'none';
-        canvas.style.transform = 'scale(5)'; 
-        canvas.style.filter = 'blur(0px)'; 
-
-        // Adatok visszaállítása
-        currentLevel = savedLevel;
-        targetMainExplosion = 1; mainExplosion = 1;
-        if (savedLevel === 2) {
-            currentCategory = savedCategory; targetCategory = savedCategory;
-            targetSubExplosion = 1; subExplosion = 1;
-        } else {
-            targetCategory = savedCategory;
-        }
-        updateUI();
-
-        // 3. ANIMÁCIÓ INDÍTÁSA
-        requestAnimationFrame(() => {
-            setTimeout(() => {
-                // Fehérség eltűnik
-                overlay.style.opacity = '0';
-                
-                // Canvas visszahúzódik: scale(5) -> scale(1)
-                // Ez adja az érzést, hogy megérkeztél a zoomolásból
-                canvas.style.transition = 'transform 1s cubic-bezier(0.19, 1, 0.22, 1)';
-                canvas.style.transform = 'scale(1)';
-                
-                // Overlay törlése
-                setTimeout(() => overlay.remove(), 1000);
-            }, 50);
-        });
-    }
-}
-
-// Induláskor ellenőrizzük
-window.addEventListener('load', handleBackNavigation);
-
-// BACK BUTTON létrehozása (ezt rakd a HTML-be vagy hívd meg amikor kell)
-function createBackButton() {
-    // Csak akkor jelenítsük meg, ha az előző oldal index.html volt
-    if (sessionStorage.getItem('bombasz_returning') !== 'true') {
-        return null;
-    }
-    
-    const backBtn = document.createElement('button');
-    backBtn.id = 'bombasz-back-btn';
-    backBtn.innerHTML = '<i class="fa-solid fa-arrow-left"></i> VISSZA';
-    backBtn.style.cssText = `
-        position: fixed;
-        top: 20px;
-        left: 20px;
-        padding: 12px 24px;
-        background: rgba(255, 255, 255, 0.1);
-        border: 1px solid rgba(255, 255, 255, 0.3);
-        color: white;
-        font-family: 'Orbitron', monospace;
-        font-size: 14px;
-        font-weight: 600;
-        cursor: pointer;
-        z-index: 999999;
-        backdrop-filter: blur(10px);
-        border-radius: 8px;
-        transition: all 0.3s ease;
-        display: flex;
-        align-items: center;
-        gap: 8px;
-    `;
-    
-    backBtn.addEventListener('mouseenter', () => {
-        backBtn.style.background = 'rgba(255, 255, 255, 0.2)';
-        backBtn.style.transform = 'translateX(-5px)';
-    });
-    
-    backBtn.addEventListener('mouseleave', () => {
-        backBtn.style.background = 'rgba(255, 255, 255, 0.1)';
-        backBtn.style.transform = 'translateX(0)';
-    });
-    
-    backBtn.addEventListener('click', () => {
-        // Hyperspace jump transition
-        sessionStorage.setItem('bombasz_returning', 'true');
-        sessionStorage.setItem('bombasz_level', '1');
-        sessionStorage.setItem('bombasz_category', '0');
-        
-        const pageContent = document.body;
-        pageContent.style.transition = 'all 0.8s cubic-bezier(0.25, 0.46, 0.45, 0.94)';
-        pageContent.style.transform = 'scale(2.5)';
-        pageContent.style.opacity = '1';
-        
-        setTimeout(() => {
-            pageContent.style.filter = 'blur(5px)';
-        }, 150);
-        
-        setTimeout(() => {
-            pageContent.style.transition = 'all 0.5s cubic-bezier(0.55, 0.085, 0.68, 0.53)';
-            pageContent.style.transform = 'scale(8)';
-            pageContent.style.filter = 'blur(20px)';
-        }, 300);
-        
-        setTimeout(() => {
-            const overlay = document.createElement('div');
-            overlay.style.cssText = `
-                position: fixed;
-                top: 0;
-                left: 0;
-                width: 100vw;
-                height: 100vh;
-                background: radial-gradient(circle, rgba(255,255,255,0.2) 0%, rgba(0,0,0,1) 70%);
-                z-index: 9999999;
-                opacity: 0;
-                pointer-events: none;
-                transition: opacity 0.3s ease-out;
-            `;
-            document.body.appendChild(overlay);
-            
-            requestAnimationFrame(() => {
-                overlay.style.opacity = '1';
-            });
-            
-            setTimeout(() => {
-                window.location.href = 'index.html';
-            }, 300);
-        }, 600);
-    });
-    
-    document.body.appendChild(backBtn);
-    return backBtn;
-}
-
-function worldToScreen(pos) {
-    const vector = pos.clone().project(camera);
-    let x = (vector.x * 0.5 + 0.5) * window.innerWidth;
-    let y = (-vector.y * 0.5 + 0.5) * window.innerHeight;
-    if (isMobile) {
-        const margin = 20; 
-        x = Math.max(margin, Math.min(window.innerWidth - margin, x));
-        y = Math.max(90, Math.min(window.innerHeight - 70, y));
-    }
-    return { x, y };
-}
-
-function updateUI() {
-    const heroOverlay = document.getElementById('hero-overlay');
-    const categoryLabel = document.getElementById('category-label');
-    
-    if (currentLevel === 0) {
-        heroOverlay.classList.remove('hidden'); 
-        categoryLabel.classList.remove('visible');
-    } 
-    else if (currentLevel === 1) {
-        heroOverlay.classList.add('hidden');
-        categoryLabel.textContent = categories[targetCategory].name;
-        categoryLabel.classList.add('visible');
-        categoryLabel.style.opacity = "1";
-    }
-    else if (currentLevel === 2) {
-        heroOverlay.classList.add('hidden');
-        categoryLabel.textContent = categories[currentCategory].name;
-        categoryLabel.classList.add('visible');
-    }
-}
-
-// --- LOGIKA: SCROLL & CLICK ---
-
-function handleScroll(delta) {
-    if (isAnimating) return;
-    
-    // Level 0: Le görgetés -> Level 1 (belépés a menübe)
-    if (currentLevel === 0) {
-        if (delta > 0) {
-            currentLevel = 1;
-            targetMainExplosion = 1;
-            updateUI();
-        }
-        return;
-    }
-    
-    // Level 1: LINEAR NAVIGATION
-    // Fel görgetés (delta < 0) = előző kategória
-    // Le görgetés (delta > 0) = következő kategória
-    if (currentLevel === 1) {
-        if (delta < 0) {
-            // Fel görgetés
-            if (targetCategory > 0) {
-                targetCategory--;
-                updateUI();
-            } else {
-                // Ha az első elemen vagyunk, vissza az intro-hoz
-                currentLevel = 0;
-                targetMainExplosion = 0;
-                targetCategory = 0;
-                updateUI();
-            }
-        } else {
-            // Le görgetés
-            if (targetCategory < categories.length - 1) {
-                targetCategory++;
-                updateUI();
-            }
-            // Ha az utolsó elemen vagyunk, nem csinálunk semmit (nem körbemegy)
-        }
-    }
-    
-    // Level 2: Fel vagy Le görgetés -> vissza Level 1-re
-    if (currentLevel === 2) {
-        currentLevel = 1;
-        targetSubExplosion = 0;
-        updateUI();
-        return;
-    }
-}
-
-function handleClick(event) {
-    mouse.x = (event.clientX / window.innerWidth) * 2 - 1;
-    mouse.y = -(event.clientY / window.innerHeight) * 2 + 1;
-
-    if (currentLevel === 0) {
-        handleScroll(1);
-        return;
-    }
-
-    if (currentLevel === 1) {
-        raycaster.setFromCamera(mouse, camera);
-        const hitBoxes = mainFragments.map(f => f.hitMesh);
-        const intersects = raycaster.intersectObjects(hitBoxes);
-
-        if (intersects.length > 0) {
-            const clickedMesh = intersects[0].object.parent;
-            const clickedIndex = mainFragments.findIndex(f => f.mesh === clickedMesh);
-
-            if (clickedIndex !== -1) {
-                if (clickedIndex === targetCategory) {
-                    enterCategory(clickedIndex);
-                } else {
-                    // Rákattintás egy másik kategóriára -> oda ugrunk
-                    targetCategory = clickedIndex;
-                    updateUI();
+            // LEFELÉ
+            if (delta < 0) {
+                if (currentScroll < maxScroll - 2) {
+                    gsap.to(scrollable, {
+                        scrollTop: currentScroll - (delta * scrollForce), // Itt használjuk a változót
+                        duration: 0.5,
+                        ease: "power3.out",
+                        overwrite: true
+                    });
+                    return; 
+                }
+            } 
+            // FELFELÉ
+            else if (delta > 0) {
+                if (currentScroll > 2) {
+                    gsap.to(scrollable, {
+                        scrollTop: currentScroll - (delta * scrollForce), // Itt is
+                        duration: 0.5,
+                        ease: "power3.out",
+                        overwrite: true
+                    });
+                    return; 
                 }
             }
         }
-    }
-}
 
-function enterCategory(index) {
-    if (isAnimating) return;
-    currentCategory = index;
-    currentLevel = 2;
-    targetSubExplosion = 1;
-    updateUI();
-}
-
-// --- EVENT LISTENERS ---
-window.addEventListener('wheel', (e) => {
-    scrollAccumulator += e.deltaY;
-    if (Math.abs(scrollAccumulator) > SCROLL_THRESHOLD) { 
-        handleScroll(scrollAccumulator > 0 ? 1 : -1); 
-        scrollAccumulator = 0; 
-    }
-}, {passive:false});
-
-let touchStartX = 0;
-let touchStartY = 0;
-let isDragging = false;
-
-window.addEventListener('mousedown', (e) => {
-    touchStartX = e.clientX;
-    touchStartY = e.clientY;
-    isDragging = false;
-});
-
-window.addEventListener('mouseup', (e) => {
-    const dist = Math.abs(e.clientX - touchStartX) + Math.abs(e.clientY - touchStartY);
-    if (dist < 10) {
-        handleClick(e);
-    }
-});
-
-window.addEventListener('touchstart', (e) => {
-    touchStartX = e.touches[0].clientX;
-    touchStartY = e.touches[0].clientY;
-}, {passive: true});
-
-window.addEventListener('touchend', (e) => {
-    const touchEndX = e.changedTouches[0].clientX;
-    const touchEndY = e.changedTouches[0].clientY;
-    const deltaY = touchStartY - touchEndY;
-    const deltaX = touchStartX - touchEndX;
-    
-    if (Math.abs(deltaY) > 30) {
-        handleScroll(deltaY > 0 ? 1 : -1);
-    } 
-    else if (Math.abs(deltaY) < 10 && Math.abs(deltaX) < 10) {
-        const fakeEvent = {
-            clientX: touchEndX,
-            clientY: touchEndY
-        };
-        handleClick(fakeEvent);
-    }
-}, {passive: true});
-
-// --- ANIMÁCIÓ ---
-let time = 0;
-function animate() {
-    requestAnimationFrame(animate);
-    time += 0.016;
-    
-    // Lassabb lerp = simább mozgás
-    mainExplosion += (targetMainExplosion - mainExplosion) * LERP_SLOW;
-    subExplosion += (targetSubExplosion - subExplosion) * LERP_SLOW;
-
-    // 1. Háttér Gömb
-    backgroundGroup.rotation.z += 0.0001;
-    fragments.forEach(frag => {
-        if (mainExplosion > 0.5 && frag.currentGeometry !== 'pyramid') { 
-            frag.mesh.geometry = frag.pyramidGeo; 
-            frag.currentGeometry = 'pyramid'; 
-        }
-        else if (mainExplosion <= 0.5 && frag.currentGeometry !== 'tri') { 
-            frag.mesh.geometry = frag.triGeo; 
-            frag.currentGeometry = 'tri'; 
-        }
-        
-        let tPos = frag.originalPos.clone().add(
-            frag.explosionDir.clone().multiplyScalar(frag.explosionDistance * mainExplosion)
-        );
-        if (mainExplosion > 0.5) {
-            tPos.add(
-                frag.floatVector.clone().multiplyScalar(
-                    Math.sin(time * frag.floatSpeed + frag.floatPhase) * 0.3
-                )
-            );
-        }
-        
-        frag.mesh.position.lerp(tPos, LERP_MED);
-        if (mainExplosion < 0.1) {
-            frag.mesh.rotation.copy(frag.originalRotation);
+        // 2. ESET: LAPOZÁS
+        if (delta < 0) {
+            gotoSection(currentIndex + 1, 1); 
         } else {
-            frag.mesh.rotateOnAxis(frag.rotationAxis, frag.rotationSpeed * mainExplosion);
+            gotoSection(currentIndex - 1, -1); 
         }
-        frag.mesh.material.opacity += ((mainExplosion > 0.3 ? 0.15 : 0.3) - frag.mesh.material.opacity) * LERP_FAST;
-    });
-
-    // 2. LINEAR MENU (Gúlák egymás alatt)
-    // A menuGroup Y pozícióját állítjuk, hogy a targetCategory legyen középen
-    const targetGroupY = mainFragments[targetCategory].baseY;
-    menuGroup.position.y += (-targetGroupY - menuGroup.position.y) * LERP_SLOW;
-    
-    mainFragments.forEach((frag, idx) => {
-        let tScale = 1;
-        let tOpacity = 0;
-        
-        if (currentLevel === 0) {
-            tOpacity = 0;
-        } 
-        else if (currentLevel === 1) {
-            // Középső (targetCategory) teljes fényerővel
-            if (idx === targetCategory) {
-                tOpacity = 1;
-            } else {
-                // Többi halvány
-                tOpacity = 0.3;
-            }
-            tScale = 1;
-            
-            // Kis lebegés cikk-cakk pozícióval
-            const floatX = Math.sin(time * 0.8 + idx * 0.5) * 0.15;
-            const floatY = Math.sin(time * 1.0 + idx) * 0.2;
-            frag.mesh.position.x = frag.baseX + floatX;
-            frag.mesh.position.y = frag.baseY + floatY;
-            
-            // Forgás
-            frag.mesh.rotation.y += 0.005;
-            frag.mesh.rotation.x += 0.002;
-        } 
-        else if (currentLevel === 2) {
-            if (idx === currentCategory) {
-                // Shatter
-                tScale = 1 - subExplosion; 
-                tOpacity = tScale; 
-            } else {
-                tOpacity = 0.1;
-                tScale = 1;
-            }
-        }
-        
-        frag.currentOpacity += (tOpacity - frag.currentOpacity) * LERP_MED;
-        frag.mesh.material.opacity = frag.currentOpacity;
-        frag.mesh.scale.setScalar(tScale);
-    });
-    
-    menuGroup.scale.setScalar(mainExplosion);
-
-    // 3. SubItems (Shatter Effect)
-    categorySubFragments.forEach((subFrags, catIdx) => {
-        const isActiveCategory = catIdx === currentCategory;
-        const shouldShow = isActiveCategory && (currentLevel === 2 || subExplosion > 0.01);
-        
-        subFrags.forEach((sub, itemIdx) => {
-            let currentTarget = new THREE.Vector3(0, 0, 0);
-            
-            if (shouldShow) {
-                currentTarget.copy(sub.finalPosition).multiplyScalar(subExplosion);
-                
-                let tOp = (itemIdx === hoveredItem) ? 1 : 0.9;
-                sub.currentOpacity += (tOp - sub.currentOpacity) * 0.2;
-                
-                let scale = Math.min(1, subExplosion * 1.2);
-                sub.mesh.scale.setScalar(scale);
-                
-                const spinFactor = (1 - subExplosion) * 20;
-                sub.mesh.rotation.x += sub.rotationSpeed + (spinFactor * 0.02);
-                sub.mesh.rotation.y += sub.rotationSpeed + (spinFactor * 0.02);
-            } else {
-                sub.currentOpacity = 0;
-                sub.mesh.scale.setScalar(0.01);
-            }
-            
-            sub.mesh.position.lerp(currentTarget, LERP_MED);
-            sub.mesh.material.opacity = sub.currentOpacity;
-            
-            if (shouldShow && subExplosion > 0.5) {
-                const sPos = worldToScreen(sub.mesh.position);
-                sub.label.style.left = sPos.x + 'px';
-                sub.label.style.top = sPos.y + 'px';
-                sub.label.style.opacity = sub.currentOpacity;
-                sub.label.style.pointerEvents = 'auto';
-                sub.label.classList.toggle('active', itemIdx === hoveredItem);
-            } else {
-                sub.label.style.opacity = '0'; 
-                sub.label.style.pointerEvents = 'none';
-            }
-        });
-    });
-    
-    // Részecskék
-    const partPos = pGeometry.attributes.position.array;
-    for (let i = 0; i < particleCount; i++) {
-        partPos[i*3] += pVelocities[i].x; 
-        partPos[i*3+1] += pVelocities[i].y; 
-        partPos[i*3+2] += pVelocities[i].z;
-        const bound = isMobile ? 50 : 80;
-        if (Math.abs(partPos[i*3]) > bound) partPos[i*3] *= -0.9;
-        if (Math.abs(partPos[i*3+1]) > bound) partPos[i*3+1] *= -0.9;
-        if (Math.abs(partPos[i*3+2]) > bound) partPos[i*3+2] *= -0.9;
     }
-    pGeometry.attributes.position.needsUpdate = true;
-
-    renderer.render(scene, camera);
-}
-animate();
-
-window.addEventListener('resize', () => {
-    camera.aspect = window.innerWidth / window.innerHeight;
-    camera.updateProjectionMatrix();
-    renderer.setSize(window.innerWidth, window.innerHeight);
-    location.reload(); 
 });
 
-setInterval(() => {
-    const el = document.getElementById('real-time-clock');
-    if(el) el.textContent = new Intl.DateTimeFormat('hu-HU', {
-        timeZone:'Europe/Budapest', 
-        hour:'2-digit', 
-        minute:'2-digit', 
-        second:'2-digit'
-    }).format(new Date());
-}, 1000);
 
-window.showUserUI = (u,a) => document.getElementById('auth-section').innerHTML = 
-    `<span class="header-auth">${u.displayName||u.email.split('@')[0]} ${a?'[A]':''}</span><button class="btn-header" onclick="logoutUser()">KILÉPÉS</button>`;
-window.showGuestUI = () => document.getElementById('auth-section').innerHTML = 
-    `<a href="login.html"><button class="btn-header">BELÉPÉS</button></a>`;
+// --- UI ---
+window.showUserUI = function (user, isAdmin) {
+    const container = document.getElementById('auth-section');
+    if (!container) return;
+    const name = user.displayName || user.email.split('@')[0];
+    container.innerHTML = `<span class="header-auth">${name} ${isAdmin ? '<span style="opacity:0.5">[ADMIN]</span>' : ''}</span>${isAdmin ? '<a href="admin.html" style="color:#fff;text-decoration:none;font-size:14px;"><i class="fa-solid fa-gear"></i></a>' : ''}<button class="btn-header" onclick="logoutUser()">KILÉPÉS</button>`;
+};
+window.showGuestUI = function () {
+    const container = document.getElementById('auth-section');
+    if (!container) return;
+    container.innerHTML = `<a href="login.html" style="text-decoration:none"><button class="btn-header">BELÉPÉS</button></a>`;
+};
+
+function updateClock() {
+    const now = new Date();
+    const clockEl = document.getElementById('real-time-clock');
+    if(clockEl) clockEl.textContent = new Intl.DateTimeFormat('hu-HU', { timeZone: 'Europe/Budapest', hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: false }).format(now);
+}
+setInterval(updateClock, 1000);
+updateClock();
+
+// --- TÉMA ---
+const themeToggle = document.getElementById('theme-toggle');
+const body = document.body;
+
+function applyTheme(isLight) {
+    if (isLight) {
+        body.classList.add('light-mode');
+        if(themeToggle) themeToggle.innerText = 'LIGHT_MODE: ON';
+    } else {
+        body.classList.remove('light-mode');
+        if(themeToggle) themeToggle.innerText = 'DARK_MODE: ON';
+    }
+    if (window.update3DTheme) window.update3DTheme(isLight);
+}
+
+if (themeToggle) {
+    themeToggle.addEventListener('click', () => {
+        const willBeLight = !body.classList.contains('light-mode');
+        applyTheme(willBeLight);
+    });
+}
+
+window.addEventListener('load', () => {
+    localStorage.removeItem('theme'); 
+    applyTheme(false); 
+});

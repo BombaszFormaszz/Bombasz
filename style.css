@@ -1,273 +1,296 @@
 /* ========================================= */
-/* --- ALAP BEÁLLÍTÁSOK --- */
+/* --- 1. ALAP BEÁLLÍTÁSOK --- */
 /* ========================================= */
 
 * {
     margin: 0;
     padding: 0;
     box-sizing: border-box;
+    -webkit-tap-highlight-color: transparent; 
 }
 
 :root {
     --bg: #000;
     --text: #fff;
     --gray: #888;
+    --card-bg: rgba(0, 0, 0, 0.8);
+    --card-border: #222;
 }
 
 html, body {
     width: 100%;
     height: 100%;
-    overflow: hidden;
+    margin: 0;
+    padding: 0;
+    overflow: hidden; 
+    position: fixed;  
+    overscroll-behavior: none; 
+    touch-action: none; 
     font-family: 'Space Grotesk', sans-serif;
     background: var(--bg);
     color: var(--text);
-    touch-action: none; /* Fontos a mobilos görgetéshez */
+    perspective: 1500px; 
+    transform-style: preserve-3d;
+}
+
+body::after {
+    content: '';
+    position: fixed;
+    top: 0; left: 0; width: 100%; height: 100%;
+    background: linear-gradient(to bottom, 
+        black 0%, transparent 15%, transparent 85%, black 100%
+    );
+    pointer-events: none;
+    z-index: 90;
 }
 
 /* ========================================= */
-/* --- HEADER --- */
+/* --- 2. HEADER & CANVAS --- */
 /* ========================================= */
 
 .header {
     position: fixed;
     top: 0; left: 0; width: 100%;
     padding: 20px 40px;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    z-index: 1000;
+    display: flex; justify-content: space-between; align-items: center;
+    z-index: 100;
+    mix-blend-mode: difference;
+    transition: transform 0.4s cubic-bezier(0.165, 0.84, 0.44, 1);
 }
 
-.logo {
-    font-family: 'Orbitron', sans-serif;
-    font-size: 14px;
-    font-weight: 900;
-    letter-spacing: 1px;
-}
+.header.header-hidden { transform: translateY(-100%); }
 
+.logo { font-family: 'Orbitron', sans-serif; font-size: 14px; font-weight: 900; letter-spacing: 1px; color: var(--text); }
 .header-right { display: flex; align-items: center; gap: 20px; }
 .header-auth { font-size: 12px; color: var(--gray); }
 
 .btn-header {
     font-family: 'Orbitron', sans-serif;
-    font-size: 10px;
-    font-weight: 700;
-    letter-spacing: 2px;
+    font-size: 10px; font-weight: 700; letter-spacing: 2px;
     padding: 10px 20px;
     border: 1px solid var(--text);
-    background: black;
-    color: var(--text);
-    cursor: pointer;
-    transition: all 0.3s ease;
+    background: black; color: var(--text);
+    cursor: pointer; transition: all 0.3s ease;
 }
-.btn-header:hover {
-    background: var(--text);
-    color: var(--bg);
-}
-
-/* ========================================= */
-/* --- CANVAS & HERO --- */
-/* ========================================= */
+.btn-header:hover { background: var(--text); color: var(--bg); }
 
 #hero-canvas {
-    position: fixed;
-    top: 0; left: 0;
-    width: 100%; height: 100%;
-    z-index: 1;
-    pointer-events: none;
+    position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+    z-index: 0; pointer-events: none;
 }
 
-.hero-overlay {
-    position: fixed;
-    top: 0; left: 0;
-    width: 100%; height: 100%;
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
+/* --- SZEKCIÓK --- */
+section, .footer {
+    position: absolute;
+    top: 0; left: 0; width: 100%; height: 100%;
+    visibility: hidden;
+    overflow: hidden;
+    
+    padding-top: 100px; 
+    padding-bottom: 20px;
+    padding-left: 20px;
+    padding-right: 20px;
+
+    display: flex; 
+    flex-direction: column; 
     align-items: center;
-    z-index: 50;
-    pointer-events: none;
-    opacity: 1;
-    transition: opacity 0.8s ease;
+    justify-content: flex-start; 
+    
+    backface-visibility: hidden;
+    will-change: transform;
+    z-index: 1;
 }
 
-.hero-overlay.hidden {
-    opacity: 0;
+section.hero {
+    justify-content: center;
+    padding-top: 0;
 }
+
+section:first-of-type { visibility: visible; z-index: 2; }
+
+/* ========================================= */
+/* --- 3. TARTALOM (TEXT & GRID) --- */
+/* ========================================= */
 
 .hero-title {
     font-family: 'Orbitron', sans-serif;
-    font-size: clamp(40px, 12vw, 120px);
-    font-weight: 900;
-    letter-spacing: 0.2em;
-    text-shadow: 0 0 60px rgba(255,255,255,0.15);
+    font-size: clamp(50px, 12vw, 110px); 
+    font-weight: 900; letter-spacing: 0.2em;
+    text-align: center; line-height: 1; z-index: 2; white-space: nowrap;
 }
 
-.scroll-hint {
-    position: absolute;
-    bottom: 50px;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 10px;
-    opacity: 0.3;
-    animation: breathe 3s ease-in-out infinite;
-}
-
-.scroll-hint span {
+.section-label {
     font-family: 'Orbitron', sans-serif;
-    font-size: 10px;
-    letter-spacing: 3px;
+    font-size: 11px; letter-spacing: 3px; color: var(--gray); margin-bottom: 20px;
+    margin-top: 20px;
 }
 
-.scroll-hint i {
-    font-size: 14px;
-}
-
-@keyframes breathe {
-    0%, 100% { opacity: 0.3; transform: translateY(0); }
-    50% { opacity: 0.6; transform: translateY(8px); }
-}
-
-/* ========================================= */
-/* --- KATEGÓRIA CÍMKE --- */
-/* ========================================= */
-
-.category-label {
-    position: fixed;
-    top: 80px;
-    left: 50%;
-    transform: translateX(-50%);
-    z-index: 100;
+.section-title {
     font-family: 'Orbitron', sans-serif;
-    font-size: clamp(12px, 2vw, 16px);
-    font-weight: 700;
-    letter-spacing: 6px;
-    color: rgba(255, 255, 255, 0.5);
-    text-transform: uppercase;
-    opacity: 0;
-    transition: opacity 0.6s ease;
-    pointer-events: none;
+    font-size: clamp(28px, 3.5vw, 45px);
+    font-weight: 700; line-height: 1.1; margin-bottom: 30px; text-align: center;
 }
 
-.category-label.visible {
-    opacity: 1;
-}
+.split-text .line { overflow: hidden; display: block; }
+.split-text .line span { display: block; transform: translateY(100%); transition: transform 0.8s cubic-bezier(0.4, 0, 0.2, 1); }
+.split-text.active .line span { transform: translateY(0); }
 
-/* ========================================= */
-/* --- LABELS CONTAINER (MENÜPONTOK) --- */
-/* ========================================= */
+/* --- KÁRTYÁK RÁCS (ALAKTRARTÓ VERZIÓ) --- */
+.pages-grid {
+    display: grid;
+    /* Legalább 220px, de nem nyúlik végtelenül, mert a kártyán van max-width */
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    gap: 20px;
+    
+    width: 100%;
+    max-width: 1200px;
+    z-index: 10;
+    
+    /* Ez középre rendezi a kártyákat a saját oszlopukban */
+    justify-items: center; 
+    align-content: start; 
 
-#labels-container {
-    position: fixed;
-    top: 0; left: 0;
-    width: 100%; height: 100%;
-    pointer-events: none;
-    z-index: 500;
-}
-
-.item-label {
-    position: absolute;
-    font-family: 'Orbitron', sans-serif;
-    font-size: 11px;
-    font-weight: 600;
-    letter-spacing: 1px;
-    padding: 14px 20px;
-    background: rgba(0, 0, 0, 0.85);
-    border: 1px solid rgba(255, 255, 255, 0.4);
-    color: rgba(255, 255, 255, 0.95);
-    text-decoration: none;
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    backdrop-filter: blur(12px);
-    transition: all 0.25s ease;
+    height: 100%; 
+    overflow-y: auto; 
+    
+    padding: 10px; 
+    padding-top: 5px; 
+    
+    touch-action: none; 
+    overscroll-behavior: contain;
     pointer-events: auto;
-    cursor: pointer;
-    white-space: nowrap;
-    transform: translate(-50%, -50%);
-    z-index: 500;
-    border-radius: 4px; /* Enyhe kerekítés */
+
+    scrollbar-width: thin;
+    scrollbar-color: var(--gray) transparent;
 }
 
-.item-label:hover,
-.item-label.active {
-    background: rgba(255, 255, 255, 0.15);
-    border-color: rgba(255, 255, 255, 0.8);
+.pages-grid::-webkit-scrollbar { width: 8px; }
+.pages-grid::-webkit-scrollbar-track { background: rgba(255,255,255,0.05); }
+.pages-grid::-webkit-scrollbar-thumb { background-color: var(--gray); border-radius: 10px; }
+
+/* --- KÁRTYÁK STÍLUSA (NÉGYZETES TÉGLALAP) --- */
+.page-card {
+    background: var(--card-bg);
+    border: 1px solid var(--card-border);
+    padding: 25px 20px;
+    text-decoration: none; color: var(--text);
+    
+    display: flex; flex-direction: column; align-items: center; justify-content: center;
+    text-align: center; position: relative; overflow: hidden;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+
+    /* --- ALAK RÖGZÍTÉSE --- */
+    width: 100%;
+    max-width: 280px; /* NEM NYÚLIK SZÉT ENNÉL SZÉLESEBBRE */
+    aspect-ratio: 4/3; /* RÖGZÍTETT ARÁNY: Téglalap ami közelít a négyzethez */
+    
+    /* Így nem kell fix magasság, az aspect-ratio intézi */
+    min-height: auto; 
+}
+
+.page-card:hover {
+    transform: translateY(-5px);
+    border-color: #666;
+    box-shadow: 0 15px 30px rgba(0, 0, 0, 0.5);
+    z-index: 2;
+}
+
+.page-card i {
+    font-size: 32px;
+    margin-bottom: 12px;
     color: #fff;
-    transform: translate(-50%, -50%) scale(1.08);
-    box-shadow: 0 0 30px rgba(255, 255, 255, 0.25);
-    z-index: 510; /* Hoverkor előre jön */
 }
 
-.item-label i {
-    font-size: 14px;
-    opacity: 0.9;
-}
-
-/* ========================================= */
-/* --- ÓRA --- */
-/* ========================================= */
-
-.clock-display {
-    position: fixed;
-    bottom: 25px;
-    left: 50%;
-    transform: translateX(-50%);
-    z-index: 100;
+.page-card h4 {
     font-family: 'Orbitron', sans-serif;
-    font-size: 11px;
-    letter-spacing: 3px;
-    color: var(--gray);
-    opacity: 0.25;
-    pointer-events: none;
+    font-size: 13px;
+    font-weight: 700; letter-spacing: 1px; text-transform: uppercase;
+    line-height: 1.3;
+}
+
+.download-card small {
+    font-size: 10px; color: var(--gray); margin-top: 5px; font-family: 'Orbitron', sans-serif;
+}
+
+/* --- FOOTER --- */
+.footer {
+    justify-content: center;
+    padding-top: 0;
+}
+
+.footer-clock {
+    font-family: 'Orbitron', sans-serif;
+    font-size: clamp(40px, 6vw, 80px);
+    font-weight: 700; letter-spacing: 4px; color: var(--text);
+    text-shadow: 0 0 30px rgba(255, 255, 255, 0.3);
+}
+
+.footer-actions {
+    display: flex; justify-content: center; gap: 40px; align-items: center;
+    padding: 30px; border-top: 1px solid rgba(255, 255, 255, 0.1); width: 80%; max-width: 800px;
+}
+
+.action-btn {
+    background: transparent; border: 1px solid rgba(255,255,255,0.2); color: #fff;
+    padding: 8px 16px; cursor: pointer; font-family: 'Orbitron', sans-serif; transition: 0.3s;
+}
+.action-btn:hover { background: #fff; color: #000; }
+
+/* --- LIGHT MODE --- */
+body.light-mode { --bg: #e0e0e0; --text: #111; --gray: #555; --card-bg: rgba(255, 255, 255, 0.7); --card-border: #ccc; }
+body.light-mode .page-card, body.light-mode .download-card {
+    background: var(--card-bg) !important; border-color: var(--card-border) !important;
+    color: var(--text) !important; box-shadow: 0 10px 30px rgba(0,0,0,0.05);
+}
+body.light-mode .page-card i { color: #000; } 
+body.light-mode .btn-header { background: #fff; color: #000; border-color: #000; }
+body.light-mode .btn-header:hover { background: #000; color: #fff; }
+body.light-mode::after {
+    background: linear-gradient(to bottom, rgba(255,255,255,1) 0%, transparent 20%, transparent 80%, rgba(255,255,255,1) 100%);
 }
 
 /* ========================================= */
-/* --- MOBIL / TABLET RESPONSIVE --- */
+/* --- 4. MOBIL RESPONZIVITÁS --- */
 /* ========================================= */
-
 @media (max-width: 768px) {
+    
     .header { padding: 15px 20px; }
-    .logo { font-size: 11px; }
-    .btn-header { padding: 8px 14px; font-size: 9px; }
-    
-    .hero-title { font-size: 10vw; letter-spacing: 0.1em; }
-    .category-label { top: 65px; font-size: 11px; letter-spacing: 4px; }
-    
-    /* Kompaktabb címkék tableten/mobilon */
-    .item-label {
-        font-size: 10px;
-        padding: 8px 12px;
-        gap: 6px;
-        background: rgba(0, 0, 0, 0.7);
-        border: 1px solid rgba(255, 255, 255, 0.3);
-    }
-    .item-label i { font-size: 11px; }
-}
+    .logo { font-size: 12px; }
+    .btn-header { padding: 8px 12px; font-size: 9px; }
 
-@media (max-width: 480px) {
-    .header { padding: 12px 15px; }
-    .logo { font-size: 10px; }
+    section, .footer { 
+        padding: 90px 15px 15px 15px; 
+        justify-content: flex-start;
+    }
     
-    .hero-title { font-size: 12vw; letter-spacing: 0.05em; }
-    .category-label { top: 60px; font-size: 10px; letter-spacing: 3px; }
+    section.hero { justify-content: center; padding-top: 0; }
 
-    /* Extra kompakt címkék telefonra, hogy sok is elférjen */
-    .item-label {
-        font-size: 9px;
-        padding: 5px 10px;
-        gap: 5px;
-        border-radius: 6px;
+    .hero-title { font-size: 10vw; letter-spacing: 0; }
+    .section-title { font-size: 24px; margin-bottom: 15px; }
+    .section-label { font-size: 9px; margin-bottom: 5px; margin-top: 0; }
+
+    .pages-grid {
+        grid-template-columns: 1fr 1fr;
+        gap: 10px;
+        overflow-y: auto; 
+        padding: 5px;
+        scrollbar-width: none;
     }
-    
-    .item-label i { font-size: 9px; }
-    
-    /* Ha nagyon hosszú a név, ne törje szét az elrendezést */
-    .item-label span {
-        white-space: nowrap;
+    .pages-grid::-webkit-scrollbar { display: none; }
+
+    .page-card {
+        padding: 15px 10px;
+        /* Mobilon nem kell az aspect-ratio kényszer, ott jobb a rugalmasság */
+        max-width: none;
+        aspect-ratio: auto; 
+        min-height: 120px; 
     }
+    .page-card:hover { transform: none; box-shadow: none; }
     
-    .scroll-hint { bottom: 30px; }
-    .clock-display { font-size: 9px; bottom: 15px; }
+    .page-card i { font-size: 24px; margin-bottom: 10px; }
+    .page-card h4 { font-size: 11px; }
+
+    .footer { justify-content: center; }
+    .footer-clock { font-size: 30px; letter-spacing: 2px; }
+    .footer-actions { flex-direction: column; gap: 15px; padding-top: 20px; }
 }

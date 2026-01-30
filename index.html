@@ -1,17 +1,18 @@
 <!DOCTYPE html>
 <html lang="hu">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>BombaszFormaszz</title>
-    
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
-    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;500;600;700;800;900&family=Space+Grotesk:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-    
-    <link rel="stylesheet" href="style.css">
-    
+    <title>BOMBASZ</title>
     <script type="module" src="auth.js"></script>
     <script src="user-ui.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+    <link
+        href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;500;600;700;800;900&family=Space+Grotesk:wght@300;400;500;600;700&display=swap"
+        rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/Observer.min.js"></script>
 </head>
 
 <body>
@@ -24,24 +25,128 @@
         </div>
     </header>
 
-    <div class="hero-overlay" id="hero-overlay">
-        <h1 class="hero-title">BOMBASZ</h1>
-        <div class="scroll-hint">
-            <span>SCROLL</span>
-            <i class="fa-solid fa-chevron-down"></i>
+    <section class="hero">
+        <h1 class="hero-title">
+            <span class="char" style="animation-delay: 0.1s">B</span>
+            <span class="char" style="animation-delay: 0.15s">O</span>
+            <span class="char" style="animation-delay: 0.2s">M</span>
+            <span class="char" style="animation-delay: 0.25s">B</span>
+            <span class="char" style="animation-delay: 0.3s">A</span>
+            <span class="char" style="animation-delay: 0.35s">S</span>
+            <span class="char" style="animation-delay: 0.4s">Z</span>
+        </h1>
+    </section>
+
+    <section class="pages-section">
+        <div class="section-label reveal">> ALOLDALAK</div>
+        <h2 class="section-title split-text">
+            <span class="line"><span>Bombasz</span></span>
+            <span class="line"><span>aloldalak</span></span>
+        </h2>
+        <div class="pages-grid stagger-reveal">
+            <a target="_blank" href="social.html" class="page-card">
+                <i class="fa-solid fa-comments"></i>
+                <h4>Bombasz Chat Web</h4>
+            </a>
+            <a target="_blank" href="konyv.html" class="page-card">
+                <i class="fa-solid fa-book-open"></i>
+                <h4>Könyvek</h4>
+            </a>
+            <a target="_blank" href="vids.html" class="page-card">
+                <i class="fa-solid fa-play"></i>
+                <h4>Vids</h4>
+            </a>
+            <a target="_blank" href="uncs.html" class="page-card">
+                <i class="fa-solid fa-check-double"></i>
+                <h4>UNCS (régi főoldal)</h4>
+            </a>
+            <a target="_blank" href="old.html" class="page-card">
+                <i class="fa-solid fa-check-double"></i>
+                <h4>UNCS (nagyon régi főoldal)</h4>
+            </a>
+            <a target="_blank" href="mikulas.html" class="page-card">
+                <i class="fa-solid fa-gamepad"></i>
+                <h4>Mikulás (Játék)</h4>
+            </a>
+            <a target="_blank" href="fps.html" class="page-card">
+                <i class="fa-solid fa-gamepad"></i>
+                <h4>fps shooter (Játék)</h4>
+            </a>
+            <a target="_blank" href="jatek.html" class="page-card">
+                <i class="fa-solid fa-gamepad"></i>
+                <h4>UFO (Játék)</h4>
+            </a>
+            <a target="_blank" href="tori.html" class="page-card">
+                <i class="fa-solid fa-landmark"></i>
+                <h4>Történelem</h4>
+            </a>
+            <a target="_blank" href="cbz.html" class="page-card">
+                <i class="fa-solid fa-book-open"></i>
+                <h4>cbz</h4>
+            </a>
+
+
+
+
+
+
+
         </div>
-    </div>
+    </section>
 
-    <div class="category-label" id="category-label"></div>
+    <section class="downloads-section">
+        <div class="section-label reveal">> LETÖLTÉSEK</div>
+        <h2 class="section-title split-text">
+            <span class="line"><span>Bombasz</span></span>
+            <span class="line"><span>programok</span></span>
+        </h2>
+        <div class="pages-grid stagger-reveal">
+            <a href="egyeb/Bombasz Chat Setup 1.0.1.exe" class="page-card download-card" download>
+                <i class="fa-solid fa-comments"></i>
+                <h4>Chat Setup</h4>
+                <small>(EXE)</small>
+            </a>
+            <a href="https://drive.google.com/file/d/1xuKcJ2v9WyYMUw6O1AZQhTnJWcihYFgV/view" target="_blank"
+                class="page-card download-card">
+                <i class="fa-solid fa-comments"></i>
+                <h4>Chat Portable</h4>
+                <small>(EXE)</small>
+            </a>
+            <a href="egyeb/sub.py" class="page-card download-card" download>
+                <i class="fa-solid fa-clock"></i>
+                <h4>.srt Időzítő</h4>
+                <small>(PY)</small>
+            </a>
+            <a href="https://drive.google.com/file/d/1Ly64r0g0RMKuSsabj9iegmRgCB5U_8Ea/view" target="_blank"
+                class="page-card download-card">
+                <i class="fa-solid fa-music"></i>
+                <h4>Zene Letöltő</h4>
+                <small>(EXE)</small>
+            </a>
+             <a href="egyeb/cbz.py" class="page-card download-card" download>
+                <i class="fa-solid fa-chevron-up"></i>
+                <h4>cbz/zip tool</h4>
+                <small>(PY)</small>
+            </a>
+            
+        </div>
+    </section>
 
-    <div class="clock-display" id="clock-display">
-        <span id="real-time-clock"></span>
-    </div>
+    <footer class="footer">
+        <div class="footer-clock-container">
 
-    <div id="labels-container"></div>
+            <p id="real-time-clock" class="footer-clock"></p>
+        </div>
+
+
+        </div>
+    </footer>
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
-    <script src="script.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/ScrollTrigger.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/Observer.min.js"></script> 
+    <script src="https://cdn.jsdelivr.net/gh/studio-freight/lenis@1/bundled/lenis.min.js"></script>
+    <script src="script.js" type="module"></script>
 </body>
 </html>
