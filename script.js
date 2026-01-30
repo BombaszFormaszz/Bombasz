@@ -46,7 +46,7 @@ let currentCategory = 0;
 let hoveredItem = -1;
 let isAnimating = false;
 let scrollAccumulator = 0;
-const SCROLL_THRESHOLD = isMobile ? 30 : 60;
+const SCROLL_THRESHOLD = isMobile ? 50 : 120;
 
 // --- THREE.JS SETUP ---
 const canvas = document.getElementById('hero-canvas');
