@@ -1,0 +1,20 @@
+html - hypertext markup language
+a webws szövegek jelölő nyelve
+
+http - hypertext transfer protocol
+webes adatok szállításának a szabályrendszere
+
+kliens, szerver
+
+request - kérés klienstől szerverhez 
+response - válasz szervertől klienshez 
+
+CRUD		AJAX
+read -> 	get
+create -> 	post
+update -> 	put / patch
+delete -> 	delete
+
+AJAX - az adatkezezlás 4 műveletéhez használt (crud) 4 metódusának a gyűjtőneve -> GET, POST, PUT, DELETE
+(Asynchronous JavaScript and XML)
+XML helyett ma már JSON
