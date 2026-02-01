@@ -14,6 +14,7 @@ const categories = [
             { name: "UNCS (régi)", icon: "fa-check-double", url: "uncs.html" },
             { name: "UNCS (nagyon régi)", icon: "fa-check-double", url: "old.html" },
             { name: "Történelem", icon: "fa-landmark", url: "tori.html" },
+            { name: "Magyar", icon: "fa-landmark", url: "magyar.html" },
             { name: "CBZ", icon: "fa-book-open", url: "cbz.html" },
         ]
     },

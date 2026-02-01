@@ -1,0 +1,456 @@
+<!DOCTYPE html>
+<html lang="hu">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Történelem Érettségi Tételek</title>
+<style>
+    /* AMOLED (Pure Black) téma beállításai */
+    :root { 
+        --p: #000000;          /* Fejléc is fekete */
+        --a: #00eeff;          /* Marad a cián kiemelés, jól mutat a feketén */
+        --bg: #000000;         /* Tiszta fekete háttér */
+        --card-bg: #000000;    /* Kártyák is feketék legyenek */
+        --text: #ffffff;       /* Hófehér szöveg a maximális kontrasztért */
+        --select-border: #333; /* Finom szürke keret az elemeknek */
+    }
+
+    body { 
+        font-family: 'Segoe UI', sans-serif; 
+        line-height: 1.6; 
+        margin: 0; 
+        background: var(--bg); 
+        color: var(--text); 
+    }
+
+    header { 
+        background: var(--bg); 
+        color: white; 
+        text-align: center; 
+        padding: 1rem; 
+        position: sticky; 
+        top: 0; 
+        z-index: 1000; 
+        /* Egy vékony alsó vonal választja el a fejlécet, mivel minden fekete */
+        border-bottom: 1px solid #222; 
+    }
+
+    .container { max-width: 800px; margin: 20px auto; padding: 0 15px; }
+    
+    select { 
+        width: 100%; 
+        padding: 15px; 
+        border-radius: 8px; 
+        border: 2px solid var(--select-border); 
+        font-size: 1rem; 
+        margin-bottom: 20px; 
+        outline: none; 
+        background: #000000; /* Legördülő háttér is fekete */
+        color: white; 
+    }
+    
+    #content-area { 
+        background: var(--card-bg); 
+        padding: 25px; 
+        border-radius: 12px; 
+        /* Erősebb keret a kártyának, hogy elváljon a háttértől */
+        border: 1px solid #222;
+        display: none; 
+    }
+    
+    h2 { color: #fff; border-bottom: 3px solid var(--a); padding-bottom: 8px; margin-top: 0; }
+    
+    .formatted-text { white-space: pre-wrap; font-size: 1.1rem; word-wrap: break-word; }
+
+    /* Képek AMOLED módhoz */
+    .embedded-img {
+        display: block;
+        max-width: 100%;
+        height: auto;
+        margin: 20px auto;
+        border-radius: 6px;
+        border: 1px solid #333;
+        /* Kicsit sötétítve, hogy ne "égesse" a szemet a fekete háttéren */
+        filter: brightness(0.7); 
+        transition: filter 0.3s;
+    }
+
+    .embedded-img:hover {
+        filter: brightness(1); 
+    }
+
+    /* Görgetősáv (Scrollbar) AMOLED stílusban */
+    ::-webkit-scrollbar { width: 8px; }
+    ::-webkit-scrollbar-track { background: #000; }
+    ::-webkit-scrollbar-thumb { background: #333; border-radius: 10px; }
+    ::-webkit-scrollbar-thumb:hover { background: var(--a); }
+
+    @media (max-width: 600px) { .formatted-text { font-size: 1rem; } }
+</style>
+</head>
+<body>
+<script src="transition-entry.js"></script>
+
+
+
+<div class="container">
+    <div class="sticky-nav">
+        <select id="selector" onchange="load()">
+            <option value="" disabled selected>Köszönjük szépen, Tanárnő!</option>
+        </select>
+    </div>
+
+    <article id="content-area">
+        <h2 id="title"></h2>
+        <div id="body" class="formatted-text"></div>
+    </article>
+</div>
+
+<script>
+    // IDE MÁSOLD BE A TÉTELEIDET
+    // Használd a ` jelet (AltGr+7) a szöveg elején és végén!
+    const data = [
+        {
+            id: "1",
+            cim: "Arany János balladái",
+            szoveg: `Arany János 1817-ben Nagyszalontán született.
+1851 – 1860-ig Nagykőrösön a református főgimnázium tanára. Rosszul érezte magát ott: a
+tanári munka kimerítő volt számára, rengeteg időt elrabolt a költészettől. A Bach – rendszer
+idején állandóan bizonyítania kellett alkalmasságát a tanári pályára. Lelki és testi betegségek
+gyötörték.
+1853-tól írt balladákat Nagykőrösön. Forrásai: a skót balladák és székely népballadák.
+Ballada: A három műnem (líra, epika, dráma) határán elhelyezkedő műfaj. Cselekménye
+sűrített, a történet elbeszélésmódja zaklatott, az események nagy része drámai párbeszédekből
+vagy lírai monológokból áll össze. Általában tragikus témát dolgoz fel. „Tragédia dalban
+elbeszélve.” Mindhárom műnem sajátosságait magán hordozza – epika: történetet mesél el,
+líra: verses formájú, tagolt, dráma: párbeszédekre épül, kihagyások, utalások, tragikus
+hangvétel.
+Témái: - történelmi: történelmi eseményt dolgoz fel (A walesi-bárdok)
+- magánéleti: lélektani probléma, pl. bűn és bűnhődés (Ágnes asszony)
+Jellemzői:
+- A nemzet ügyét akarta szolgálni.
+- Allegorikusak: a témát a múltból meríti, de a jelenhez szólnak (a cenzúra miatt burkoltan)
+- Aktuális politikai célzatuk miatt tiszta előadásmód jellemzi őket, balladai sűrítés, elhagyás
+csak a párbeszédes részeknél van.
+Típusai:
+Egyszólamú lineáris: az események egy szálon, időrendben bontakoznak ki (A walesi bárdok)
+Többszólamú lineáris: térben vagy időben párhuzamosan halad a cselekmény (V. László,
+Szondi két apródja)
+Egyszólamú spirális: egy cselekményt mutat be, amely időben előrehalad, de mindig visszatér
+egy ponthoz (pl.: refrén), hogy onnan lendüljön tovább (Ágnes asszony)
+
+A walesi bárdok (1857)
+Keletkezés: Ferenc József látogatásakor Aranyt felkérték egy dicsőítő vers megírására. Nem
+vállalta el (úgy érezte, méltatlan lenne Petőfi emlékéhez), helyette írta meg ezt a verset.
+
+Cím: témamegjelölő
+Téma: történelmi eseményt dolgoz fel: I. Edward király 1277-ben leigázta Wales-et, és az
+angol királysághoz csatolta. A monda szerint 500 bárdot végeztetett ki, mert nem dicsőítették.
+Típusa: egyszólamú lineáris
+Versforma: skót balladaforma, 4 soros strófák, jambusi sorok, félrímekkel (xaxa)
+Szerkezet:
+1. A walesi tartomány
+2. A Montgomery – vár
+3. London
+1. Megismerjük a Walesbe látogató Edward királyt, aki gőgös (léptet), magabiztos,
+hódító vezér. A táj virágzó, de néma. Látszólagos párbeszéd a király és kíséretének egy tagja
+között. 2 kérdés: 1. Gazdag-e a tartomány, 2. Boldog-e a nép? 2 válasz: 1. a tartomány
+gazdag, ezt metaforával fejezi ki – Wales a korona legszebb gyémántja, 2. ironikus válasz,
+mert azt mondja boldog, viszont a kunyhóik csendjét a sírhoz hasonlítja – ezzel utal arra, hogy
+harccal szerezte meg a tartományt, sokan meghaltak. Bármerre jár a király, nem ünneplik.
+2. Külsőleg bőséges lakoma, pazar vendéglátás ↔ feszült hangulat, mert itt sem ünneplik
+Edwardot. A király ingerlékeny, kegyetlen zsarnok, ünneplést kényszerít ki magának.
+Gőgösen, lenézően beszél az urakkal, ez sértő („velsz ebek”, „hitvány ebek”). Az urak
+belesápadnak a visszafojtott haragba („Orcáikon, mint félelem, / Sápadt el a harag.”).
+1. bárd: megtört, élettapasztalattal rendelkező békés öreg, de a mondanivaló kemény. Vádolja
+a királyt.
+2. bárd: Fiatal, tele érzelemmel, de a mondanivalója kemény.
+3. bárd: Daccal, indulattal teli, ő már hívás nélkül jön énekelni. Megátkozza a királyt. &quot;Elhullt
+csatában a derék” – Petőfire utal itt Arany.
+Ítélet: aki nem dicsőíti a királyt, arra halál vár → 500 bárdot küldött máglyára.
+3. Vágtat – a király menekül Walesből. „Körötte ég földszint az ég: A velszi tartomány.”
+- akkora a máglya, hogy a lángok szinte az égig érnek. A király lelkiismerete megszólal
+(állandóan hallja a bárdok énekét, ezért akar hangzavart), végül megőrül. Így – bár történelmi
+ballada- benne van a bűn és bűnhődés motívuma is.
+Mondanivaló: A nemzet ellenállása az idegen hatalommal szemben. Igaz magyar költő nem
+dicsőít idegen elnyomót.
+
+V. László (1853)
+Keletkezés: hasonló történelmi helyzet a mű megírásakor, mint amiről szól
+Cím: megnevező
+Típusa: többszólamú lineáris. A cselekmény azonos időben, de több helyszínen, 2 szálon fut
+
+1. szál: V. László belső küzdelme lelkiismeretével – azért nem tud aludni sem, mert
+lelkiismeret-furdalása van a megszegett esküje miatt (pl.: a vihar hangjára azt hiszi, a tömeg
+zúg). A rabok szökése után Csehországba menekült, s ott hirtelen meghalt (mérgezésre
+gyanakodtak).
+2. szál: Hunyadi fogvatartott híveinek szökése. Mátyást nem viszik magukkal.
+Téma: történelmi: V. László Czillei Ulrik halála miatt álnokul kivégeztette Hunyadi Lászlót
+(bár előtte esküt tett, hogy nem fog bosszút állni), foglyul ejtette Mátyást, majd Prágába
+menekült, s ott váratlanul meghalt.
+Központi gondolat: bűn és bűnhődés (megszegett eskü, lelkiismeret-furdalás, hirtelen halál)
+
+zsarnokellenesség
+
+Mondanivaló: a szabadságharc után bujdosásba kényszerült vezetők (Kossuth, Teleki,
+Klapka) visszatérésére még van esély (a vers utolsó versszaka utal erre).
+
+Szondi két apródja (1856)
+Téma: történelmi - 1552. Drégely ostroma – Szondy György védte, mikor nem volt esély
+a győzelemre, minden értéket elpusztítottak
+
+- hősi helytállás, a hazához való hűség
+
+Cím: megnevező
+- apródok: nem fegyverhordozók, hanem 16. századi énekesek (költők).
+Típusa: többszólamú lineáris
+Szerkezet:
+1 – 2. vsz.: 3 jelképes színhely:
+- várrom fent: erkölcsi magaslat, a hazaszeretet jelképe
+- Szondi sírja fent: a hős felmagasztalása
+- a török tábor lent: alantas, erkölcsileg alacsony, a győzelmet ünneplik
+3 – 4. vsz.: párbeszéd Ali és szolgája között – szeretné, ha az apródok hozzá jönnének
+énekelni. Ellentét van a nyájas szavai („Bülbül-szavu rózsák”) és véres tette között. Követet
+küld értük.
+5. versszaktól kétszólamú a ballada:
+1. szál (páratlan vsz.-ok): MÚLT – a dalnokok éneke az ostromról és Szondi haláláról. Daluk
+a tárgyilagos elbeszéléstől a pátoszig jut el. Nem felelnek a követnek, de szavaik jelképes
+válaszként foghatók fel. Végül átkot mondanak Alira.
+2. szál (páros vsz.-ok): JELEN – a török követ próbálja meggyőzni az apródokat, hogy
+menjenek vele Ali táborába. Kezdetben hízeleg (Odalenn vár mézizü sörbet”), csábító
+ajánlatokkal hitegeti az apródokat, majd burkoltan („Idekinn hideg éj sziszeg aztán!”) , végül
+
+nyíltan megfenyegeti („börtöne kész Ali úrnak.”) őket. Egyszer annyira magával ragadja őt az
+ifjak éneke, hogy még ő is elkezdi Szondit dicsőíteni: „Rusztem maga volt ő!... s hogy harcola
+még, Bár álgyugolyótul megtört ina, térde!”
+Két különböző értékrend, erkölcsi világ áll egymással szemben.
+Mondanivaló: Arany azokra mond átkot, akik miatt a szabadságharc elbukott.
+
+Ágnes asszony (1853)
+Téma: - bűn és bűnhődés, (magánéleti, lélektani ballada)
+- a lelkiismeret harca, a bűntudat bomlasztó hatása egy naiv, érzéki asszony tudatában
+Típusa: egyszólamú spirális
+Szerkezet:
+1. 1-4. vsz.: A költő sejteti, hogy valamilyen bűn történt, (véres lepedő, rákérdeznek, hogy hol
+a férje), ez akkor erősödik meg még jobban, mikor a hajdú jön Ágnesért.
+2. 5-19. vsz.: A börtönben – rövid idő hosszan elbeszélve, Ágnes asszony végig attól fél,
+nehogy megőrüljön. Képletes helyszín Ágnes asszony lelke. A költő finom eszközökkel
+ábrázolja a megőrülés belső folyamatát. A bűn megvilágosodik: Ágnes asszony a szeretőjével
+együtt megölte a férjét, így életfogytiglani börtön vár rá. A bíróság (ami a falu öreg, tapasztalt
+lakóiból áll, akik Ágnest régóta ismerik) kegyelmet ad, mert látják rajta, hogy a lelkiismeret
+elvégezte a dolgát.
+3. 20-26. vsz.: Bűnhődés – Ágnes asszony életének fennmaradó évei. A vers indító képéhez
+térünk vissza: Ágnes asszony mossa a lepedő foltját, ami már csak az ő képzeletében létezik.
+Az idő múlását néhány motívummal jelzi: ősz haj, rongyos lepedő, ráncok.
+Refrén: ez adja a ballada körkörösségét. Az elbeszélő vagy a hallgatóság érzelmi reagálása
+(megdöbbenés, felháborodás, szánalom).
+Üzenete: A bűnhődés az ember lelkéből fakadó érzés, ami erősebb, mint a börtön.
+A folt a becsületén esett folt (lelkiismeret-furdalás), ezt párhuzamba tudjuk vonni Mikszáth
+Kálmán Az a fekete folt című elbeszélésével.
+
+Az Őszikék balladái
+Arany kései költészetében újra felbukkannak a balladák, ekkor már csak a bűn és bűnhődés
+foglalkoztatja, valamint a régi népi babonás hiedelmek.
+
+Tengeri hántás (1877)
+Téma: bűn és bűnhődés (bűn: a szokásjog megsértése, bűnhődés: öngyilkosság, téboly).
+
+Típus: többszólamú lineáris – az első és utolsó versszak kerettörténetének elbeszélésébe egy
+másik elbeszélés iktatódik.
+A kukoricatörés egy idősebb résztvevője meséli el Tuba Ferkó és Dallos Eszti történetét a
+fiatalok okulására. Bűnük a házasságon kívüli kapcsolat volt, Eszti teherbe is esett.
+Bűnhődésük: Eszti belehalt a szégyenbe és a bánatba, Ferkó holdkóros lett, leesett a
+toronyból. Minden versszak 5. sora egy – egy kiszólás, amely szimbolikus kapcsolatba
+hozható a mesével. Az utolsó versszakban a múlt következménye jelenné válik: a mesét
+hallgatók figyelik a fölöttük repülő szerelmesek muzsikálását.
+
+Vörös Rébék (1877)
+Téma: bűn és bűnhődés, babonás hiedelmek
+Cím: megnevező – Vörös Rebeka boszorkány és kerítőnő.
+Szerkezet: keretes – a keret általános mondanivalót hordoz. Középpontban a 7. vsz. áll, a
+főszereplő itt válik démonná (varjú 7 gonosz).
+Típusa: egyszólamú spirális, a refrén boszorkányűző szó, a hallgatóság riadalmát közvetíti.
+Bűn: házasságtörés. Bűnhődés: Terkát Dani hazazavarja a szüleihez, a kasznárt pedig lelövi.
+Ezzel maga is bűnössé válik, büntetése az öngyilkosság.
+Mondanivaló: a gonosz halhatatlan, nem lehet elpusztítani. Hatalma időtlen, örökké itt van
+közöttünk. Az ellene való küzdés reménytelen.
+
+Tetemre hívás (1877)
+Alap: középkori istenítélet – a halott sebe vérezni kezd gyilkosának jelenlétében.
+Téma: bűn és bűnhődés – a bűn Kund Abigél könnyelmű kacérkodása, bűnhődése a
+megtébolyodás.
+Típusa: egyszólamú lineáris
+`
+        },
+        
+
+
+        
+        {
+            id: "2",
+            cim: "Ady szerelmi költészete",
+            szoveg: `Léda - szerelem
+Ady 1903-ban Nagyváradon ismerkedik meg a családi látogatásra Párizsból hazatérő
+Diósy Ödönné Brüll Adéllal, akit ő Lédának nevez. Már ekkor megszületik az első Léda-vers,
+amely tükrözi kapcsolatuk milyenségét, az állandó civakodást. A költő számára Léda igazi
+társ volt, ezért verseinek fő jellemvonása az érzékiség, szenvedélyesség, áhítatos életvágy.
+Kapcsolatukat elítélték: Léda férjes asszony volt, idősebb a költőnél és zsidó származású.
+Lobogásként élték meg a szerelmet, hamar kiégtek, s ettől kezdve gyakoriak voltak közöttük a
+veszekedések. Kapcsolatuk elválások és egymásra találások sorozata volt, ezért a versekből
+hiányzik az együttlét öröme. Az idill vagy múltbeli emlékként jelenik meg vagy jövőbeli
+lehetőségként, s így a szerelem minden mozzanata bús, tragikus színt kap. A szerelmi
+költészete szokatlan, új hangot hoz a lírába. Vajdánál, Reviczky Gyulánál is merészebb –
+számára a nagy szenvedélyt, érzékiséget, áhítatos életvágyat jelentette, a testiséget, a nemek
+küzdelmét.
+Héja-nász az avaron (1905)
+Cím: képszerűen jeleníti meg a héják szeretkezését az avarban
+fogantatás, élet ↔ halál
+erőszakos, egymás a tél közeledése,
+ellen irányultság elmúlás
+
+- héja: ragadozó madár, a szárnyalás, a szabadság szimbóluma, a versben Adyt és Lédát jelképezi
+- szimbólumok: nyár: teljesség, boldogság, fiatalság
+- ősz: értéktelenedés, elmúlás, öregség
+
+- mozgások (igék): - útra kelünk → megyünk → szállunk → űzve szállunk → megállunk → lehullunk
+- felgyorsuló mozgás, menekülés, majd a megtorpanás és lehullás figyelhető meg
+
+- A pár: - vággyal, energiával, érzelemmel, indulattal teli
+- vijjogva: félve valamitől
+- sírva: egymástól megbántottan, sértetten
+- kergetőzve: egymást űzve
+- lankadt szárnyú: régóta tart a harc
+- számukra a szerelem ütközet, harc
+- szerelmük a végéhez közeleg, külső és belső hatások miatt egyaránt
+- helyüket mások veszik át
+- fölborzolt tollal: utalás a támadásra vagy a madarak párzására
+4. versszak: az utolsó nász – az egymás húsába tépés
+
+- a testi szerelem és halál együtt jelenik meg (lehullunk)
+Az egész vers egy aktus: egyre gyorsuló extatikus, majd elernyedő mozgás.
+Lédával a bálban (1907)
+Cím: hely- és témamegjelölő
+Műfaja: dal
+Téma: a boldogtalanság, a szerelem és az ifjúság elmúlása
+Szerkezet: a három versszak egyetlen kép három jelenete
+1. vsz.: a verskezdet Adyék betoppanása.
+- tulajdonképpen „in medias res” kezdés, a második részt olvassuk. Az első fantáziánkban
+már lezajlott.
+- kezdetben szokványos báli kép: víg hangulat, a tavasz – nyár színei, a szerelemnek örülni
+tudó mátkapárok
+- 4. sor: hangulatváltás – „rettenve”
+fekete: a halál színe – elütő, kirívó a színes forgatagból
+
+2. vsz.:
+„Kik ezek?” - halk, rémült, ideges kérdés
+- a fekete pár a testet öltött rettenet a fiatal párok számára
+- párok ↔ mi ellentéte, külsejükben, hangulatukban, tetteikben
+- szavak: bús, csönd, halál-arc, sötét fátyol, hervadt, koszorú → mind temetést, halált idéző
+Oka: Ady vérbaja, kettejük halálra ítélt kapcsolata
+3. vsz.:
+- elhal, tél, elalusznak – a halálra utal ↔ láng – szerelemre, életre utal
+- a fekete pár tánca haláltánc
+- a mátkapárok: sírva, dideregve rebbennek szét, mert Adyék számukra minden szerelem
+végét, a halált jelentik, amire egy szerelmes sem gondol
+Elmúlásra utaló szavak túlsúlya: koszorú, fekete, halál – arc, fátyol, hervadt, téli szél
+A vers szervező elve az ellentét:
+fekete pár ↔ ifjak, leányok
+sikolt a zene ↔ bús csönd
+halál – arc, sötét fátyol ↔ rózsakoszorús fiatalok
+két bálozó halott ↔ víg a terem
+
+Kapcsolatuk fokozatosan megromlott, egyre több volt közöttük a veszekedés, féltékenység, a
+szerelmük beteljesülésének lehetetlensége miatt többször megkísérelték a szakítást. 1912-ben
+szakítottak végleg. Léda kezdetben ezt is csak egy veszekedésnek gondolta, majd a Nyugatból értesült
+
+róla, hogy a szakítás végleges – ezt ő méltósággal viselte. Egy év múlva kért még egy találkozót
+Adytól, de a költő erre nem ment el.
+
+Elbocsátó, szép üzenet (1912)
+Címe: ellentétes a tartalommal
+Téma: a szakítás, a Léda - szerelem lezárása
+Hangnem: nyegle, dölyfös, pocskondiázó hang, nyilvánvalóan bántó szándék
+Szerkezet:
+1. vsz.:
+- az első sor utal rá, hogy ez már egy szakítássorozat lezárása
+- feltűnik az előző versekben is megjelenő harc: kezdetben egyenlőtlen küzdelem - Léda volt az
+erősebb, később egyenrangú felek voltak (Héja-nász az avaron), most viszont Ady az erősebb
+- a költő bosszút áll az egykori megaláztatásokért
+- a harc lezárása, az ellenfél teljes megsemmisítése a célja
+- az „sz” hangok azt sugallják: közelről sziszegi Léda szemébe a gúnyos szavakat
+- felsőbbrendűség tudata: krőzusság, szabadságvágy, függetlenség, önimádat szavak jellemzik a költőt
+- túlzás, jelző, halmozás, ismétlés, anafora (sor eleji szóismétlés) → költői eszközök a nő
+megalázására: kicsiny, rab, rég hervadt virág, önállótlanság, nemlétezés, leigázottság
+2. vsz.:
+- szerelmüket visszamenőleg megfosztja minden értékétől
+- a szakítást véglegességet jelzi a régen többszöri ismétlése
+- a Léda-versek már csak ámítások voltak
+- unott régi csók: Léda
+-„Ám köszönök…” – mintha valóban köszönni akarna, de az utolsó sor visszadöccen a gúnyba
+3. vsz.:
+- csak azért tartott a szerelem, hogy Léda legyen valaki általa
+- saját túlcsorduló értékeit aggatta rá Ady Lédára
+4.-5. vsz.:
+- Léda („kis kérdőjel”) Ady által lett valakivé
+- Léda teljesen megsemmisítése
+- szép hullást akar, mert Lédán már rajta van az ő zsenijének nyoma, de ettől is megfosztja: zörög –
+szerelmük megtagadása
+- a kegyetlen ítéletet, önimádást az váltotta ki, hogy a szerelem nem hozta meg a teljességet
+Összegzés:
+- Ady igazságtalan
+- de kellett a kegyetlenségnek ez a foka ahhoz, hogy végleg lezárhassa a terhessé vált kapcsolatot
+
+- kapcsolatukban fontos szerepet kapott a testiség
+
+Csinszka - szerelem
+Ady 1911 óta levelezett Boncza Bertával (Csinszka). 1915-ben házasodtak össze. Ady
+számára a szerelem menedék volt a bajokkal (háború, betegség) és az állandó támadásokkal
+szemben.
+A versek jellemzői a köznapi hangvétel, az egyszerűség, a szépség és az idill megőrzése. Nem
+igazán szerelmes versek, Csinszka a háttérben marad.
+
+[KEP:img/ady.png]
+Nézz, Drágám, kincseimre (1918)
+Téma: létösszegzés és menedékkeresés
+Szerkezet: keretes
+Hangulat: rezignált (belenyugvó)
+
+`
+        },
+        
+
+
+        
+    ];
+
+  // Select feltöltése
+    const sel = document.getElementById('selector');
+    data.forEach(t => {
+        let o = document.createElement('option');
+        o.value = t.id;
+        o.textContent = t.id + ". " + t.cim;
+        sel.appendChild(o);
+    });
+
+    function load() {
+        const item = data.find(t => t.id == sel.value);
+        const area = document.getElementById('content-area');
+        const bodyDiv = document.getElementById('body');
+
+        area.style.display = 'block';
+        document.getElementById('title').textContent = item.cim;
+
+        // REGEX: Megkeresi az összes [KEP:valami] formátumot és kicseréli <img> tagre
+        let processedText = item.szoveg.replace(/\[KEP:(.*?)\]/g, (match, url) => {
+            return `<img src="${url.trim()}" class="embedded-img">`;
+        });
+
+        bodyDiv.innerHTML = processedText;
+        window.scrollTo({top: 0, behavior: 'smooth'});
+    }
+</script>
+    <!-- Auth rendszer -->
+    <script type="module" src="auth.js"></script>
+    <script type="module" src="tori.js"></script>
+</body>
+</html>
