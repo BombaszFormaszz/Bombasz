@@ -21,6 +21,7 @@ const categories = [
     {
         name: "JÁTÉKOK",
         items: [
+            { name: "BOMBASZ: RACING", icon: "fa-gamepad", url: "racing.html" },
             { name: "Mikulás", icon: "fa-gamepad", url: "mikulas.html" },
             { name: "FPS Shooter", icon: "fa-gamepad", url: "fps.html" },
             { name: "UFO Játék", icon: "fa-gamepad", url: "jatek.html" },
