@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html lang="hu">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>random</title>
+<style>
+    /* AMOLED (Pure Black) téma beállításai */
+    :root { 
+        --p: #000000;          /* Fejléc is fekete */
+        --a: #00eeff;          /* Marad a cián kiemelés, jól mutat a feketén */
+        --bg: #000000;         /* Tiszta fekete háttér */
+        --card-bg: #000000;    /* Kártyák is feketék legyenek */
+        --text: #ffffff;       /* Hófehér szöveg a maximális kontrasztért */
+        --select-border: #333; /* Finom szürke keret az elemeknek */
+    }
+
+    body { 
+        font-family: 'Segoe UI', sans-serif; 
+        line-height: 1.6; 
+        margin: 0; 
+        background: var(--bg); 
+        color: var(--text); 
+    }
+
+    header { 
+        background: var(--bg); 
+        color: white; 
+        text-align: center; 
+        padding: 1rem; 
+        position: sticky; 
+        top: 0; 
+        z-index: 1000; 
+        /* Egy vékony alsó vonal választja el a fejlécet, mivel minden fekete */
+        border-bottom: 1px solid #222; 
+    }
+
+    .container { max-width: 800px; margin: 20px auto; padding: 0 15px; }
+    
+    select { 
+        width: 100%; 
+        padding: 15px; 
+        border-radius: 8px; 
+        border: 2px solid var(--select-border); 
+        font-size: 1rem; 
+        margin-bottom: 20px; 
+        outline: none; 
+        background: #000000; /* Legördülő háttér is fekete */
+        color: white; 
+    }
+    
+    #content-area { 
+        background: var(--card-bg); 
+        padding: 25px; 
+        border-radius: 12px; 
+        /* Erősebb keret a kártyának, hogy elváljon a háttértől */
+        border: 1px solid #222;
+        display: none; 
+    }
+    
+    h2 { color: #fff; border-bottom: 3px solid var(--a); padding-bottom: 8px; margin-top: 0; }
+    
+    .formatted-text { white-space: pre-wrap; font-size: 1.1rem; word-wrap: break-word; }
+
+    /* Képek AMOLED módhoz */
+    .embedded-img {
+        display: block;
+        max-width: 100%;
+        height: auto;
+        margin: 20px auto;
+        border-radius: 6px;
+        border: 1px solid #333;
+        /* Kicsit sötétítve, hogy ne "égesse" a szemet a fekete háttéren */
+        filter: brightness(0.7); 
+        transition: filter 0.3s;
+    }
+
+    .embedded-img:hover {
+        filter: brightness(1); 
+    }
+
+    /* Görgetősáv (Scrollbar) AMOLED stílusban */
+    ::-webkit-scrollbar { width: 8px; }
+    ::-webkit-scrollbar-track { background: #000; }
+    ::-webkit-scrollbar-thumb { background: #333; border-radius: 10px; }
+    ::-webkit-scrollbar-thumb:hover { background: var(--a); }
+
+    @media (max-width: 600px) { .formatted-text { font-size: 1rem; } }
+</style>
+</head>
+<body>
+<script src="transition-entry.js"></script>
+
+
+
+<div class="container">
+    <div class="sticky-nav">
+        <select id="selector" onchange="load()">
+            <option value="" disabled selected>...</option>
+        </select>
+    </div>
+
+    <article id="content-area">
+        <h2 id="title"></h2>
+        <div id="body" class="formatted-text"></div>
+    </article>
+</div>
+
+<script>
+    // IDE MÁSOLD BE A TÉTELEIDET
+    // Használd a ` jelet (AltGr+7) a szöveg elején és végén!
+    const data = [
+        {
+            id: "1",
+            cim: "jegyzet",
+            szoveg: `1. A kliens-szerver kommunikáció alapjai (Request és Response) A modern web alapja a kérés-válasz alapú kommunikáció. A Request (kérés) az a folyamat, amikor a felhasználó böngészője (a kliens) egy meghatározott csatornán keresztül adatokat vagy műveletet igényel a kiszolgálótól. Ez tartalmazza a célállomást és a kért művelet típusát. A Response (válasz) a szerver reakciója erre a kérésre; a kiszolgáló feldolgozza az igényt, majd visszaküldi a kért adatokat vagy egy hibaüzenetet, lezárva ezzel az adott kommunikációs kört.
+
+2. Kommunikációs protokollok és nyelvek (HTTP és HTML) A HTTP (HyperText Transfer Protocol) az a szabályrendszer, amely meghatározza, hogyan utazzanak az üzenetek a hálózaton; ez a "nyelv", amin a kliens és a szerver szót ért egymással. Ezzel szemben a HTML (HyperText Markup Language) nem protokoll, hanem egy leíró nyelv. Ennek segítségével határozzuk meg a weboldalak szerkezetét, tehát ez mondja meg a böngészőnek, hogy mi számít címsornak, bekezdésnek vagy képnek.
+
+3. Az AJAX és az adatcsere fejlődése Az AJAX (Asynchronous JavaScript And XML) egy olyan technológiai megoldás, amely lehetővé teszi, hogy a weboldal egy része frissüljön anélkül, hogy az egész oldalt újra kellene tölteni. Bár a nevében szerepel az XML, a modern fejlesztésben már szinte kizárólag JSON formátumot használunk az adatok továbbítására, mert az könnyebben kezelhető a JavaScript számára. Elméleti szinten azért hívjuk mégis így, mert ez a technológia honosította meg a háttérben történő, aszinkron adatkezelést.
+
+4. A CRUD műveletek és technikai megvalósításuk A CRUD egy gyűjtőfogalom, amely az informatikai rendszerek négy alapvető adatkezelési funkcióját takarja: Create (létrehozás), Read (olvasás), Update (módosítás) és Delete (törlés). Az AJAX környezetben ezekhez konkrét HTTP metódusok tartoznak: a POST küldi be az új adatot, a GET kéri le a meglévőt, a PUT felelős a frissítésért, a DELETE pedig az eltávolításért. Ez a rendszer biztosítja, hogy az adatbázis műveletei szabványosított formában történjenek meg.
+
+5. Az MVC architektúra felépítése Az MVC (Model-View-Controller) egy tervezési minta, amely szétválasztja az alkalmazás különböző rétegeit. A Model az adatokért és az üzleti logikáért felel; fontos megjegyezni, hogy bár ő kezeli az adatbázist, a Model maga a programkód része, nem pedig az adatbázis-kezelő szoftver. A View a megjelenítésért felelős réteg, amit a felhasználó lát. A Controller pedig a híd a kettő között: fogadja a felhasználói beavatkozást, utasítja a Modellt az adatok módosítására, majd frissíti a View-t.
+
+6. Megjelenítés: UI, Template és Action A felhasználói élményt az Action indítja el, ami minden olyan esemény (kattintás, gépelés), amit a felhasználó végez. Erre válaszul a User Interface (UI) megjeleníti a szükséges információkat. A fejlesztés során Template-eket (sablonokat) használunk, amelyek előre megírt HTML és CSS vázak. Ezek a sablonok üresek mindaddig, amíg a JavaScript (a Controller utasítására) bele nem tölti a Modelből érkező aktuális adatokat, így hozva létre a dinamikus látványt.
+
+`
+        },
+        
+
+
+
+
+
+        
+    ];
+
+  // Select feltöltése
+    const sel = document.getElementById('selector');
+    data.forEach(t => {
+        let o = document.createElement('option');
+        o.value = t.id;
+        o.textContent = t.id + ". " + t.cim;
+        sel.appendChild(o);
+    });
+
+    function load() {
+        const item = data.find(t => t.id == sel.value);
+        const area = document.getElementById('content-area');
+        const bodyDiv = document.getElementById('body');
+
+        area.style.display = 'block';
+        document.getElementById('title').textContent = item.cim;
+
+        // REGEX: Megkeresi az összes [KEP:valami] formátumot és kicseréli <img> tagre
+        let processedText = item.szoveg.replace(/\[KEP:(.*?)\]/g, (match, url) => {
+            return `<img src="${url.trim()}" class="embedded-img">`;
+        });
+
+        bodyDiv.innerHTML = processedText;
+        window.scrollTo({top: 0, behavior: 'smooth'});
+    }
+</script>
+    <!-- Auth rendszer -->
+    <script type="module" src="auth.js"></script>
+    <script type="module" src="tori.js"></script>
+</body>
+</html>
