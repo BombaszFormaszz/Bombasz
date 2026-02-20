@@ -25,6 +25,9 @@
         
         const initial = userName.charAt(0).toUpperCase();
 
+        // TODO: A Google Fonts @import a JavaScript által beszúrt <style>-ban van - ez lassítja a betöltést.
+        // Jobb lenne a <head>-ben <link> taggel betölteni (egyszer, nem minden showUserUI hívásnál).
+        // TODO: Minden showUserUI() hívásnál új <style> elem kerül a DOM-ba - cache-eld vagy ellenőrizd, hogy már létezik-e.
         const style = document.createElement('style');
         style.textContent = `
             @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@700;900&family=Poppins:wght@400;600&display=swap');
@@ -78,6 +81,7 @@
         document.body.classList.add('has-user-bar');
     };
 
+    // TODO: A showGuestUI inline stílusokat használ (bar.style.cssText) - használd a már meglévő #bombasz-user-bar CSS osztályt
     window.showGuestUI = function() {
         if (document.getElementById('bombasz-user-bar')) return;
         const bar = document.createElement('div');

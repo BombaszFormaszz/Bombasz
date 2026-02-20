@@ -19,6 +19,9 @@ import {
     serverTimestamp
 } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
 
+// TODO: BIZTONSÁGI PROBLÉMA - Admin emailek hardkódolva a kliensoldali kódban!
+// Bárki megnézheti a forráskódot és láthatja az admin email címeket.
+// Helyette Firebase Custom Claims-t kellene használni (szerveren beállítva).
 const ADMIN_EMAILS = [
     "bartaadikonyv@gmail.com",
     "balazs.hajdu00@gmail.com",
@@ -33,6 +36,7 @@ const firebaseConfig = {
     projectId: "konyv-93c63",
     storageBucket: "konyv-93c63.firebasestorage.app",
     messagingSenderId: "308577632498",
+    // TODO: Az appId placeholder érték ("yourappid") - cseréld ki a valódi Firebase appId-ra!
     appId: "1:308577632498:web:yourappid"
 };
 
@@ -40,6 +44,7 @@ const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
 const db = getDatabase(app);
 
+// TODO: A setPersistence visszatérési értéke (Promise) nincs kezelve - await-tel vagy .catch()-csel kellene
 setPersistence(auth, browserLocalPersistence);
 
 // Globális kijelentkezés

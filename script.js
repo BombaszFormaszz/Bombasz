@@ -193,8 +193,8 @@ function gotoSection(index, direction) {
     tl.to(nextSection, { yPercent: 0, duration: 1.0, ease: "power3.inOut" }, 0);
 }
 
-// --- JAVÍTOTT OBSERVER: KÉNYELMES SEBESSÉG ---
-// --- JAVÍTOTT OBSERVER: KÜLÖN MOBIL ÉRZÉKENYSÉG ---
+// TODO: Duplikált kommentek - tisztítsd meg a kommenteket
+// --- OBSERVER: SCROLL KEZELÉS ---
 Observer.create({
     target: window,
     type: "wheel,touch,pointer",
@@ -299,6 +299,8 @@ if (themeToggle) {
     });
 }
 
+// TODO: Miért törlöd a témát minden betöltéskor? Így a felhasználó választása nem marad meg.
+// Ha szándékos, adj hozzá kommentet hogy miért, ha nem, töröld a removeItem sort.
 window.addEventListener('load', () => {
     localStorage.removeItem('theme'); 
     applyTheme(false); 

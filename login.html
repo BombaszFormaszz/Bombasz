@@ -434,7 +434,8 @@
         })();
     </script>
 
-    <!-- Firebase -->
+    <!-- TODO: A Firebase config DUPLIKÁLVA van (auth.js-ben és itt is) - központosítsd egy helyre! -->
+    <!-- TODO: Az egész login oldal CSS-e inline <style> tagben van - mozgasd külső CSS fájlba -->
     <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
     import {
@@ -454,6 +455,7 @@
         projectId: "konyv-93c63",
         storageBucket: "konyv-93c63.firebasestorage.app",
         messagingSenderId: "308577632498",
+        // TODO: Itt is placeholder appId van - és két különböző helyen is definiálva van a config
         appId: "1:308577632498:web:yourappid"
     };
 

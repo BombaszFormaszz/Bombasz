@@ -8,6 +8,9 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
     <link rel="icon" type="image/x-icon" href="/favicon.ico?v=1.1">
+    <!-- TODO: HATALMAS INLINE CSS (~2000+ sor) - ezt külső CSS fájlba kellene mozgatni (vids.css) -->
+    <!-- TODO: Rengeteg DUPLIKÁLT és egymásnak ellentmondó CSS szabály van - a CSS-t tisztítani kell -->
+    <!-- TODO: Túl sok !important használat - ez könnyű fenntarthatatlan kódhoz vezet -->
     <style>
         *,
         *::before,
@@ -84,12 +87,7 @@
             will-change: opacity;
         }
 
-        .series-page-bg.visible {
-            opacity: 0.6 !important;
-            /* Emeltem az átlátszóságon, hogy látszódjon */
-        }
-
-        /* EZRE CSERÉLD LE: */
+        /* TODO: DUPLIKÁLT CSS SZABÁLY - a .series-page-bg.visible kétszer van definiálva, a második felülírja az elsőt. Töröld az egyiket! */
         .series-page-bg.visible {
             opacity: 0.5;
         }
@@ -2194,6 +2192,8 @@ body::after {
 </script>
     <div id="dynamicBackground" class="series-page-bg"></div>
 
+    <!-- TODO: A <center> tag deprexált HTML5-ben - használj CSS-t a középre igazításhoz -->
+    <!-- TODO: Ez a login form duplikálja a login.html-t - közös komponens kellene -->
     <div id="login-container">
         <center>
             <h2>Belépés</h2>
@@ -2211,7 +2211,10 @@ body::after {
     </div>
 
     <div id="app">
+        <!-- TODO: Az id="anyad" nem professzionális név - cseréld valami értelmes azonosítóra (pl. "main-header") -->
         <header id="anyad">
+            <!-- TODO: A h2 elemet gombként használni szemantikailag helytelen - használj <button>-t vagy <a>-t -->
+            <!-- TODO: Inline style-ok (style="...") - mozgasd CSS fájlba -->
             <h2 id="home-btn">Bombasz Vids</h2>
             <div id="profile-area" style="display:flex; align-items:center; gap:12px; position:relative;">
                 <div id="search-container">
@@ -2231,6 +2234,7 @@ body::after {
 
                 <div id="profile-dropdown">
                     <h4>film/sorozat kérés: <br> dc: bartaadi</h4>
+                    <!-- TODO: Rossz HTML struktúra - van egy </p> záró tag nyitó <p> nélkül -->
                     <hr> <br><strong>Üdv,</strong> <span id="profile-name"></span></p>
                     <p style="font-weight: 600; margin-top: 15px; border-top: 1px solid #444; padding-top: 10px;">
                         Legutóbb nézettek:</p>
@@ -2600,10 +2604,13 @@ body::after {
 
 <script type="module">
         // 1. JAVÍTÁS: LÉTEZŐ FIREBASE VERZIÓ HASZNÁLATA (10.12.0)
+        // TODO: Különböző Firebase verziók vannak használatban: 10.7.1 (auth.js) vs 10.12.0 (vids.html) - egységesítsd!
         import { initializeApp, getApps, getApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
         import { getAuth, signInWithEmailAndPassword, onAuthStateChanged, signOut, setPersistence, browserLocalPersistence } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
         import { getDatabase, ref, set, get, child, onValue, onDisconnect } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-database.js";
 
+        // TODO: Firebase config HARMADSZOR is duplikálva (auth.js, login.html, vids.html) - központosítsd!
+        // TODO: Itt más messagingSenderId és appId van mint auth.js-ben - melyik a helyes?
         const firebaseConfig = {
             apiKey: "AIzaSyAwRrAtHaNRh2DLwVkryA3wSf86h7aQCaI",
             authDomain: "konyv-93c63.firebaseapp.com",
