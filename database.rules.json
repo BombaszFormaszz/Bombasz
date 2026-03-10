@@ -1,0 +1,48 @@
+{
+  "rules": {
+    "users": {
+      "$uid": {
+        ".read": "auth != null",
+        ".write": "auth != null && auth.uid == $uid"
+      }
+    },
+    "status": {
+      "$uid": {
+        ".read": true,
+        ".write": "auth != null && auth.uid == $uid"
+      }
+    },
+    "countdowns": {
+      ".read": "auth != null",
+      ".write": "auth != null"
+    },
+    "playlist": {
+      ".read": "auth != null",
+      ".write": "auth != null"
+    },
+    "pastes": {
+      ".read": true,
+      ".write": "auth != null"
+    },
+    "shared_files": {
+      ".read": "auth != null",
+      ".write": "auth != null"
+    },
+    "playlists": {
+      ".read": "auth != null",
+      ".write": "auth != null"
+    },
+    "pastes": {
+      ".read": true,
+      ".write": "auth != null"
+    },
+    "chat": {
+      ".read": "auth != null",
+      ".write": "auth != null"
+    },
+    "$other": {
+      ".read": "auth != null",
+      ".write": "auth != null"
+    }
+  }
+}

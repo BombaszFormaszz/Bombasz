@@ -11,6 +11,7 @@ const categories = [
             { name: "Bombasz Chat", icon: "fa-comments", url: "social.html" },
             { name: "Könyvek", icon: "fa-book-open", url: "konyv.html" },
             { name: "Vids", icon: "fa-play", url: "vids.html" },
+            { name: "Eszközök", icon: "fa-toolbox", url: "tools.html" },
             { name: "UNCS (régi)", icon: "fa-check-double", url: "uncs.html" },
             { name: "UNCS (nagyon régi)", icon: "fa-check-double", url: "old.html" },
             { name: "Történelem", icon: "fa-landmark", url: "tori.html" },
