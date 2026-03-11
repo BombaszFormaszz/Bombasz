@@ -17,6 +17,7 @@ const categories = [
             { name: "Történelem", icon: "fa-landmark", url: "tori.html" },
             { name: "Magyar", icon: "fa-landmark", url: "magyar.html" },
             { name: "CBZ", icon: "fa-book-open", url: "cbz.html" },
+            { name: "Film Tracker", icon: "fa-book-open", url: "tracker.html" },
         ]
     },
     {
