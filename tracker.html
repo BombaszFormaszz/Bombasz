@@ -1544,6 +1544,56 @@ html,body{overflow-x:hidden;max-width:100vw}
   </div>
 </div>
 
+<!-- VIPSTREAM PLAYER MODAL -->
+<div class="trailer-modal hidden" id="vs-modal" style="z-index:1600">
+  <div class="trailer-modal-inner" style="max-width:520px">
+    <button class="trailer-modal-close" onclick="closeVSPlayer()" style="position:absolute;top:-40px;right:0"><i class="fa-solid fa-xmark"></i> BEZÁRÁS</button>
+    <div id="vs-card" style="background:var(--card);border:1px solid var(--border2);overflow:hidden">
+      <!-- poster + info row -->
+      <div style="display:flex;gap:0">
+        <div id="vs-poster" style="width:120px;flex-shrink:0;background:var(--card2);position:relative;overflow:hidden">
+          <img id="vs-poster-img" src="" alt="" style="width:100%;height:100%;object-fit:cover;display:block">
+          <div id="vs-poster-ph" style="display:none;width:120px;height:180px;align-items:center;justify-content:center;color:rgba(255,255,255,.08);font-size:36px"><i class="fa-solid fa-film"></i></div>
+        </div>
+        <div style="flex:1;padding:22px 20px;display:flex;flex-direction:column;justify-content:space-between;min-height:180px">
+          <div>
+            <div style="font-size:8px;font-family:var(--font-m);letter-spacing:3px;color:var(--gold);margin-bottom:8px">LEJÁTSZÁS</div>
+            <div id="vs-modal-title" style="font-family:var(--font-d);font-size:22px;letter-spacing:2px;color:var(--text);line-height:1.1;margin-bottom:4px"></div>
+            <div id="vs-modal-orig" style="font-size:10px;color:var(--text2);font-family:var(--font-m);margin-bottom:12px"></div>
+            <div id="vs-modal-meta" style="font-size:10px;color:var(--muted);font-family:var(--font-m)"></div>
+          </div>
+          <div style="font-size:9px;color:var(--muted);font-family:var(--font-m);letter-spacing:1px;margin-top:10px">
+            <i class="fa-solid fa-circle-info" style="margin-right:4px"></i>A keresési oldal új lapon nyílik meg
+          </div>
+        </div>
+      </div>
+      <!-- big play button -->
+      <div style="padding:20px;border-top:1px solid var(--border);display:flex;flex-direction:column;gap:10px">
+        <a id="vs-play-link" href="#" target="_blank" rel="noopener"
+           style="display:flex;align-items:center;justify-content:center;gap:12px;padding:16px 24px;
+                  background:linear-gradient(135deg,var(--gold),var(--gold2));color:#000;
+                  font-family:var(--font-d);font-size:20px;letter-spacing:4px;text-decoration:none;
+                  transition:all .2s;box-shadow:0 8px 32px rgba(232,184,75,.25)"
+           onmouseover="this.style.transform='translateY(-2px)';this.style.boxShadow='0 14px 40px rgba(232,184,75,.4)'"
+           onmouseout="this.style.transform='';this.style.boxShadow='0 8px 32px rgba(232,184,75,.25)'">
+          <i class="fa-solid fa-play"></i> LEJÁTSZÁS A VIPSTREAM-EN
+        </a>
+        <div style="display:flex;gap:8px">
+          <a id="vs-search-link" href="#" target="_blank" rel="noopener"
+             style="flex:1;display:flex;align-items:center;justify-content:center;gap:7px;padding:10px;
+                    background:transparent;border:1px solid var(--border2);color:var(--text2);
+                    font-family:var(--font-m);font-size:9px;letter-spacing:1.5px;text-decoration:none;
+                    transition:all .2s"
+             onmouseover="this.style.borderColor='rgba(232,184,75,.4)';this.style.color='var(--gold)'"
+             onmouseout="this.style.borderColor='';this.style.color='var(--text2)'">
+            <i class="fa-solid fa-magnifying-glass"></i> KERESÉS
+          </a>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
 <!-- CHAT NOTIFICATION POPUP -->
 <div class="chat-notif" id="chat-notif">
   <div class="chat-notif-inner" id="chat-notif-inner">
@@ -1645,6 +1695,7 @@ function normDetail(m, isTV=false, extra={}){
   const rt = isTV ? (m.episode_run_time||[])[0] : m.runtime;
   base.Runtime = rt ? `${rt} min` : 'N/A';
   base.Rated = m.adult?'R':'N/A';
+  base.OriginalTitle = m.original_title || m.original_name || base.Title;
   if(extra.credits){
     const crew = extra.credits.crew||[];
     const cast = extra.credits.cast||[];
@@ -2185,6 +2236,59 @@ window.closeTrailer = function(){
 document.getElementById('trailer-modal').addEventListener('click',function(e){
   if(e.target===this)window.closeTrailer();
 });
+
+// ── VIPSTREAM PLAYER ──────────────────────────────────────────
+window.openVSPlayer = function(title, originalTitle, tmdbID, isTV, posterUrl, year){
+  const modal = document.getElementById('vs-modal');
+  modal.classList.remove('hidden');
+  document.body.style.overflow = 'hidden';
+
+  // Titles
+  const searchTitle = originalTitle || title || '';
+  const slug = searchTitle.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '');
+
+  // URLs
+  const searchUrl = `https://vipstream.tv/search/${slug}`;
+  const directUrl = isTV
+    ? `https://vipstream.tv/watch-tv/watch-${slug}-full-${tmdbID}`
+    : `https://vipstream.tv/watch-movie/watch-${slug}-full-${tmdbID}`;
+
+  // Fill modal
+  document.getElementById('vs-modal-title').textContent = title || searchTitle;
+  const origEl = document.getElementById('vs-modal-orig');
+  origEl.textContent = (originalTitle && originalTitle !== title) ? originalTitle : '';
+  origEl.style.display = (originalTitle && originalTitle !== title) ? 'block' : 'none';
+  document.getElementById('vs-modal-meta').textContent = year ? year + (isTV ? ' · SOROZAT' : ' · FILM') : (isTV ? 'SOROZAT' : 'FILM');
+
+  // Poster
+  const img = document.getElementById('vs-poster-img');
+  const ph = document.getElementById('vs-poster-ph');
+  if(posterUrl && posterUrl !== 'N/A'){
+    img.src = posterUrl;
+    img.style.display = 'block';
+    ph.style.display = 'none';
+  } else {
+    img.style.display = 'none';
+    ph.style.display = 'flex';
+  }
+
+  // Links — primary goes to search, since direct URL needs extra ID
+  document.getElementById('vs-play-link').href = searchUrl;
+  document.getElementById('vs-search-link').href = searchUrl;
+  document.getElementById('vs-search-link').textContent = '';
+  document.getElementById('vs-search-link').innerHTML = '<i class="fa-solid fa-magnifying-glass"></i> ' + searchTitle;
+};
+
+window.closeVSPlayer = function(){
+  const modal = document.getElementById('vs-modal');
+  modal.classList.add('hidden');
+  document.body.style.overflow = '';
+};
+
+document.getElementById('vs-modal').addEventListener('click', function(e){
+  if(e.target === this) window.closeVSPlayer();
+});
+
 
 async function loadTrailers(tmdbID, isTV){
   const trailerSection=document.getElementById('det-trailer-section');
@@ -3281,7 +3385,16 @@ window.openDetail = async function(id){
   document.getElementById('det-rboxes').innerHTML=rboxes;
 
   const inWL=!!wlData[id];
+  const _vsOrigTitle = m.OriginalTitle || m.Title || '';
+  const _vsTitle = m.Title || '';
+  const _vsTmdbID = m.tmdbID;
+  const _vsIsTV = m.Type==='series';
+  const _vsPoster = m.Poster && m.Poster!=='N/A' ? m.Poster : '';
+  const _vsYear = m.Year || '';
   document.getElementById('det-actions').innerHTML=`
+    <button class="btn" onclick="openVSPlayer('${esc(_vsTitle)}','${esc(_vsOrigTitle)}','${esc(String(_vsTmdbID))}',${_vsIsTV},'${esc(_vsPoster)}','${esc(_vsYear)}')" style="background:linear-gradient(135deg,#e8c030,#f5d070);color:#000;font-weight:700;font-size:9px;border:none">
+      <i class="fa-solid fa-play"></i> LEJÁTSZÁS
+    </button>
     <button class="btn btn-outline" id="det-wl-btn" onclick="toggleWL('${esc(id)}')" style="font-size:9px">
       <i class="fa-solid fa-${inWL?'check':'plus'}"></i> ${inWL?'LISTÁMON':'LISTÁHOZ'}
     </button>`;
