@@ -2775,8 +2775,8 @@ async function loadHome() {
     .slice(0,20);
 
 _addHomeSection('FELKAPOTT SOROZATOK', trendingSeries);
-_addHomeSection('LEGJOBBAN ÉRTÉKELT', topRated);
-_addHomeSection('ÚJ MEGJELENÉSEK', freshReleases);
+
+
   // BM valós értékelések párhuzamosan töltjük, nem blokkoljuk a lapbetöltést
   loadBMTopRated().then(bmTop => {
     if (bmTop.length) {
@@ -2839,8 +2839,7 @@ _addHomeSection('ÚJ MEGJELENÉSEK', freshReleases);
     }
   });
 
-  _addHomeSection('ÚJ MEGJELENÉSEK', freshReleases, {seeAll:"goPage('search')"});
-  _addHomeSection('FELFEDEZÉS', mixed);
+
 
   // Legutóbbi értékelések szekció (async, a lap végére kerül)
   setTimeout(() => loadRecentReviewsStrip(), 800);
