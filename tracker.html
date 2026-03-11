@@ -2978,7 +2978,8 @@ window.openEpisodeDetail = async function(id, season, epIndex, episodes, tvTmdbI
   }
 
   // Episode reviews
-  const epReviewId = ep.imdbID||`${id}_s${season}e${ep.Episode}`;
+  // Always use series ID + season/ep — never tmdb_ep_ prefix (causes routing issues)
+const epReviewId = `${id}_s${season}e${ep.Episode}`;
   const epdMain2 = document.querySelector('#page-epdetail .epd-main');
   const oldRevSection = document.getElementById('epd-review-section');
   if(oldRevSection) oldRevSection.remove();
@@ -2995,6 +2996,20 @@ window.openEpisodeDetail = async function(id, season, epIndex, episodes, tvTmdbI
 };
 
 window._openEpisodeDetail = (imdbID,season,idx) => openEpisodeDetail(imdbID,season,idx,currentEpContext.episodes);
+
+// Strip review kártyából: betölti az évadot és megnyitja a pontos epizódot
+window.openEpisodeFromStrip = async function(seriesId, season, epNum) {
+  // Teljesen rendereljük a sorozat detail oldalt (hogy a Vissza gomb működjön)
+  await window.openDetail(seriesId);
+  // Ezután megnyitjuk a konkrét epizódot
+  const tmdbID = String(seriesId).replace('tmdb_tv_','').replace('tmdb_mv_','').replace('tmdb_','');
+  const d = await tmdbEpisodes(tmdbID, season);
+  if(d.Response !== 'True' || !d.Episodes) { toast('EPIZÓD NEM TÖLTHETŐ BE'); return; }
+  const episodes = d.Episodes;
+  const idx = episodes.findIndex(ep => String(ep.Episode) === String(epNum));
+  if(idx === -1) { toast('EPIZÓD NEM TALÁLHATÓ'); return; }
+  openEpisodeDetail(seriesId, season, idx, episodes, tmdbID);
+};
 
 window.setEpdRating = async function(val, imdbID, epKey){
   if(!currentUser){toast('BEJELENTKEZÉS SZÜKSÉGES');return;}
@@ -3174,11 +3189,45 @@ document.getElementById('search-main-inp').addEventListener('input',e=>{
 
 // ── DETAIL ────────────────────────────────────────────────────
 window.openDetail = async function(id){
-  // Route game detail to game page
-  if(String(id).startsWith('steam_')){
+  // Epizód kombinált key → sorozat oldal
+  const epMatch = String(id).match(/^(tmdb_tv_\d+|tmdb_mv_\d+)_s\d+e\d+$/);
+  if(epMatch){ return window.openDetail(epMatch[1]); }
+
+  // tmdb_ep_ formátum → próbáljuk meg a szülő sorozatot megtalálni
+  if(String(id).startsWith('tmdb_ep_')){
+    const epTmdbId = String(id).replace('tmdb_ep_','');
+    try {
+      // TMDB /find/ endpoint: próbáljuk tmdb_id forrással
+      const epData = await tmdbGet(`/find/${epTmdbId}`, {external_source:'tmdb_id'});
+      const tvResult = epData?.tv_episode_results?.[0];
+      if(tvResult?.show_id){
+        return window.openDetail('tmdb_tv_'+tvResult.show_id);
+      }
+      // Másodlagos próba: az epizód numerikus ID-ja alapján
+      // az összes trending sorozatban keressük (heurisztika)
+      // Ha nem sikerül, a watchlist/wlData-ból próbáljuk kinyerni
+      for(const [wlId, wlItem] of Object.entries(wlData)){
+        if(String(wlId).startsWith('tmdb_tv_')){
+          // Ha ez a sorozat tartalmazza az epizódot, nyissuk meg
+          const tmdbID = String(wlId).replace('tmdb_tv_','');
+          if(epTmdbId.startsWith(tmdbID)) {
+            return window.openDetail(wlId);
+          }
+        }
+      }
+    } catch {}
+    // Végső fallback: a rev-strip-card által hívott esetben
+    // az r.imdbID lehet 'tmdb_ep_XXXX' → nyissuk meg a home-t
+    toast('SOROZAT NEM AZONOSÍTHATÓ');
+    return;
+  }
+
+  // Game routing
+  if(String(id).startsWith('igdb_') || String(id).startsWith('steam_')){
     openGameDetail(id);
     return;
   }
+
   goPage('detail');setNavA(null);
   currentDetail=null;
   document.getElementById('det-title').textContent='BETÖLTÉS...';
@@ -3211,7 +3260,6 @@ window.openDetail = async function(id){
     ?`<img class="detail-poster" src="${esc(m.Poster.replace('w342','w500'))}" alt="">`
     :`<div class="detail-poster-ph"><i class="fa-solid fa-film"></i></div>`;
 
-  // Genre badges — clickable, search by genre
   const genres=(m.Genre||'').split(',').map(g=>g.trim()).filter(Boolean);
   document.getElementById('det-genres').innerHTML=genres.map(g=>
     `<span class="detail-genre" onclick="quickSearch('${esc(g)}','${m.Type==='series'?'series':'movie'}')">${esc(g)}</span>`
@@ -3238,12 +3286,10 @@ window.openDetail = async function(id){
       <i class="fa-solid fa-${inWL?'check':'plus'}"></i> ${inWL?'LISTÁMON':'LISTÁHOZ'}
     </button>`;
 
-  // Plot — in hero, with expand button
   const plotText=m.Plot&&m.Plot!=='N/A'?m.Plot:'';
   if(plotText&&plotEl&&plotHero){
     plotEl.textContent=plotText;
     plotHero.style.display='block';
-    // Check if needs expand button (after next frame when text rendered)
     requestAnimationFrame(()=>{
       const lineH=parseFloat(getComputedStyle(plotEl).lineHeight)||20;
       const maxH=lineH*3.5;
@@ -3263,7 +3309,6 @@ window.openDetail = async function(id){
   document.getElementById('det-info-box').innerHTML=`<div class="sb-title">RÉSZLETEK</div>`+
     infoRows.map(([k,v])=>`<div class="sb-row"><span class="sb-key">${esc(k)}</span><span class="sb-val">${esc(v)}</span></div>`).join('');
 
-  // Load trailers and cast async
   loadTrailers(m.tmdbID, m.Type==='series');
   loadCast(m.tmdbID, m.Type==='series');
 
@@ -3457,6 +3502,8 @@ window.submitReview = async function(imdbID, containerId, starsId, taId){
         genre:currentDetail.Genre||'',status:wrStatus,rating,date:Date.now()};
       wlData[imdbID]=item;await saveWLItem(item);
     }
+// ÚJ – az epizód saját azonosítója marad, de a rev-strip-card kattintásnál
+// a sorozat oldalát nyitja meg, nem az epizód ID-t
     const wrapId = starsId ? starsId.replace('wr-stars-','') : 'write-review-wrap';
     renderWriteReview(imdbID, wrapId, containerId);
     await loadReviews(imdbID, containerId);
@@ -3464,7 +3511,6 @@ window.submitReview = async function(imdbID, containerId, starsId, taId){
   }catch(e){toast('HIBA: '+e.message);}
 };
 
-// FIX: loadReviews no longer uses orderBy (avoids composite index requirement), sorts client-side instead
 async function loadReviews(imdbID, containerId='reviews-list'){
   const container=document.getElementById(containerId);
   if(!container)return;
@@ -4265,30 +4311,36 @@ async function loadRecentReviewsStrip() {
     const titleCache = {};
     Object.values(wlData).forEach(w => { if(w.imdbID) titleCache[w.imdbID] = w.title; });
 
-    const missingIds = [...new Set(reviews.map(r=>r.imdbID).filter(id=>!titleCache[id]))].slice(0,6);
+    const missingIds = [...new Set(reviews.map(r => r.imdbID).filter(id => !titleCache[id]))].slice(0, 6);
     await Promise.allSettled(missingIds.map(async id => {
       try {
+        // Régi tmdb_ep_ formátum → kihagyjuk
+        if(String(id).startsWith('tmdb_ep_')) return;
+        // Epizód kombinált key → sorozat ID kinyerése
+        const epMatch = String(id).match(/^(tmdb_tv_\d+|tmdb_mv_\d+)_s\d+e\d+$/);
+        const realId = epMatch ? epMatch[1] : id;
         let m;
-        if(String(id).startsWith('steam_')) {
-          m = await steamDetail(id.replace('steam_',''));
+        if(String(realId).startsWith('igdb_')) {
+          m = await igdbDetail(realId.replace('igdb_', ''));
+        } else if(String(realId).startsWith('steam_')) {
+          m = await steamDetail(realId.replace('steam_', ''));
         } else {
-          m = await tmdbDetail(id);
+          m = await tmdbDetail(realId);
         }
-        if(m.Response==='True') titleCache[id] = m.Title;
+        if(m.Response === 'True') titleCache[id] = m.Title;
       } catch{}
     }));
 
     const sectionsWrap = document.getElementById('home-sections');
     if (!sectionsWrap) return;
 
-    // Egyedi ID a görgetőnek
     const rowId = 'rev-scroll-strip';
     const statusHu = { neztem:'MEGNÉZTEM', folyamatban:'FOLYAMATBAN', nezni:'TERVEZETT' };
 
     const strip = document.createElement('div');
     strip.className = 'home-rev-strip';
     strip.innerHTML = `
-      <div class="home-section-hd">
+      <div class="home-section-hd" style="padding:0 48px;margin-bottom:14px">
         <div class="home-section-title">LEGUTÓBBI ÉRTÉKELÉSEK</div>
       </div>
       <div class="home-rev-row-wrap">
@@ -4296,7 +4348,22 @@ async function loadRecentReviewsStrip() {
           <i class="fa-solid fa-chevron-left"></i>
         </button>
         <div class="home-rev-scroll" id="${rowId}">
-          ${reviews.map(r => {
+          ${reviews.filter(r => !String(r.imdbID).startsWith('tmdb_ep_')).map(r => {
+            // Epizód kombinált key: tmdb_tv_123_s1e5
+            const epMatch = String(r.imdbID).match(/^(tmdb_tv_\d+|tmdb_mv_\d+)_s(\d+)e(\d+)$/);
+            const targetId = epMatch ? epMatch[1] : r.imdbID;
+            const isEpisode = !!epMatch;
+            const epSeason = epMatch ? epMatch[2] : null;
+            const epNum = epMatch ? epMatch[3] : null;
+
+            // Epizód badge szöveg
+            const epInfo = epMatch ? `S${epSeason}E${epNum}` : '';
+
+            // Kattintás: epizódnál pontosan az epizód oldalt nyitja meg
+            const onclickAction = isEpisode
+              ? `openEpisodeFromStrip('${esc(targetId)}',${epSeason},${epNum})`
+              : `_openDetail('${esc(targetId)}')`;
+
             const stars = [1,2,3,4,5].map(v =>
               `<i class="fa-solid fa-star${r.rating && v <= r.rating ? ' on' : ''}"></i>`
             ).join('');
@@ -4306,9 +4373,10 @@ async function loadRecentReviewsStrip() {
             const avContent = avUrl
               ? `<img src="${esc(avUrl)}" onerror="this.style.display='none'">`
               : `${(r.authorName || '?')[0].toUpperCase()}`;
-            const movieTitle = titleCache[r.imdbID] || '—';
+            const movieTitle = titleCache[r.imdbID] || titleCache[targetId] || '—';
             const statusText = r.status ? (statusHu[r.status] || r.status) : '';
-            return `<div class="rev-strip-card" onclick="_openDetail('${esc(r.imdbID)}')">
+
+            return `<div class="rev-strip-card" onclick="${onclickAction}">
               <div class="rev-strip-top">
                 <div class="rev-strip-av">${avContent}</div>
                 <div class="rev-strip-author">
@@ -4316,7 +4384,9 @@ async function loadRecentReviewsStrip() {
                   <div class="rev-strip-date">${dt}${statusText ? ' · ' + statusText : ''}</div>
                 </div>
               </div>
-              <div class="rev-strip-movie">${esc(movieTitle)}</div>
+              <div class="rev-strip-movie">
+                ${esc(movieTitle)}${epInfo ? `<span style="color:var(--text2);margin-left:5px;font-size:8px">${epInfo}</span>` : ''}
+              </div>
               ${r.rating ? `<div class="rev-strip-stars">${stars}</div>` : ''}
               ${r.text ? `<div class="rev-strip-text">${esc(r.text)}</div>` : ''}
             </div>`;
