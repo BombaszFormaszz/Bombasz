@@ -2,10 +2,19 @@
 <html lang="hu">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<meta name="theme-color" content="#060609">
 <title>BOMBASZ·MEDIA</title>
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
-<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700;1,9..40,300;1,9..40,400&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<!-- Preconnect a külső erőforrásokhoz -->
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="preconnect" href="https://cdnjs.cloudflare.com">
+<link rel="preconnect" href="https://image.tmdb.org">
+<!-- FontAwesome: non-blocking (nem blokkolja a render-t) -->
+<link rel="preload" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" as="style" onload="this.onload=null;this.rel='stylesheet'">
+<noscript><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"></noscript>
+<!-- Csak a valóban használt font weight-ek (300,400,500,700) -->
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:wght@300;400;500;700&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
 <style>
 /* ═══════════════════════════════════════════════════
    BOMBASZ·MEDIA  —  Cinematic Dark Luxury Design
@@ -47,21 +56,38 @@ a{text-decoration:none;color:inherit}
 button{font-family:var(--font-b);cursor:pointer}
 img{display:block}
 
+/* ── TOUCH & PERF ALAPOK ── */
+*{-webkit-tap-highlight-color:transparent;touch-action:manipulation}
+button,a,[onclick]{touch-action:manipulation}
+img{contain:layout style;loading:lazy}
+
+/* Gyenge eszközön letiltjuk a nehéz effekteket */
+@media(prefers-reduced-motion:reduce){
+  *,*::before,*::after{animation-duration:.01ms!important;transition-duration:.01ms!important}
+}
+/* Alacsony teljesítményű / nem hover eszközök */
+@media(hover:none){
+  .mcard:hover,.hcard:hover,.wl-item:hover,.review-card:hover,.rev-strip-card:hover{transform:none!important}
+  .mcard:hover .mcard-poster img,.hcard:hover .hcard-poster img{transform:none!important}
+  .mcard-hover-overlay,.hcard-overlay{display:none!important}
+}
+
 /* scrollbar */
 ::-webkit-scrollbar{width:3px;height:3px}
 ::-webkit-scrollbar-track{background:transparent}
 ::-webkit-scrollbar-thumb{background:linear-gradient(to bottom,var(--gold),rgba(232,184,75,.2));border-radius:2px}
 ::-webkit-scrollbar-thumb:hover{background:var(--gold)}
 
-/* noise grain */
+/* noise grain – csak asztali */
+@media(min-width:901px){
 body::before{content:'';position:fixed;inset:0;opacity:.035;z-index:9998;pointer-events:none;
   background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 512 512' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.75' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
   background-size:200px}
-
-/* subtle grid */
+/* subtle grid – csak asztali */
 body::after{content:'';position:fixed;inset:0;z-index:0;pointer-events:none;opacity:.015;
   background-image:linear-gradient(rgba(255,255,255,.6) 1px,transparent 1px),linear-gradient(90deg,rgba(255,255,255,.6) 1px,transparent 1px);
   background-size:56px 56px}
+}
 
 /* ─── AUTH ─── */
 #auth-screen{position:fixed;inset:0;z-index:3000;
@@ -96,7 +122,7 @@ body::after{content:'';position:fixed;inset:0;z-index:0;pointer-events:none;opac
 .auth-field input::placeholder{color:var(--muted)}
 .auth-submit{width:100%;padding:13px;background:var(--gold);color:#000;font-size:11px;
   font-weight:700;letter-spacing:2px;border:none;margin-top:8px;
-  transition:all .22s;font-family:var(--font-m);cursor:pointer;text-transform:uppercase}
+  transition:color .18s,border-color .18s;font-family:var(--font-m);cursor:pointer;text-transform:uppercase}
 .auth-submit:hover{background:var(--gold2);transform:translateY(-2px);box-shadow:0 10px 30px rgba(232,192,96,.3)}
 .auth-submit:active{transform:translateY(0)}
 .auth-msg{padding:10px 14px;margin-bottom:14px;font-size:12px;display:none}
@@ -110,7 +136,7 @@ body::after{content:'';position:fixed;inset:0;z-index:0;pointer-events:none;opac
 /* ─── HEADER ─── */
 .header{position:fixed;top:0;left:0;right:0;z-index:500;height:64px;
   display:flex;align-items:center;padding:0 36px;
-  background:rgba(6,6,9,.75);backdrop-filter:blur(36px) saturate(200%);
+  background:rgba(6,6,9,.75);backdrop-filter:blur(16px);
   border-bottom:1px solid rgba(232,184,75,.06);
   transition:all .35s}
 .header.scrolled{background:rgba(6,6,9,.96);box-shadow:0 1px 0 rgba(232,184,75,.08),0 8px 48px rgba(0,0,0,.7)}
@@ -164,7 +190,7 @@ body::after{content:'';position:fixed;inset:0;z-index:0;pointer-events:none;opac
 /* ── SPOTLIGHT HERO ── */
 .home-hero{position:relative;height:82vh;min-height:500px;max-height:900px;
   overflow:hidden;background:#000;cursor:pointer}
-.hero-bg{position:absolute;inset:0;background-size:cover;background-position:center 25%;
+.hero-bg{position:absolute;inset:0;background-size:cover;background-position:center 25%;will-change:opacity;contain:layout style;
   transition:opacity .9s ease;will-change:opacity;transform:scale(1.03)}
 .hero-bg.fade-out{opacity:0}
 .hero-grad{position:absolute;inset:0;
@@ -195,7 +221,7 @@ body::after{content:'';position:fixed;inset:0;z-index:0;pointer-events:none;opac
 .hero-btn-primary{background:linear-gradient(135deg,var(--gold),var(--gold2));color:#000;font-weight:700}
 .hero-btn-primary:hover{transform:translateY(-2px);box-shadow:0 10px 28px rgba(232,184,75,.38)}
 .hero-btn-secondary{background:rgba(255,255,255,.08);color:#fff;
-  border:1px solid rgba(255,255,255,.16);backdrop-filter:blur(12px)}
+  border:1px solid rgba(255,255,255,.16);backdrop-filter:blur(6px)}
 .hero-btn-secondary:hover{background:rgba(255,255,255,.14);border-color:rgba(255,255,255,.28)}
 /* Thumbnail strip – horizontal bottom-right */
 .hero-thumbs{position:absolute;bottom:26px;right:52px;
@@ -234,7 +260,7 @@ body::after{content:'';position:fixed;inset:0;z-index:0;pointer-events:none;opac
 .home-row-arrow{position:absolute;top:50%;transform:translateY(-60%);
   width:36px;height:36px;background:rgba(7,7,12,.85);border:1px solid rgba(255,255,255,.12);
   color:var(--text2);cursor:pointer;display:flex;align-items:center;justify-content:center;
-  font-size:12px;transition:all .2s;z-index:4;backdrop-filter:blur(12px)}
+  font-size:12px;transition:all .2s;z-index:4;backdrop-filter:blur(6px)}
 .home-row-arrow:hover{background:rgba(232,184,75,.15);border-color:rgba(232,184,75,.4);color:var(--gold)}
 .home-row-arrow.prev{left:8px}
 .home-row-arrow.next{right:8px}
@@ -245,7 +271,7 @@ body::after{content:'';position:fixed;inset:0;z-index:0;pointer-events:none;opac
 .home-row-wrap::after{right:0;background:linear-gradient(to left,var(--bg),transparent)}
 
 /* ── HOME CARD ── */
-.hcard{flex-shrink:0;width:145px;cursor:pointer;transition:transform .25s}
+.hcard{flex-shrink:0;width:145px;cursor:pointer;contain:layout style;transition:transform .25s}
 .hcard:hover{transform:translateY(-5px)}
 .hcard-poster{width:145px;height:218px;position:relative;overflow:hidden;background:var(--card2)}
 .hcard-poster img{width:100%;height:100%;object-fit:cover;display:block;
@@ -253,7 +279,7 @@ body::after{content:'';position:fixed;inset:0;z-index:0;pointer-events:none;opac
 .hcard:hover .hcard-poster img{transform:scale(1.06);filter:brightness(.45) saturate(1.4)}
 .hcard-type-badge{position:absolute;top:7px;left:7px;font-size:8px;font-family:var(--font-m);
   letter-spacing:1px;padding:3px 7px;border:1px solid;background:rgba(7,7,12,.65);
-  backdrop-filter:blur(8px)}
+  backdrop-filter:blur(6px)}
 .hcard-type-badge.movie{color:var(--gold);border-color:rgba(232,184,75,.45)}
 .hcard-type-badge.series{color:var(--blue);border-color:rgba(85,117,238,.45)}
 .hcard-type-badge.game{color:var(--green);border-color:rgba(62,207,142,.45)}
@@ -343,7 +369,7 @@ body::after{content:'';position:fixed;inset:0;z-index:0;pointer-events:none;opac
 .scroll-row::-webkit-scrollbar-thumb{background:rgba(232,192,96,.2)}
 
 /* ─── MOVIE CARD ─── */
-.mcard{min-width:154px;max-width:154px;scroll-snap-align:start;cursor:pointer;
+.mcard{min-width:154px;max-width:154px;contain:layout style;scroll-snap-align:start;cursor:pointer;
   background:var(--card);border:1px solid var(--border);transition:all .32s cubic-bezier(.4,0,.2,1);flex-shrink:0;
   position:relative;overflow:hidden}
 .mcard:hover{border-color:rgba(232,184,75,.45);transform:translateY(-8px) scale(1.01);
@@ -409,7 +435,7 @@ body::after{content:'';position:fixed;inset:0;z-index:0;pointer-events:none;opac
 /* ─── DETAIL PAGE ─── */
 .detail-hero{position:relative;min-height:520px;display:flex;align-items:flex-end;padding:100px 48px 52px}
 .detail-hero-bg{position:absolute;inset:0;background-size:cover;background-position:center;
-  filter:blur(55px) brightness(.1) saturate(1.8);transform:scale(1.12)}
+  filter:blur(32px) brightness(.12);transform:scale(1.12)}
 .detail-grad{position:absolute;inset:0;
   background:linear-gradient(to top,var(--bg) 0%,rgba(7,7,12,.7) 40%,rgba(7,7,12,.15) 100%)}
 .detail-inner{position:relative;display:flex;gap:44px;align-items:flex-end;max-width:1200px;width:100%}
@@ -438,7 +464,7 @@ body::after{content:'';position:fixed;inset:0;z-index:0;pointer-events:none;opac
 .detail-meta{font-size:12px;color:var(--text2);display:flex;align-items:center;gap:5px;font-family:var(--font-m)}
 .detail-rboxes{display:flex;gap:10px;flex-wrap:wrap;margin-bottom:22px}
 .rbox{padding:14px 22px;background:rgba(0,0,0,.45);border:1px solid var(--border);text-align:center;
-  backdrop-filter:blur(24px);transition:all .25s;cursor:default;position:relative;overflow:hidden}
+  backdrop-filter:blur(6px);transition:all .25s;cursor:default;position:relative;overflow:hidden}
 .rbox::before{content:'';position:absolute;inset:0;opacity:0;transition:opacity .25s;
   background:radial-gradient(ellipse at 50% 0%,rgba(232,184,75,.08),transparent 70%)}
 .rbox:first-child{border-color:rgba(232,184,75,.3);background:rgba(232,184,75,.05)}
@@ -640,7 +666,7 @@ body::after{content:'';position:fixed;inset:0;z-index:0;pointer-events:none;opac
 .my-status-btns{display:flex;flex-direction:column;gap:4px}
 .msb{padding:11px 14px;background:transparent;border:1px solid var(--border);
   color:var(--text2);font-size:11px;letter-spacing:.3px;cursor:pointer;
-  transition:all .22s;text-align:left;display:flex;align-items:center;gap:9px;
+  transition:color .18s,background .18s,border-color .18s,padding .18s;text-align:left;display:flex;align-items:center;gap:9px;
   font-family:var(--font-b);position:relative;overflow:hidden}
 .msb::before{content:'';position:absolute;left:0;top:0;bottom:0;width:2px;
   background:var(--gold);transform:scaleY(0);transition:transform .2s}
@@ -833,7 +859,7 @@ body::after{content:'';position:fixed;inset:0;z-index:0;pointer-events:none;opac
 .gc-pct{font-size:10px;color:var(--muted);width:36px;text-align:right;flex-shrink:0;font-family:var(--font-m)}
 
 /* ─── MODAL ─── */
-.modal-overlay{position:fixed;inset:0;z-index:1000;background:rgba(0,0,0,.85);backdrop-filter:blur(18px);
+.modal-overlay{position:fixed;inset:0;z-index:1000;background:rgba(0,0,0,.85);backdrop-filter:blur(10px);
   display:flex;align-items:center;justify-content:center;padding:20px;opacity:0;pointer-events:none;transition:opacity .25s}
 .modal-overlay.open{opacity:1;pointer-events:auto}
 .modal{background:linear-gradient(160deg,rgba(18,18,26,.99),rgba(12,12,20,.99));
@@ -868,7 +894,7 @@ body::after{content:'';position:fixed;inset:0;z-index:0;pointer-events:none;opac
 
 /* ─── EPISODE DETAIL ─── */
 .epd-hero{position:relative;min-height:320px;display:flex;align-items:flex-end;padding:80px 40px 40px}
-.epd-hero-bg{position:absolute;inset:0;background-size:cover;background-position:center;filter:blur(45px) brightness(.1);transform:scale(1.1)}
+.epd-hero-bg{position:absolute;inset:0;background-size:cover;background-position:center;filter:blur(28px) brightness(.1);transform:scale(1.1)}
 .epd-hero-grad{position:absolute;inset:0;background:linear-gradient(to top,var(--bg) 0%,rgba(0,0,0,.5) 60%,rgba(0,0,0,.2) 100%)}
 .epd-hero-inner{position:relative;max-width:900px;width:100%}
 .epd-back{display:inline-flex;align-items:center;gap:8px;background:none;border:none;color:var(--text2);
@@ -909,7 +935,7 @@ body::after{content:'';position:fixed;inset:0;z-index:0;pointer-events:none;opac
 /* ─── PERSON PAGE ─── */
 .person-hero{position:relative;padding:84px 40px 52px;overflow:hidden}
 .person-hero-bg{position:absolute;inset:0;background-size:cover;background-position:center top;
-  filter:blur(65px) brightness(.08) saturate(1.6);transform:scale(1.15)}
+  filter:blur(32px) brightness(.1);transform:scale(1.15)}
 .person-hero-grad{position:absolute;inset:0;background:linear-gradient(to bottom,rgba(7,7,12,.5),var(--bg) 88%)}
 .person-hero-inner{position:relative;max-width:1160px;margin:0 auto;display:flex;gap:40px;align-items:flex-start}
 .person-photo-wrap{flex-shrink:0;display:flex;flex-direction:column;align-items:center;gap:12px}
@@ -968,7 +994,7 @@ body::after{content:'';position:fixed;inset:0;z-index:0;pointer-events:none;opac
 #page-game{background:var(--bg)}
 .game-hero{position:relative;min-height:480px;display:flex;align-items:flex-end;padding:90px 48px 52px;overflow:hidden}
 .game-hero-bg{position:absolute;inset:0;background-size:cover;background-position:center top;
-  filter:blur(55px) brightness(.1) saturate(1.8);transform:scale(1.12)}
+  filter:blur(32px) brightness(.12);transform:scale(1.12)}
 .game-hero-grad{position:absolute;inset:0;
   background:linear-gradient(to top,var(--bg) 0%,rgba(7,7,12,.7) 40%,rgba(7,7,12,.15) 100%)}
 .game-hero-inner{position:relative;display:flex;gap:40px;align-items:flex-end;max-width:1160px;width:100%}
@@ -1124,6 +1150,160 @@ html,body{overflow-x:hidden;max-width:100vw}
   .home-rev-strip .home-section-hd{padding:0 16px}
   .home-rev-scroll{padding-left:16px;padding-right:16px}
   .home-rev-row-wrap::before,.home-rev-row-wrap::after{display:none}
+}
+
+/* ── USER PROFILE MODAL ── */
+.upm-overlay{position:fixed;inset:0;z-index:2000;background:rgba(0,0,0,.88);
+  display:flex;align-items:center;justify-content:center;padding:16px;
+  opacity:0;pointer-events:none;transition:opacity .22s}
+.upm-overlay.open{opacity:1;pointer-events:auto}
+.upm-box{background:linear-gradient(160deg,rgba(18,18,26,.99),rgba(12,12,20,.99));
+  border:1px solid rgba(232,184,75,.14);width:100%;max-width:490px;
+  transform:translateY(20px);transition:transform .28s cubic-bezier(.34,1.2,.64,1);
+  max-height:90vh;overflow-y:auto;
+  box-shadow:0 32px 100px rgba(0,0,0,.85)}
+.upm-overlay.open .upm-box{transform:translateY(0)}
+.upm-header{position:relative;padding:24px 20px 18px;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:16px}
+.upm-av{width:64px;height:64px;background:rgba(232,192,96,.07);border:2px solid rgba(232,192,96,.25);
+  display:flex;align-items:center;justify-content:center;font-size:22px;font-weight:700;
+  flex-shrink:0;overflow:hidden;font-family:var(--font-m);color:var(--gold)}
+.upm-av img{width:100%;height:100%;object-fit:cover;display:block}
+.upm-meta{flex:1;min-width:0}
+.upm-name{font-family:var(--font-d);font-size:24px;letter-spacing:2px;margin-bottom:2px;line-height:1}
+.upm-bio{font-size:11px;color:var(--text2);line-height:1.5;font-weight:300}
+.upm-close{position:absolute;top:10px;right:10px;background:none;border:none;color:var(--muted);
+  font-size:16px;cursor:pointer;padding:8px;transition:color .15s;line-height:1}
+.upm-close:hover{color:var(--text)}
+.upm-stats{display:grid;grid-template-columns:repeat(4,1fr);gap:1px;background:var(--border);border-bottom:1px solid var(--border)}
+.upm-stat{background:var(--card);padding:12px 6px;text-align:center}
+.upm-stat .sv{font-family:var(--font-d);font-size:19px;letter-spacing:1px;display:block;margin-bottom:1px}
+.upm-stat:nth-child(1) .sv{color:var(--gold)}
+.upm-stat:nth-child(2) .sv{color:var(--green)}
+.upm-stat:nth-child(3) .sv{color:var(--blue)}
+.upm-stat:nth-child(4) .sv{color:var(--pink)}
+.upm-stat .sl{font-size:7px;color:var(--muted);letter-spacing:1.8px;font-family:var(--font-m);text-transform:uppercase}
+.upm-body{padding:18px 20px}
+.upm-sec{font-size:8px;color:var(--muted);letter-spacing:3px;font-family:var(--font-m);text-transform:uppercase;
+  margin-bottom:9px;margin-top:16px;display:flex;align-items:center;gap:7px}
+.upm-sec::before{content:'';display:inline-block;width:2px;height:7px;
+  background:linear-gradient(to bottom,var(--gold),var(--gold2));flex-shrink:0}
+.upm-sec:first-child{margin-top:0}
+.upm-posters{display:grid;grid-template-columns:repeat(5,1fr);gap:4px;margin-bottom:4px}
+.upm-poster{aspect-ratio:2/3;object-fit:cover;width:100%;background:var(--card2);border:1px solid var(--border);
+  cursor:pointer;transition:border-color .15s}
+.upm-poster:hover{border-color:rgba(232,192,96,.4)}
+.upm-gchart{display:flex;flex-direction:column;gap:6px;margin-bottom:4px}
+.upm-gc{display:flex;align-items:center;gap:8px}
+.upm-gc-lbl{font-size:10px;color:var(--text2);width:72px;flex-shrink:0}
+.upm-gc-bg{flex:1;height:2px;background:rgba(255,255,255,.05)}
+.upm-gc-fill{height:100%;background:linear-gradient(to right,var(--gold),var(--gold2));transition:width .6s ease}
+.upm-gc-n{font-size:9px;color:var(--muted);width:22px;text-align:right;flex-shrink:0;font-family:var(--font-m)}
+.upm-revs{display:flex;flex-direction:column;gap:6px;margin-bottom:4px}
+.upm-rev{background:var(--card);border:1px solid var(--border);padding:10px 12px}
+.upm-rev-title{font-size:11px;font-weight:500;color:var(--text);margin-bottom:3px;cursor:pointer;transition:color .15s}
+.upm-rev-title:hover{color:var(--gold)}
+.upm-rev-stars{display:flex;gap:1px;margin-bottom:2px}
+.upm-rev-stars i{font-size:9px;color:rgba(255,255,255,.08)}
+.upm-rev-stars i.on{color:var(--gold)}
+.upm-rev-txt{font-size:11px;color:var(--text2);line-height:1.55;font-weight:300}
+/* Barát gomb */
+.upm-fr-btn{display:inline-flex;align-items:center;gap:6px;padding:6px 14px;
+  font-size:9px;font-family:var(--font-m);letter-spacing:1.2px;text-transform:uppercase;
+  border:1px solid;cursor:pointer;transition:all .18s;background:transparent}
+.upm-fr-btn.add{color:var(--gold);border-color:rgba(232,184,75,.4);background:rgba(232,184,75,.06)}
+.upm-fr-btn.add:hover{background:rgba(232,184,75,.15);border-color:var(--gold)}
+.upm-fr-btn.friend{color:var(--green);border-color:rgba(46,200,122,.35);background:rgba(46,200,122,.06)}
+.upm-fr-btn.friend:hover{background:rgba(224,69,69,.08);border-color:rgba(224,69,69,.4);color:var(--red)}
+.upm-fr-btn.friend:hover::before{content:'ELTÁVOLÍTÁS '}
+.upm-fr-btn.sent{color:var(--muted);border-color:var(--border);cursor:default;opacity:.7}
+/* Review kártya szerzője kattintható */
+.review-av{cursor:pointer;transition:border-color .15s}
+.review-av:hover{border-color:rgba(232,192,96,.55)!important}
+.review-name.clickable{cursor:pointer;transition:color .15s}
+.review-name.clickable:hover{color:var(--gold)}
+
+/* ══ MOBIL TELJESÍTMÉNY-OPTIMALIZÁLÁS ══
+   Gyenge telefonokon a backdrop-filter és blur
+   komoly akadozást okoz – kikapcsoljuk őket. */
+@media(max-width:900px){
+  /* Backdrop-filter eltávolítása – a legnagyobb GPU-gyilkos */
+  .header,.modal-overlay,.rbox,.home-row-arrow,
+  .hcard-type-badge,.upm-overlay{
+    backdrop-filter:none!important;
+    -webkit-backdrop-filter:none!important;
+  }
+  /* Header bg legyen tömör szín blur helyett */
+  .header{background:rgba(6,6,9,.97)!important;}
+
+  /* Hero blur csökkentése mobilon */
+  .detail-hero-bg{filter:blur(18px) brightness(.12)!important;}
+  .epd-hero-bg{filter:blur(18px) brightness(.1)!important;}
+  .game-hero-bg{filter:blur(18px) brightness(.1)!important;}
+  .person-hero-bg{filter:blur(18px) brightness(.1)!important;}
+
+  /* Noise/grid háttér ki (már csak asztalin van, de biztosra) */
+  body::before,body::after{display:none!important;}
+
+  /* Scroll snap touch-on */
+  .home-scroll-row,.home-rev-scroll{
+    scroll-snap-type:x mandatory;
+    -webkit-overflow-scrolling:touch;
+    overscroll-behavior-x:contain;
+  }
+  .hcard,.rev-strip-card{scroll-snap-align:start;}
+
+  /* Kártyákon ne legyen box-shadow hover (lassít) */
+  .mcard:active{transform:scale(.97)!important;transition:transform .1s!important;}
+  .hcard:active{transform:scale(.97)!important;transition:transform .1s!important;}
+
+  /* Watchlist item mobil tap feedback */
+  .wl-item:active{background:var(--card2)!important;}
+
+  /* Kisebb gap mobilon */
+  .detail-rboxes{gap:5px}
+  .detail-actions{gap:6px}
+
+  /* UPM modal full-screen mobilon */
+  .upm-box{max-height:92vh;border-radius:0;}
+  .upm-posters{grid-template-columns:repeat(5,1fr);}
+}
+
+@media(max-width:600px){
+  /* Header logo kisebb */
+  .header-logo{font-size:18px;letter-spacing:3px;}
+
+  /* Watchlist: csak a fontos oszlopok */
+  .wl-year,.wl-imdb-r,.wl-my-stars,.wl-type{display:none!important;}
+
+  /* Hero kisebb mobilon */
+  .home-hero{height:55vh;min-height:320px;}
+  .hero-content{padding:0 16px 20px;}
+
+  /* Detail hero kisebb */
+  .detail-hero{min-height:380px;padding:80px 16px 24px;}
+  .detail-poster,.detail-poster-ph{width:110px;height:165px;}
+
+  /* Cast grid kisebb */
+  .cast-grid{grid-template-columns:repeat(auto-fill,minmax(68px,1fr));gap:7px;}
+
+  /* Rbox kisebb */
+  .rbox{padding:7px 10px;}
+  .rbox .rv{font-size:20px;}
+
+  /* Search oldal */
+  .search-page-wrap{padding:0 16px 48px;}
+  .results-grid{grid-template-columns:repeat(auto-fill,minmax(130px,1fr));gap:8px;}
+
+  /* Profile */
+  .profile-wrap{padding:72px 14px 40px;}
+  .profile-stats-row{grid-template-columns:repeat(2,1fr);gap:7px;}
+  .profile-stat{padding:12px 8px;}
+
+  /* Friends */
+  .friends-wrap,.wl-wrap{padding-left:14px;padding-right:14px;}
+
+  /* Kisebb toast */
+  .toast{font-size:10px;padding:9px 16px;white-space:normal;text-align:center;max-width:85vw;}
 }
 </style>
 </head>
@@ -1523,6 +1703,30 @@ html,body{overflow-x:hidden;max-width:100vw}
   </div>
 </div>
 
+<!-- USER PROFILE MODAL -->
+<div class="upm-overlay" id="upm-overlay" onclick="if(event.target===this)closeUPM()">
+  <div class="upm-box">
+    <div class="upm-header">
+      <div class="upm-av" id="upm-av"></div>
+      <div class="upm-meta">
+        <div class="upm-name" id="upm-name"></div>
+        <div class="upm-bio" id="upm-bio"></div>
+        <div id="upm-friend-btn-wrap" style="margin-top:8px"></div>
+      </div>
+      <button class="upm-close" onclick="closeUPM()"><i class="fa-solid fa-xmark"></i></button>
+    </div>
+    <div class="upm-stats">
+      <div class="upm-stat"><span class="sv" id="upm-total">—</span><span class="sl">Lista</span></div>
+      <div class="upm-stat"><span class="sv" id="upm-watched">—</span><span class="sl">Megnézett</span></div>
+      <div class="upm-stat"><span class="sv" id="upm-rated">—</span><span class="sl">Értékelt</span></div>
+      <div class="upm-stat"><span class="sv" id="upm-avg">—</span><span class="sl">Átlag</span></div>
+    </div>
+    <div class="upm-body" id="upm-body">
+      <div style="text-align:center;padding:28px;color:var(--muted);font-size:10px;letter-spacing:3px;font-family:var(--font-m)"><i class="fa-solid fa-spinner spin"></i> BETÖLTÉS...</div>
+    </div>
+  </div>
+</div>
+
 <!-- SCREENSHOT MODAL -->
 <div class="trailer-modal hidden" id="screenshot-modal">
   <div class="trailer-modal-inner" style="max-width:1100px">
@@ -1623,7 +1827,6 @@ html,body{overflow-x:hidden;max-width:100vw}
 
 <div class="toast" id="toast"></div>
 
-<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
 import { getAuth, onAuthStateChanged, signInWithEmailAndPassword, createUserWithEmailAndPassword,
@@ -1651,6 +1854,11 @@ const STEAM_SEARCH = 'https://store.steampowered.com/api/storesearch';
 const STEAM_APP = 'https://store.steampowered.com/api/appdetails';
 const STEAM_FEATURED = 'https://store.steampowered.com/api/featured';
 
+// ── API CACHE (5 perces TTL) ──────────────────────────────────
+const _apiCache=new Map();
+function _cGet(k){const e=_apiCache.get(k);return(e&&Date.now()<e.exp)?e.v:null;}
+function _cSet(k,v,ttl=300000){_apiCache.set(k,{v,exp:Date.now()+ttl});}
+
 // ── TMDB API ─────────────────────────────────────────────────
 async function tmdbGet(path, params={}){
   try{
@@ -1658,8 +1866,12 @@ async function tmdbGet(path, params={}){
     url.searchParams.set('api_key',TMDB_KEY);
     url.searchParams.set('language','hu-HU');
     Object.entries(params).forEach(([k,v])=>url.searchParams.set(k,v));
+    const key=url.toString();
+    const hit=_cGet(key);if(hit)return hit;
     const r=await fetch(url);
-    return await r.json();
+    const data=await r.json();
+    _cSet(key,data);
+    return data;
   }catch{return {results:[],total_results:0};}
 }
 
@@ -2814,13 +3026,10 @@ async function loadHome() {
   const sectionsWrap = document.getElementById('home-sections');
   if (sectionsWrap) sectionsWrap.innerHTML = '';
 
-  // Fetch everything in parallel
-  const [mv1, mv2, mv3, tv1, tv2] = await Promise.all([
+  // Csak 2 párhuzamos hívás induláskor – gyorsabb első megjelenés
+  const [mv1, tv1] = await Promise.all([
     tmdbTrending('movie', 1),
-    tmdbTrending('movie', 2),
-    tmdbTrending('movie', 3),
     tmdbTrending('series', 1),
-    tmdbTrending('series', 2),
   ]);
 
   const shuffle = arr => {
@@ -2829,10 +3038,10 @@ async function loadHome() {
     return a;
   };
 
-  const allMovies = [...mv1, ...mv2, ...mv3]
+  const allMovies = mv1
     .filter(m => m.Poster&&m.Poster!=='N/A')
     .filter((m,i,a) => a.findIndex(x=>x.imdbID===m.imdbID)===i);
-  const allSeries = [...tv1, ...tv2]
+  const allSeries = tv1
     .filter(m => m.Poster&&m.Poster!=='N/A')
     .filter((m,i,a) => a.findIndex(x=>x.imdbID===m.imdbID)===i);
 
@@ -3659,11 +3868,12 @@ async function loadReviews(imdbID, containerId='reviews-list'){
       const avContent=avatarUrl
         ?`<img src="${esc(avatarUrl)}" style="width:100%;height:100%;object-fit:cover;display:block" onerror="this.style.display='none'">`
         :`<span style="font-family:DM Mono,monospace;font-size:12px;font-weight:700">${(r.authorName||'?')[0].toUpperCase()}</span>`;
+      const authorAttr = r.uid ? `onclick="openUPM('${r.uid}','${esc(r.authorName||'Névtelen')}','${esc(r.authorAvatar||'')}')"` : '';
       return `<div class="review-card">
         <div class="review-top">
-          <div class="review-av">${avContent}</div>
+          <div class="review-av" ${authorAttr}>${avContent}</div>
           <div style="flex:1">
-            <div class="review-name">${esc(r.authorName||'Névtelen')}</div>
+            <div class="review-name${r.uid?' clickable':''}" ${authorAttr}>${esc(r.authorName||'Névtelen')}</div>
             <div style="font-size:10px;color:var(--muted)">${dt}</div>
           </div>
           ${isMe?`<button class="review-del" onclick="_deleteReview('${r.id}','${containerId}')"><i class="fa-solid fa-trash"></i></button>`:''}
@@ -4143,26 +4353,45 @@ window.toast = function(msg){
   clearTimeout(t._t);t._t=setTimeout(()=>t.classList.remove('show'),2500);
 };
 
-// ── PARTICLES ─────────────────────────────────────────────────
+// ── PARTICLES (lightweight, csak asztali/közepes eszközön) ───
 (function(){
+  // Gyenge GPU-n kihagyjuk (4 vagy kevesebb logikai CPU mag)
+  if(navigator.hardwareConcurrency && navigator.hardwareConcurrency <= 2) return;
+  // Kis képernyőn (mobil) kihagyjuk
+  if(window.innerWidth < 768) return;
   try{
-    if(typeof THREE==='undefined')return;
     const canvas=document.createElement('canvas');
-    canvas.style.cssText='position:fixed;top:0;left:0;width:100%;height:100%;z-index:0;pointer-events:none;opacity:.35';
+    canvas.style.cssText='position:fixed;top:0;left:0;width:100%;height:100%;z-index:0;pointer-events:none;opacity:.28';
     document.body.prepend(canvas);
-    const r=new THREE.WebGLRenderer({canvas,alpha:true,antialias:true});
-    r.setSize(window.innerWidth,window.innerHeight);r.setPixelRatio(Math.min(devicePixelRatio,2));
-    const sc=new THREE.Scene(),cam=new THREE.PerspectiveCamera(75,innerWidth/innerHeight,.1,1000);
-    cam.position.z=5;
-    const n=innerWidth<768?200:500,pos=new Float32Array(n*3);
-    for(let i=0;i<n;i++){pos[i*3]=(Math.random()-.5)*30;pos[i*3+1]=(Math.random()-.5)*30;pos[i*3+2]=(Math.random()-.5)*30;}
-    const geo=new THREE.BufferGeometry();geo.setAttribute('position',new THREE.BufferAttribute(pos,3));
-    const mat=new THREE.PointsMaterial({color:0xffffff,size:.015,transparent:true,opacity:.25,blending:THREE.AdditiveBlending});
-    const pts=new THREE.Points(geo,mat);sc.add(pts);
-    let mx=0,my=0;
-    document.addEventListener('mousemove',e=>{mx=(e.clientX/innerWidth-.5)*2;my=(e.clientY/innerHeight-.5)*2;});
-    (function anim(){requestAnimationFrame(anim);pts.rotation.y+=.0001;pts.rotation.x+=(my*.02-pts.rotation.x)*.006;pts.rotation.y+=(mx*.02-pts.rotation.y)*.006;r.render(sc,cam);})();
-    window.addEventListener('resize',()=>{cam.aspect=innerWidth/innerHeight;cam.updateProjectionMatrix();r.setSize(innerWidth,innerHeight);});
+    const ctx=canvas.getContext('2d');
+    let W=canvas.width=innerWidth, H=canvas.height=innerHeight;
+    const N=150;
+    const pts=Array.from({length:N},()=>({
+      x:Math.random()*W, y:Math.random()*H,
+      vx:(Math.random()-.5)*.15, vy:(Math.random()-.5)*.15,
+      r:Math.random()*.9+.3
+    }));
+    let mx=W/2, my=H/2, raf=0;
+    document.addEventListener('mousemove',e=>{mx=e.clientX;my=e.clientY;},{passive:true});
+    window.addEventListener('resize',()=>{W=canvas.width=innerWidth;H=canvas.height=innerHeight;},{passive:true});
+    // Pause when tab hidden
+    document.addEventListener('visibilitychange',()=>{
+      if(document.hidden){cancelAnimationFrame(raf);}else{anim();}
+    });
+    function anim(){
+      raf=requestAnimationFrame(anim);
+      ctx.clearRect(0,0,W,H);
+      ctx.fillStyle='rgba(255,255,255,.5)';
+      for(let i=0;i<N;i++){
+        const p=pts[i];
+        p.x+=p.vx+(mx/W-.5)*.03;
+        p.y+=p.vy+(my/H-.5)*.03;
+        if(p.x<0)p.x=W;else if(p.x>W)p.x=0;
+        if(p.y<0)p.y=H;else if(p.y>H)p.y=0;
+        ctx.beginPath();ctx.arc(p.x,p.y,p.r,0,6.2832);ctx.fill();
+      }
+    }
+    anim();
   }catch(e){}
 })();
 
@@ -4491,9 +4720,9 @@ async function loadRecentReviewsStrip() {
 
             return `<div class="rev-strip-card" onclick="${onclickAction}">
               <div class="rev-strip-top">
-                <div class="rev-strip-av">${avContent}</div>
+                <div class="rev-strip-av" ${r.uid?`onclick="event.stopPropagation();openUPM('${r.uid}','${esc(r.authorName||'Névtelen')}','${esc(r.authorAvatar||'')}')" style="cursor:pointer"`:''} >${avContent}</div>
                 <div class="rev-strip-author">
-                  <div class="rev-strip-name">${esc(r.authorName || 'Névtelen')}</div>
+                  <div class="rev-strip-name" ${r.uid?`onclick="event.stopPropagation();openUPM('${r.uid}','${esc(r.authorName||'Névtelen')}','${esc(r.authorAvatar||'')}')" style="cursor:pointer"`:''} >${esc(r.authorName || 'Névtelen')}</div>
                   <div class="rev-strip-date">${dt}${statusText ? ' · ' + statusText : ''}</div>
                 </div>
               </div>
@@ -4525,6 +4754,152 @@ loadHome();
     hdr.classList.toggle('scrolled', window.scrollY > 20);
   }, {passive:true});
 })();
+
+// ── USER PROFILE MODAL ────────────────────────────────────────
+window.openUPM = async function(uid, name, avatar){
+  if(!uid) return;
+  const overlay=document.getElementById('upm-overlay');
+  const avEl=document.getElementById('upm-av');
+  const avUrl=fixImgurUrl(avatar||'');
+  avEl.innerHTML=avUrl
+    ?`<img src="${esc(avUrl)}" loading="lazy" onerror="this.style.display='none'">`
+    :`<span>${(name||'?')[0].toUpperCase()}</span>`;
+  document.getElementById('upm-name').textContent=name||'—';
+  document.getElementById('upm-bio').textContent='';
+  document.getElementById('upm-friend-btn-wrap').innerHTML='';
+  ['upm-total','upm-watched','upm-rated','upm-avg'].forEach(id=>document.getElementById(id).textContent='—');
+  document.getElementById('upm-body').innerHTML='<div style="text-align:center;padding:28px;color:var(--muted);font-size:10px;letter-spacing:3px;font-family:var(--font-m)"><i class="fa-solid fa-spinner spin"></i> BETÖLTÉS...</div>';
+  overlay.classList.add('open');
+
+  // Barát gomb renderelése
+  function renderUPMFriendBtn(targetUid){
+    const wrap=document.getElementById('upm-friend-btn-wrap');
+    if(!wrap) return;
+    if(!currentUser){ wrap.innerHTML=''; return; }
+    if(currentUser.uid===targetUid){ wrap.innerHTML=''; return; }
+
+    const isFriend=!!myFriends[targetUid];
+    const isSent=sentRequests.includes(targetUid);
+
+    if(isFriend){
+      wrap.innerHTML=`<button class="upm-fr-btn friend" onclick="upmRemoveFriend('${esc(targetUid)}')">
+        <i class="fa-solid fa-user-check"></i> BARÁT
+      </button>`;
+    } else if(isSent){
+      wrap.innerHTML=`<button class="upm-fr-btn sent" disabled>
+        <i class="fa-solid fa-clock"></i> KÉRÉS ELKÜLDVE
+      </button>`;
+    } else {
+      wrap.innerHTML=`<button class="upm-fr-btn add" onclick="upmSendFriendReq('${esc(targetUid)}')">
+        <i class="fa-solid fa-user-plus"></i> BARÁTNAK JELÖLÉS
+      </button>`;
+    }
+  }
+
+  renderUPMFriendBtn(uid);
+
+  try{
+    const [userSnap,wlSnap,revSnap]=await Promise.all([
+      getDoc(doc(db,'users',uid)),
+      getDocs(query(collection(db,'watchlist'),where('uid','==',uid))),
+      getDocs(query(collection(db,'reviews'),where('uid','==',uid)))
+    ]);
+    const profile=userSnap.exists()?userSnap.data():{};
+    if(profile.name) document.getElementById('upm-name').textContent=profile.name;
+    if(profile.bio)  document.getElementById('upm-bio').textContent=profile.bio;
+    const rAvUrl=fixImgurUrl(profile.avatar||avatar||'');
+    if(rAvUrl) avEl.innerHTML=`<img src="${esc(rAvUrl)}" loading="lazy" onerror="this.style.display='none'">`;
+
+    const wlItems=wlSnap.docs.map(d=>d.data());
+    const watched=wlItems.filter(i=>i.status==='neztem').length;
+    const rated=wlItems.filter(i=>i.rating>0);
+    const avg=rated.length?(rated.reduce((a,b)=>a+b.rating,0)/rated.length).toFixed(1)+'★':'—';
+    document.getElementById('upm-total').textContent=wlItems.length;
+    document.getElementById('upm-watched').textContent=watched;
+    document.getElementById('upm-rated').textContent=rated.length;
+    document.getElementById('upm-avg').textContent=avg;
+
+    const recentPosters=wlItems.filter(i=>i.poster&&i.status==='neztem').sort((a,b)=>(b.date||0)-(a.date||0)).slice(0,10);
+    const genreCount={};
+    wlItems.forEach(item=>{if(!item.genre)return;item.genre.split(',').forEach(g=>{const t=g.trim();if(t)genreCount[t]=(genreCount[t]||0)+1;});});
+    const topGenres=Object.entries(genreCount).sort((a,b)=>b[1]-a[1]).slice(0,5);
+    const maxG=topGenres[0]?.[1]||1;
+
+    const titleCache={};
+    wlItems.forEach(w=>{if(w.imdbID)titleCache[w.imdbID]=w.title;});
+    let reviews=revSnap.docs.map(d=>({id:d.id,...d.data()}));
+    reviews.sort((a,b)=>{
+      const ta=a.createdAt?.toDate?a.createdAt.toDate().getTime():(a.createdAt||0);
+      const tb=b.createdAt?.toDate?b.createdAt.toDate().getTime():(b.createdAt||0);
+      return tb-ta;
+    });
+    reviews=reviews.slice(0,5);
+
+    let html='';
+    if(recentPosters.length){
+      html+=`<div class="upm-sec">LEGUTÓBB MEGNÉZETT</div>
+        <div class="upm-posters">${recentPosters.map(item=>`
+          <img class="upm-poster" src="${esc(item.poster)}" loading="lazy" title="${esc(item.title||'')}"
+            onclick="closeUPM();_openDetail('${esc(item.imdbID)}')" onerror="this.style.display='none'">`).join('')}
+        </div>`;
+    }
+    if(topGenres.length){
+      html+=`<div class="upm-sec">KEDVENC MŰFAJOK</div>
+        <div class="upm-gchart">${topGenres.map(([g,c])=>`
+          <div class="upm-gc">
+            <span class="upm-gc-lbl">${esc(g)}</span>
+            <div class="upm-gc-bg"><div class="upm-gc-fill" style="width:${Math.round(c/maxG*100)}%"></div></div>
+            <span class="upm-gc-n">${c}×</span>
+          </div>`).join('')}
+        </div>`;
+    }
+    if(reviews.length){
+      html+=`<div class="upm-sec">LEGUTÓBBI ÉRTÉKELÉSEK</div>
+        <div class="upm-revs">${reviews.map(r=>{
+          const stars=[1,2,3,4,5].map(v=>`<i class="fa-solid fa-star${r.rating&&v<=r.rating?' on':''}"></i>`).join('');
+          const epMatch=String(r.imdbID).match(/^(tmdb_tv_\d+|tmdb_mv_\d+)_s(\d+)e(\d+)$/);
+          const targetId=epMatch?epMatch[1]:r.imdbID;
+          const epInfo=epMatch?` S${epMatch[2]}E${epMatch[3]}`:'';
+          const movieTitle=titleCache[r.imdbID]||titleCache[targetId]||'—';
+          return `<div class="upm-rev">
+            <div class="upm-rev-title" onclick="closeUPM();_openDetail('${esc(targetId)}')">${esc(movieTitle)}${epInfo?`<span style="color:var(--text2);font-size:9px;margin-left:4px">${epInfo}</span>`:''}</div>
+            ${r.rating?`<div class="upm-rev-stars">${stars}</div>`:''}
+            ${r.text?`<div class="upm-rev-txt">${esc(r.text)}</div>`:''}
+          </div>`;
+        }).join('')}</div>`;
+    }
+    document.getElementById('upm-body').innerHTML=html||'<div style="color:var(--muted);font-size:10px;font-family:var(--font-m);letter-spacing:2px">NINCS ADAT</div>';
+  }catch(e){
+    console.warn('openUPM:',e);
+    document.getElementById('upm-body').innerHTML='<div style="color:var(--muted);font-size:10px;font-family:var(--font-m)">HIBA</div>';
+  }
+};
+
+window.upmSendFriendReq = async function(toUid){
+  if(!currentUser){toast('BEJELENTKEZÉS SZÜKSÉGES');return;}
+  try{
+    await addDoc(collection(db,'friend_requests'),{from:currentUser.uid,to:toUid,status:'pending',createdAt:serverTimestamp()});
+    sentRequests.push(toUid);
+    const wrap=document.getElementById('upm-friend-btn-wrap');
+    if(wrap) wrap.innerHTML=`<button class="upm-fr-btn sent" disabled><i class="fa-solid fa-clock"></i> KÉRÉS ELKÜLDVE</button>`;
+    toast('BARÁTKÉRÉS ELKÜLDVE!');
+  }catch(e){toast('HIBA: '+e.message);}
+};
+
+window.upmRemoveFriend = async function(friendUid){
+  if(!currentUser)return;
+  try{
+    await deleteDoc(doc(db,'friends',currentUser.uid+'_'+friendUid));
+    await deleteDoc(doc(db,'friends',friendUid+'_'+currentUser.uid));
+    delete myFriends[friendUid];
+    const wrap=document.getElementById('upm-friend-btn-wrap');
+    if(wrap) wrap.innerHTML=`<button class="upm-fr-btn add" onclick="upmSendFriendReq('${esc(friendUid)}')"><i class="fa-solid fa-user-plus"></i> BARÁTNAK JELÖLÉS</button>`;
+    toast('BARÁT ELTÁVOLÍTVA');
+    renderFriendsPage().catch(()=>{});
+  }catch(e){toast('HIBA: '+e.message);}
+};
+
+window.closeUPM=function(){document.getElementById('upm-overlay').classList.remove('open');};
 
 // ── STAGGERED CARD ANIMATION ───────────────────────────────────
 function animateCards(container){
