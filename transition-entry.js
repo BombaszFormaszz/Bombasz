@@ -19,6 +19,10 @@
         if (document.getElementById('stargate-back-btn')) return;
         
         sessionStorage.setItem('came-from-home', 'true');
+
+        // Ha van user bar, lejjebb kell a gomb
+        const hasBar = document.body.classList.contains('has-user-bar') || document.getElementById('bombasz-user-bar');
+        const topOffset = hasBar ? 54 : (isMobile ? 15 : 20);
         
         const btn = document.createElement('button');
         btn.id = 'stargate-back-btn';
@@ -26,7 +30,7 @@
         
         if (isMobile) {
             btn.style.cssText = `
-                position:fixed;top:15px;left:20px;
+                position:fixed;top:${topOffset}px;left:20px;
                 font-family:'Orbitron',sans-serif;font-size:9px;font-weight:700;
                 letter-spacing:1px;padding:8px 14px;
                 border:1px solid #fff;background:black;color:#fff;
@@ -34,7 +38,7 @@
             `;
         } else {
             btn.style.cssText = `
-                position:fixed;top:20px;left:40px;
+                position:fixed;top:${topOffset}px;left:40px;
                 font-family:'Orbitron',sans-serif;font-size:10px;font-weight:700;
                 letter-spacing:2px;padding:10px 20px;
                 border:1px solid #fff;background:black;color:#fff;
@@ -533,9 +537,23 @@
         playEntryAnimation();
     }
     
-    if (document.readyState === 'loading') {
-        document.addEventListener('DOMContentLoaded', addBackButton);
-    } else {
+    // Delay back button to let user-ui.js bar appear first
+    function initBackButton() {
+        // Try immediately, and also after a delay in case bar loads later
         addBackButton();
+        setTimeout(() => {
+            // Reposition if bar appeared after initial render
+            const existing = document.getElementById('stargate-back-btn');
+            const hasBar = document.body.classList.contains('has-user-bar') || document.getElementById('bombasz-user-bar');
+            if (existing && hasBar) {
+                existing.style.top = '54px';
+            }
+        }, 1500);
+    }
+
+    if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', initBackButton);
+    } else {
+        initBackButton();
     }
 })();

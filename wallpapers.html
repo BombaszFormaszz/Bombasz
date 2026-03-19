@@ -220,7 +220,7 @@
         btnLoad.textContent = 'BETÖLTÉS...';
 
         try {
-            let url = `https://www.reddit.com/r/${sub}/hot.json?limit=50&raw_json=1`;
+            let url = `https://old.reddit.com/r/${sub}/hot.json?limit=50&raw_json=1`;
             if (afterToken) url += `&after=${afterToken}`;
 
             const resp = await fetch(url);
