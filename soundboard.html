@@ -1,0 +1,482 @@
+<!DOCTYPE html>
+<html lang="hu">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Soundboard • BOMBASZ</title>
+
+    <script type="module" src="auth.js"></script>
+    <script src="user-ui.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;500;600;700;800;900&family=Space+Grotesk:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="icon" href="favicon.ico">
+
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        :root { --bg: #000; --text: #fff; --gray: #888; }
+        html { scroll-behavior: smooth; }
+        body { font-family: 'Space Grotesk', sans-serif; background: var(--bg); color: var(--text); min-height: 100vh; overflow-x: hidden; }
+        body.has-user-bar { padding-top: 44px !important; }
+
+        #bg-canvas { position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: 0; pointer-events: none; }
+
+        .page-header { position: relative; z-index: 10; text-align: center; padding: 80px 20px 10px; }
+        .page-header h1 { font-family: 'Orbitron', sans-serif; font-size: clamp(22px, 5vw, 44px); font-weight: 900; letter-spacing: 0.12em; opacity: 0; animation: slideUp 0.8s ease 0.3s forwards; }
+        .page-header p { color: var(--gray); font-size: 13px; letter-spacing: 2px; margin-top: 8px; opacity: 0; animation: slideUp 0.8s ease 0.5s forwards; }
+        @keyframes slideUp { from { opacity: 0; transform: translateY(25px); } to { opacity: 1; transform: translateY(0); } }
+
+        /* ---- CONTROLS ---- */
+        .controls {
+            position: relative; z-index: 10;
+            max-width: 900px; margin: 24px auto 0; padding: 0 20px;
+            display: flex; gap: 10px; align-items: center; flex-wrap: wrap;
+            justify-content: center;
+            opacity: 0; animation: slideUp 0.8s ease 0.6s forwards;
+        }
+
+        .search-input {
+            padding: 10px 14px; width: 260px;
+            background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.12);
+            color: var(--text); font-family: 'Space Grotesk', sans-serif; font-size: 13px;
+            outline: none; transition: border-color 0.2s;
+        }
+        .search-input:focus { border-color: rgba(255,255,255,0.4); }
+        .search-input::placeholder { color: rgba(255,255,255,0.2); }
+
+        .filter-btn {
+            font-family: 'Orbitron', sans-serif; font-size: 9px; font-weight: 700;
+            letter-spacing: 1px; padding: 10px 16px;
+            border: 1px solid rgba(255,255,255,0.12); background: transparent; color: var(--gray);
+            cursor: pointer; transition: all 0.2s;
+        }
+        .filter-btn:hover, .filter-btn.active { border-color: var(--text); color: var(--text); background: rgba(255,255,255,0.06); }
+
+        .vol-wrap { display: flex; align-items: center; gap: 6px; color: var(--gray); font-size: 12px; }
+        .vol-slider {
+            -webkit-appearance: none; width: 80px; height: 3px;
+            background: rgba(255,255,255,0.15); outline: none; cursor: pointer;
+        }
+        .vol-slider::-webkit-slider-thumb { -webkit-appearance: none; width: 12px; height: 12px; background: var(--text); border-radius: 0; cursor: pointer; }
+
+        /* ---- GRID ---- */
+        .sb-container {
+            position: relative; z-index: 10;
+            max-width: 900px; margin: 24px auto 0; padding: 0 20px 100px;
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(130px, 1fr));
+            gap: 10px;
+        }
+
+        /* ---- SOUND PAD ---- */
+        .pad {
+            aspect-ratio: 1;
+            display: flex; flex-direction: column;
+            align-items: center; justify-content: center;
+            gap: 8px;
+            background: rgba(255,255,255,0.02);
+            border: 1px solid rgba(255,255,255,0.08);
+            cursor: pointer;
+            transition: all 0.15s ease;
+            position: relative;
+            overflow: hidden;
+            user-select: none;
+        }
+        .pad:hover { background: rgba(255,255,255,0.06); border-color: rgba(255,255,255,0.2); transform: scale(1.03); }
+        .pad:active, .pad.playing {
+            background: rgba(255,255,255,0.1);
+            border-color: rgba(255,255,255,0.4);
+            transform: scale(0.97);
+        }
+        .pad.playing::after {
+            content: '';
+            position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+            background: radial-gradient(circle, rgba(255,255,255,0.08) 0%, transparent 70%);
+            animation: pulse 0.4s ease;
+        }
+        @keyframes pulse { from { opacity: 1; transform: scale(0.8); } to { opacity: 0; transform: scale(1.5); } }
+
+        .pad-icon { font-size: 22px; opacity: 0.6; }
+        .pad:hover .pad-icon { opacity: 1; }
+
+        .pad-name {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 8px; font-weight: 700;
+            letter-spacing: 1px;
+            text-align: center;
+            line-height: 1.3;
+            padding: 0 6px;
+            color: var(--gray);
+        }
+        .pad:hover .pad-name { color: var(--text); }
+
+        .pad-cat {
+            position: absolute; top: 6px; right: 6px;
+            width: 6px; height: 6px;
+            border-radius: 0;
+        }
+
+        .cat-meme { background: #ffe66d; }
+        .cat-movie { background: #4ecdc4; }
+        .cat-game { background: #ff6b6b; }
+        .cat-music { background: #a78bfa; }
+        .cat-fx { background: #888; }
+        .cat-anime { background: #ff79c6; }
+
+        .sb-empty {
+            grid-column: 1 / -1;
+            text-align: center; padding: 40px;
+            color: var(--gray); font-size: 13px;
+        }
+
+        @media (max-width: 768px) {
+            .page-header { padding: 60px 16px 10px; }
+            .sb-container { grid-template-columns: repeat(auto-fill, minmax(100px, 1fr)); gap: 8px; padding-left: 12px; padding-right: 12px; }
+            .controls { padding-left: 12px; padding-right: 12px; }
+            .search-input { width: 100%; }
+            .pad-icon { font-size: 18px; }
+            .pad-name { font-size: 7px; }
+        }
+    </style>
+</head>
+<body>
+    <script src="transition-entry.js"></script>
+    <canvas id="bg-canvas"></canvas>
+
+    <div class="page-header">
+        <h1>SOUNDBOARD</h1>
+        <p>KATTINTS ÉS SZÓL</p>
+    </div>
+
+    <div class="controls">
+        <input class="search-input" id="search" placeholder="Keresés...">
+        <button class="filter-btn active" data-cat="all">MIND</button>
+        <button class="filter-btn" data-cat="meme">MEME</button>
+        <button class="filter-btn" data-cat="movie">FILM</button>
+        <button class="filter-btn" data-cat="anime">ANIME</button>
+        <button class="filter-btn" data-cat="game">JÁTÉK</button>
+        <button class="filter-btn" data-cat="fx">EFFEKT</button>
+        <div class="vol-wrap">
+            <i class="fa-solid fa-volume-low"></i>
+            <input type="range" class="vol-slider" id="vol-slider" min="0" max="100" value="80">
+        </div>
+    </div>
+
+    <div class="sb-container" id="sb-grid"></div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+
+    <script>
+    // ==========================================
+    // SOUND DATABASE
+    // All sounds from freesound.org / pixabay / etc (royalty free)
+    // Using direct URLs to free sound effect CDNs
+    // ==========================================
+
+    // ==========================================
+    // All sounds use Web Audio API synthesis
+    // No external URLs = no CORS issues
+    // ==========================================
+    const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+
+    function synth(type, freq, duration, opts = {}) {
+        return { type: 'synth', synthType: type, freq, duration, ...opts };
+    }
+
+    // Sound synthesis functions
+    function playSynth(sound, vol) {
+        const ctx = audioCtx;
+        if (ctx.state === 'suspended') ctx.resume();
+        const now = ctx.currentTime;
+        const dur = sound.duration || 0.3;
+        const gain = ctx.createGain();
+        gain.connect(ctx.destination);
+        gain.gain.setValueAtTime(vol, now);
+        gain.gain.exponentialRampToValueAtTime(0.001, now + dur);
+
+        if (sound.synthType === 'tone') {
+            const osc = ctx.createOscillator();
+            osc.type = sound.wave || 'square';
+            osc.frequency.setValueAtTime(sound.freq, now);
+            if (sound.freqEnd) osc.frequency.exponentialRampToValueAtTime(sound.freqEnd, now + dur);
+            osc.connect(gain);
+            osc.start(now); osc.stop(now + dur);
+        }
+        else if (sound.synthType === 'noise') {
+            const bufSize = ctx.sampleRate * dur;
+            const buf = ctx.createBuffer(1, bufSize, ctx.sampleRate);
+            const data = buf.getChannelData(0);
+            for (let i = 0; i < bufSize; i++) data[i] = Math.random() * 2 - 1;
+            const src = ctx.createBufferSource();
+            src.buffer = buf;
+            if (sound.filter) {
+                const filt = ctx.createBiquadFilter();
+                filt.type = sound.filter; filt.frequency.value = sound.filterFreq || 1000;
+                src.connect(filt); filt.connect(gain);
+            } else { src.connect(gain); }
+            src.start(now); src.stop(now + dur);
+        }
+        else if (sound.synthType === 'multi') {
+            sound.notes.forEach((n, i) => {
+                const osc = ctx.createOscillator();
+                const g = ctx.createGain();
+                osc.type = n.wave || 'square';
+                osc.frequency.setValueAtTime(n.freq, now + (n.delay || 0));
+                if (n.freqEnd) osc.frequency.exponentialRampToValueAtTime(n.freqEnd, now + (n.delay||0) + (n.dur||0.2));
+                g.gain.setValueAtTime(vol * (n.vol || 1), now + (n.delay || 0));
+                g.gain.exponentialRampToValueAtTime(0.001, now + (n.delay || 0) + (n.dur || 0.2));
+                osc.connect(g); g.connect(ctx.destination);
+                osc.start(now + (n.delay || 0));
+                osc.stop(now + (n.delay || 0) + (n.dur || 0.2));
+            });
+        }
+    }
+
+    const SOUNDS = [
+        // MEME
+        { name: "VINE BOOM", icon: "fa-explosion", cat: "meme", synthType: 'tone', wave: 'sine', freq: 60, freqEnd: 20, duration: 1.2 },
+        { name: "BRUH", icon: "fa-face-meh", cat: "meme", synthType: 'tone', wave: 'sawtooth', freq: 120, freqEnd: 60, duration: 0.6 },
+        { name: "OOF", icon: "fa-face-dizzy", cat: "meme", synthType: 'tone', wave: 'triangle', freq: 400, freqEnd: 100, duration: 0.4 },
+        { name: "BONK", icon: "fa-gavel", cat: "meme", synthType: 'noise', duration: 0.15, filter: 'highpass', filterFreq: 2000 },
+        { name: "AIRHORN", icon: "fa-bullhorn", cat: "meme", synthType: 'tone', wave: 'sawtooth', freq: 520, duration: 1.5 },
+        { name: "WOW", icon: "fa-face-surprise", cat: "meme", synthType: 'tone', wave: 'sine', freq: 300, freqEnd: 600, duration: 0.8 },
+        { name: "NOPE", icon: "fa-ban", cat: "meme", synthType: 'multi', duration: 0.6, notes: [
+            { freq: 400, dur: 0.15, wave: 'square' },
+            { freq: 300, dur: 0.15, wave: 'square', delay: 0.15 },
+            { freq: 200, dur: 0.3, wave: 'square', delay: 0.3 }
+        ]},
+        { name: "SAD TROMBONE", icon: "fa-guitar", cat: "meme", synthType: 'multi', duration: 1.5, notes: [
+            { freq: 293, dur: 0.35, wave: 'sawtooth' },
+            { freq: 277, dur: 0.35, wave: 'sawtooth', delay: 0.35 },
+            { freq: 261, dur: 0.35, wave: 'sawtooth', delay: 0.7 },
+            { freq: 246, dur: 0.6, wave: 'sawtooth', delay: 1.05 }
+        ]},
+
+        // FILM / TV
+        { name: "INCEPTION", icon: "fa-film", cat: "movie", synthType: 'tone', wave: 'sawtooth', freq: 55, duration: 2.5 },
+        { name: "DUN DUN", icon: "fa-scale-balanced", cat: "movie", synthType: 'multi', duration: 1, notes: [
+            { freq: 130, dur: 0.25, wave: 'square' },
+            { freq: 98, dur: 0.5, wave: 'square', delay: 0.4 }
+        ]},
+        { name: "DRAMATIC", icon: "fa-drum", cat: "movie", synthType: 'multi', duration: 2, notes: [
+            { freq: 55, dur: 2, wave: 'sawtooth', vol: 0.5 },
+            { freq: 110, dur: 2, wave: 'sawtooth', vol: 0.3 },
+            { freq: 165, dur: 2, wave: 'sawtooth', vol: 0.2 }
+        ]},
+        { name: "SUSPENSE", icon: "fa-eye", cat: "movie", synthType: 'tone', wave: 'sine', freq: 200, freqEnd: 800, duration: 2.0 },
+        { name: "JUMPSCARE", icon: "fa-ghost", cat: "movie", synthType: 'noise', duration: 0.3, filter: 'highpass', filterFreq: 3000 },
+        { name: "HEARTBEAT", icon: "fa-heart-pulse", cat: "movie", synthType: 'multi', duration: 1.2, notes: [
+            { freq: 60, dur: 0.1, wave: 'sine' },
+            { freq: 50, dur: 0.15, wave: 'sine', delay: 0.15 },
+            { freq: 60, dur: 0.1, wave: 'sine', delay: 0.6 },
+            { freq: 50, dur: 0.15, wave: 'sine', delay: 0.75 }
+        ]},
+
+        // ANIME
+        { name: "NANI?!", icon: "fa-exclamation", cat: "anime", synthType: 'tone', wave: 'square', freq: 600, freqEnd: 1200, duration: 0.3 },
+        { name: "POWER UP", icon: "fa-fist-raised", cat: "anime", synthType: 'tone', wave: 'sawtooth', freq: 200, freqEnd: 1600, duration: 1.5 },
+        { name: "ZA WARUDO", icon: "fa-clock", cat: "anime", synthType: 'multi', duration: 1.5, notes: [
+            { freq: 80, dur: 0.5, wave: 'sawtooth' },
+            { freq: 60, dur: 1, wave: 'sine', delay: 0.3, vol: 0.5 }
+        ]},
+        { name: "DEATH NOTE", icon: "fa-skull", cat: "anime", synthType: 'multi', duration: 2, notes: [
+            { freq: 220, dur: 0.8, wave: 'sine' },
+            { freq: 185, dur: 0.8, wave: 'sine', delay: 0.5 },
+            { freq: 146, dur: 1.2, wave: 'sine', delay: 1.0 }
+        ]},
+        { name: "SPARKLE", icon: "fa-star", cat: "anime", synthType: 'multi', duration: 0.8, notes: [
+            { freq: 1200, dur: 0.15, wave: 'sine' },
+            { freq: 1600, dur: 0.15, wave: 'sine', delay: 0.1 },
+            { freq: 2000, dur: 0.2, wave: 'sine', delay: 0.2 },
+            { freq: 2400, dur: 0.3, wave: 'sine', delay: 0.3 }
+        ]},
+        { name: "KAMEHAMEHA", icon: "fa-fire", cat: "anime", synthType: 'tone', wave: 'sawtooth', freq: 100, freqEnd: 2000, duration: 2.0 },
+
+        // GAME
+        { name: "COIN", icon: "fa-coins", cat: "game", synthType: 'multi', duration: 0.4, notes: [
+            { freq: 988, dur: 0.1, wave: 'square' },
+            { freq: 1319, dur: 0.3, wave: 'square', delay: 0.1 }
+        ]},
+        { name: "GAME OVER", icon: "fa-gamepad", cat: "game", synthType: 'multi', duration: 1.5, notes: [
+            { freq: 392, dur: 0.2, wave: 'square' },
+            { freq: 330, dur: 0.2, wave: 'square', delay: 0.25 },
+            { freq: 294, dur: 0.2, wave: 'square', delay: 0.5 },
+            { freq: 262, dur: 0.6, wave: 'square', delay: 0.75 }
+        ]},
+        { name: "LEVEL UP", icon: "fa-arrow-up", cat: "game", synthType: 'multi', duration: 0.8, notes: [
+            { freq: 523, dur: 0.1, wave: 'square' },
+            { freq: 659, dur: 0.1, wave: 'square', delay: 0.1 },
+            { freq: 784, dur: 0.1, wave: 'square', delay: 0.2 },
+            { freq: 1047, dur: 0.3, wave: 'square', delay: 0.3 }
+        ]},
+        { name: "ALERT !", icon: "fa-triangle-exclamation", cat: "game", synthType: 'multi', duration: 0.6, notes: [
+            { freq: 800, dur: 0.15, wave: 'square' },
+            { freq: 800, dur: 0.15, wave: 'square', delay: 0.2 },
+            { freq: 1000, dur: 0.2, wave: 'square', delay: 0.4 }
+        ]},
+        { name: "EXPLOSION", icon: "fa-burst", cat: "game", synthType: 'noise', duration: 0.8, filter: 'lowpass', filterFreq: 600 },
+        { name: "LASER", icon: "fa-crosshairs", cat: "game", synthType: 'tone', wave: 'sawtooth', freq: 1500, freqEnd: 100, duration: 0.3 },
+        { name: "JUMP", icon: "fa-person-running", cat: "game", synthType: 'tone', wave: 'square', freq: 300, freqEnd: 800, duration: 0.2 },
+        { name: "HIT", icon: "fa-hand-fist", cat: "game", synthType: 'noise', duration: 0.1, filter: 'bandpass', filterFreq: 1500 },
+
+        // EFFEKT
+        { name: "CORRECT", icon: "fa-check", cat: "fx", synthType: 'multi', duration: 0.4, notes: [
+            { freq: 523, dur: 0.15, wave: 'sine' },
+            { freq: 784, dur: 0.25, wave: 'sine', delay: 0.12 }
+        ]},
+        { name: "WRONG", icon: "fa-xmark", cat: "fx", synthType: 'multi', duration: 0.5, notes: [
+            { freq: 200, dur: 0.25, wave: 'sawtooth' },
+            { freq: 150, dur: 0.25, wave: 'sawtooth', delay: 0.2 }
+        ]},
+        { name: "BEEP", icon: "fa-bell", cat: "fx", synthType: 'tone', wave: 'sine', freq: 880, duration: 0.15 },
+        { name: "ALARM", icon: "fa-siren-on", cat: "fx", synthType: 'multi', duration: 1.5, notes: [
+            { freq: 800, dur: 0.3, wave: 'square' },
+            { freq: 600, dur: 0.3, wave: 'square', delay: 0.3 },
+            { freq: 800, dur: 0.3, wave: 'square', delay: 0.6 },
+            { freq: 600, dur: 0.3, wave: 'square', delay: 0.9 },
+            { freq: 800, dur: 0.3, wave: 'square', delay: 1.2 }
+        ]},
+        { name: "STATIC", icon: "fa-signal", cat: "fx", synthType: 'noise', duration: 1.0, filter: 'bandpass', filterFreq: 4000 },
+        { name: "WHOOSH", icon: "fa-wind", cat: "fx", synthType: 'noise', duration: 0.4, filter: 'bandpass', filterFreq: 2000 },
+        { name: "CLICK", icon: "fa-computer-mouse", cat: "fx", synthType: 'noise', duration: 0.03, filter: 'highpass', filterFreq: 4000 },
+        { name: "POP", icon: "fa-circle", cat: "fx", synthType: 'tone', wave: 'sine', freq: 400, freqEnd: 100, duration: 0.08 },
+        { name: "GLITCH", icon: "fa-bug", cat: "fx", synthType: 'multi', duration: 0.5, notes: [
+            { freq: 80, dur: 0.05, wave: 'square' },
+            { freq: 2000, dur: 0.03, wave: 'sawtooth', delay: 0.08 },
+            { freq: 150, dur: 0.04, wave: 'square', delay: 0.15 },
+            { freq: 3000, dur: 0.02, wave: 'sawtooth', delay: 0.22 },
+            { freq: 100, dur: 0.08, wave: 'square', delay: 0.28 }
+        ]},
+        { name: "SIREN", icon: "fa-truck-medical", cat: "fx", synthType: 'tone', wave: 'sine', freq: 400, freqEnd: 800, duration: 1.0 },
+    ];
+
+    // ==========================================
+    // STATE
+    // ==========================================
+    let activeCat = 'all';
+    let searchTerm = '';
+    let volume = 0.8;
+    let currentAudio = null;
+
+    // ==========================================
+    // RENDER
+    // ==========================================
+    const grid = document.getElementById('sb-grid');
+
+    function render() {
+        grid.innerHTML = '';
+
+        const filtered = SOUNDS.filter(s => {
+            if (activeCat !== 'all' && s.cat !== activeCat) return false;
+            if (searchTerm && !s.name.toLowerCase().includes(searchTerm)) return false;
+            return true;
+        });
+
+        if (filtered.length === 0) {
+            grid.innerHTML = '<div class="sb-empty">Nincs találat.</div>';
+            return;
+        }
+
+        filtered.forEach((sound, i) => {
+            const pad = document.createElement('div');
+            pad.className = 'pad';
+            pad.style.animationDelay = (0.6 + i * 0.03) + 's';
+            pad.style.opacity = '0';
+            pad.style.animation = `slideUp 0.4s ease ${0.6 + i * 0.03}s forwards`;
+
+            pad.innerHTML = `
+                <div class="pad-cat cat-${sound.cat}"></div>
+                <div class="pad-icon"><i class="fa-solid ${sound.icon}"></i></div>
+                <div class="pad-name">${sound.name}</div>
+            `;
+
+            pad.addEventListener('click', () => playSound(sound, pad));
+            grid.appendChild(pad);
+        });
+    }
+
+    // ==========================================
+    // PLAY
+    // ==========================================
+    function playSound(sound, padEl) {
+        // Remove previous playing state
+        document.querySelectorAll('.pad.playing').forEach(p => p.classList.remove('playing'));
+
+        padEl.classList.add('playing');
+        playSynth(sound, volume);
+
+        // Remove playing class after duration
+        const dur = sound.duration || 0.3;
+        if (sound.synthType === 'multi' && sound.notes) {
+            const maxEnd = Math.max(...sound.notes.map(n => (n.delay || 0) + (n.dur || 0.2)));
+            setTimeout(() => padEl.classList.remove('playing'), maxEnd * 1000 + 100);
+        } else {
+            setTimeout(() => padEl.classList.remove('playing'), dur * 1000 + 100);
+        }
+    }
+
+    // ==========================================
+    // FILTERS
+    // ==========================================
+    document.querySelectorAll('.filter-btn').forEach(btn => {
+        btn.addEventListener('click', () => {
+            document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+            btn.classList.add('active');
+            activeCat = btn.dataset.cat;
+            render();
+        });
+    });
+
+    document.getElementById('search').addEventListener('input', (e) => {
+        searchTerm = e.target.value.toLowerCase().trim();
+        render();
+    });
+
+    document.getElementById('vol-slider').addEventListener('input', (e) => {
+        volume = e.target.value / 100;
+        if (currentAudio) currentAudio.volume = volume;
+    });
+
+    // ==========================================
+    // KEYBOARD STOP
+    // ==========================================
+    document.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape' && currentAudio) {
+            currentAudio.pause();
+            currentAudio.currentTime = 0;
+            document.querySelectorAll('.pad.playing').forEach(p => p.classList.remove('playing'));
+            currentAudio = null;
+        }
+    });
+
+    // INIT
+    render();
+
+    // ==========================================
+    // PARTICLE BG
+    // ==========================================
+    (function() {
+        const canvas = document.getElementById('bg-canvas');
+        if (!canvas || typeof THREE === 'undefined') return;
+        const renderer = new THREE.WebGLRenderer({ canvas, alpha: true, antialias: true });
+        renderer.setSize(window.innerWidth, window.innerHeight);
+        renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+        const scene = new THREE.Scene();
+        const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+        camera.position.z = 5;
+        const count = window.innerWidth < 768 ? 400 : 800;
+        const pos = new Float32Array(count * 3);
+        for (let i = 0; i < count; i++) { pos[i*3]=(Math.random()-0.5)*30; pos[i*3+1]=(Math.random()-0.5)*30; pos[i*3+2]=(Math.random()-0.5)*30; }
+        const geo = new THREE.BufferGeometry();
+        geo.setAttribute('position', new THREE.BufferAttribute(pos, 3));
+        const mat = new THREE.PointsMaterial({ color:0xffffff, size:0.02, transparent:true, opacity:0.35, blending:THREE.AdditiveBlending });
+        const pts = new THREE.Points(geo, mat);
+        scene.add(pts);
+        let mx=0, my=0;
+        document.addEventListener('mousemove', e => { mx=(e.clientX/window.innerWidth-0.5)*2; my=(e.clientY/window.innerHeight-0.5)*2; });
+        function anim() { requestAnimationFrame(anim); pts.rotation.y+=0.0003; pts.rotation.x+=(my*0.05-pts.rotation.x)*0.01; pts.rotation.y+=(mx*0.05-pts.rotation.y)*0.01; renderer.render(scene,camera); }
+        anim();
+        window.addEventListener('resize', () => { camera.aspect=window.innerWidth/window.innerHeight; camera.updateProjectionMatrix(); renderer.setSize(window.innerWidth,window.innerHeight); });
+    })();
+    </script>
+</body>
+</html>

@@ -1,0 +1,359 @@
+<!DOCTYPE html>
+<html lang="hu">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Wallpapers • BOMBASZ</title>
+
+    <script type="module" src="auth.js"></script>
+    <script src="user-ui.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;500;600;700;800;900&family=Space+Grotesk:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="icon" href="favicon.ico">
+
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        :root { --bg: #000; --text: #fff; --gray: #888; }
+        html { scroll-behavior: smooth; }
+        body { font-family: 'Space Grotesk', sans-serif; background: var(--bg); color: var(--text); min-height: 100vh; overflow-x: hidden; }
+        body.has-user-bar { padding-top: 44px !important; }
+
+        #bg-canvas { position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: 0; pointer-events: none; }
+
+        .page-header { position: relative; z-index: 10; text-align: center; padding: 80px 20px 10px; }
+        .page-header h1 { font-family: 'Orbitron', sans-serif; font-size: clamp(22px, 5vw, 44px); font-weight: 900; letter-spacing: 0.12em; opacity: 0; animation: slideUp 0.8s ease 0.3s forwards; }
+        .page-header p { color: var(--gray); font-size: 13px; letter-spacing: 2px; margin-top: 8px; opacity: 0; animation: slideUp 0.8s ease 0.5s forwards; }
+        @keyframes slideUp { from { opacity: 0; transform: translateY(25px); } to { opacity: 1; transform: translateY(0); } }
+
+        /* ---- TAGS ---- */
+        .tags {
+            position: relative; z-index: 10;
+            max-width: 800px; margin: 28px auto 0; padding: 0 20px;
+            display: flex; gap: 6px; flex-wrap: wrap; justify-content: center;
+            opacity: 0; animation: slideUp 0.8s ease 0.6s forwards;
+        }
+
+        .tag {
+            font-family: 'Orbitron', sans-serif; font-size: 9px; font-weight: 700;
+            letter-spacing: 1px; padding: 8px 16px;
+            border: 1px solid rgba(255,255,255,0.1); background: transparent; color: var(--gray);
+            cursor: pointer; transition: all 0.2s;
+        }
+        .tag:hover, .tag.active { border-color: var(--text); color: var(--text); background: rgba(255,255,255,0.05); }
+
+        /* ---- GALLERY ---- */
+        .gallery {
+            position: relative; z-index: 10;
+            max-width: 1200px; margin: 24px auto 0; padding: 0 20px 100px;
+            columns: 4;
+            column-gap: 10px;
+        }
+
+        .wp-card {
+            break-inside: avoid;
+            margin-bottom: 10px;
+            position: relative;
+            overflow: hidden;
+            cursor: pointer;
+            border: 1px solid rgba(255,255,255,0.06);
+            transition: border-color 0.2s;
+        }
+        .wp-card:hover { border-color: rgba(255,255,255,0.25); }
+
+        .wp-card img {
+            width: 100%; display: block;
+            background: rgba(255,255,255,0.03);
+            min-height: 120px;
+            transition: transform 0.3s ease;
+        }
+        .wp-card:hover img { transform: scale(1.03); }
+
+        .wp-overlay {
+            position: absolute; bottom: 0; left: 0; right: 0;
+            padding: 10px;
+            background: linear-gradient(transparent, rgba(0,0,0,0.85));
+            opacity: 0;
+            transition: opacity 0.2s;
+            display: flex; align-items: flex-end; justify-content: space-between;
+        }
+        .wp-card:hover .wp-overlay { opacity: 1; }
+
+        .wp-res { font-family: 'Orbitron', sans-serif; font-size: 9px; letter-spacing: 1px; color: var(--gray); }
+
+        .wp-dl {
+            width: 30px; height: 30px;
+            background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.2);
+            color: var(--text); font-size: 12px;
+            display: flex; align-items: center; justify-content: center;
+            text-decoration: none; transition: all 0.2s;
+        }
+        .wp-dl:hover { background: var(--text); color: var(--bg); }
+
+        .gallery-loading, .gallery-empty {
+            column-span: all;
+            text-align: center; padding: 50px 20px; color: var(--gray); font-size: 13px;
+        }
+
+        /* ---- LIGHTBOX ---- */
+        .lightbox {
+            display: none;
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.95); z-index: 9000;
+            justify-content: center; align-items: center;
+            cursor: pointer;
+        }
+        .lightbox.open { display: flex; animation: fadeIn 0.2s ease; }
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+
+        .lightbox img { max-width: 95%; max-height: 90vh; object-fit: contain; }
+
+        .lightbox-close {
+            position: absolute; top: 20px; right: 24px;
+            background: none; border: none; color: var(--gray); font-size: 24px;
+            cursor: pointer; transition: color 0.2s; z-index: 2;
+        }
+        .lightbox-close:hover { color: var(--text); }
+
+        .lightbox-dl {
+            position: absolute; bottom: 24px; right: 24px;
+            font-family: 'Orbitron', sans-serif; font-size: 10px; font-weight: 700;
+            letter-spacing: 2px; padding: 12px 24px;
+            border: 1px solid var(--text); background: rgba(0,0,0,0.8); color: var(--text);
+            text-decoration: none; transition: all 0.2s; z-index: 2;
+        }
+        .lightbox-dl:hover { background: var(--text); color: var(--bg); }
+
+        /* ---- LOAD MORE ---- */
+        .load-more-wrap {
+            position: relative; z-index: 10;
+            text-align: center;
+            padding: 0 20px 60px;
+        }
+
+        .btn-load {
+            font-family: 'Orbitron', sans-serif; font-size: 10px; font-weight: 700;
+            letter-spacing: 2px; padding: 14px 36px;
+            border: 1px solid var(--text); background: transparent; color: var(--text);
+            cursor: pointer; transition: all 0.3s ease;
+        }
+        .btn-load:hover { background: var(--text); color: var(--bg); }
+        .btn-load:disabled { opacity: 0.3; cursor: not-allowed; }
+
+        @media (max-width: 1024px) { .gallery { columns: 3; } }
+        @media (max-width: 768px) {
+            .page-header { padding: 60px 16px 10px; }
+            .gallery { columns: 2; padding-left: 12px; padding-right: 12px; }
+            .tags { padding-left: 12px; padding-right: 12px; }
+        }
+    </style>
+</head>
+<body>
+    <script src="transition-entry.js"></script>
+    <canvas id="bg-canvas"></canvas>
+
+    <div class="page-header">
+        <h1>WALLPAPERS</h1>
+        <p>HÁTTÉRKÉPEK MINDEN KATEGÓRIÁBAN</p>
+    </div>
+
+    <div class="tags" id="tags">
+        <button class="tag active" data-sub="wallpaper">KEVERT</button>
+        <button class="tag" data-sub="carporn">AUTÓK</button>
+        <button class="tag" data-sub="MinimalWallpaper">MINIMÁL</button>
+        <button class="tag" data-sub="cyberpunk">CYBERPUNK</button>
+        <button class="tag" data-sub="ImaginaryLandscapes">TÁJAK</button>
+        <button class="tag" data-sub="ImaginaryCityscapes">VÁROSOK</button>
+        <button class="tag" data-sub="spaceporn">ŰR</button>
+        <button class="tag" data-sub="AMOLEDBackgrounds">AMOLED</button>
+        <button class="tag" data-sub="Animewallpaper">ANIME</button>
+        <button class="tag" data-sub="WidescreenWallpaper">WIDESCREEN</button>
+        <button class="tag" data-sub="StarWars">STAR WARS</button>
+        <button class="tag" data-sub="F1Porn">F1</button>
+        <button class="tag" data-sub="sportscars">SPORTAUTÓK</button>
+    </div>
+
+    <div class="gallery" id="gallery">
+        <div class="gallery-loading" id="gallery-loading">
+            <i class="fa-solid fa-spinner fa-spin" style="font-size:20px;display:block;margin-bottom:10px"></i>
+            Wallpaperek betöltése...
+        </div>
+    </div>
+
+    <div class="load-more-wrap" id="load-more-wrap" style="display:none">
+        <button class="btn-load" id="btn-load">TOVÁBBI KÉPEK</button>
+    </div>
+
+    <!-- LIGHTBOX -->
+    <div class="lightbox" id="lightbox">
+        <button class="lightbox-close" id="lb-close">&times;</button>
+        <img id="lb-img" src="" alt="">
+        <a class="lightbox-dl" id="lb-dl" href="" target="_blank">MEGNYITÁS</a>
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+
+    <script>
+    // ==========================================
+    // Reddit JSON API — no key, CORS-friendly
+    // ==========================================
+    let currentSub = 'Animewallpaper';
+    let afterToken = null;
+    let loading = false;
+
+    const gallery = document.getElementById('gallery');
+    const galleryLoading = document.getElementById('gallery-loading');
+    const loadMoreWrap = document.getElementById('load-more-wrap');
+    const btnLoad = document.getElementById('btn-load');
+
+    async function loadWallpapers(sub, append = false) {
+        if (loading) return;
+        loading = true;
+
+        if (!append) {
+            gallery.querySelectorAll('.wp-card').forEach(c => c.remove());
+            galleryLoading.style.display = '';
+            afterToken = null;
+            currentSub = sub;
+        }
+
+        btnLoad.disabled = true;
+        btnLoad.textContent = 'BETÖLTÉS...';
+
+        try {
+            let url = `https://www.reddit.com/r/${sub}/hot.json?limit=50&raw_json=1`;
+            if (afterToken) url += `&after=${afterToken}`;
+
+            const resp = await fetch(url);
+            if (!resp.ok) throw new Error('Reddit API error ' + resp.status);
+            const data = await resp.json();
+
+            galleryLoading.style.display = 'none';
+            afterToken = data.data.after;
+
+            const posts = data.data.children
+                .map(c => c.data)
+                .filter(p => {
+                    // Only image posts
+                    if (p.is_self || p.over_18) return false;
+                    const url = p.url || '';
+                    return url.match(/\.(jpg|jpeg|png|webp)$/i) ||
+                           (p.preview && p.preview.images && p.preview.images.length > 0);
+                });
+
+            if (posts.length === 0 && !append) {
+                gallery.innerHTML = '<div class="gallery-empty">Nincs elérhető wallpaper ebben a kategóriában.</div>';
+                loadMoreWrap.style.display = 'none';
+                loading = false;
+                return;
+            }
+
+            posts.forEach((post, i) => {
+                const card = document.createElement('div');
+                card.className = 'wp-card';
+
+                // Get best image URL
+                let imgUrl = post.url;
+                let fullUrl = post.url;
+                let resolution = '';
+
+                // Use preview for thumbnail
+                if (post.preview && post.preview.images && post.preview.images[0]) {
+                    const previews = post.preview.images[0].resolutions;
+                    if (previews && previews.length > 0) {
+                        // Use largest preview as thumbnail
+                        imgUrl = previews[previews.length - 1].url;
+                    }
+                    // Full res
+                    fullUrl = post.preview.images[0].source.url;
+                    resolution = `${post.preview.images[0].source.width}×${post.preview.images[0].source.height}`;
+                }
+
+                card.innerHTML = `
+                    <img src="${imgUrl}" alt="${escHtml(post.title)}" loading="lazy" onerror="this.parentElement.remove()">
+                    <div class="wp-overlay">
+                        <div class="wp-res">${resolution}</div>
+                        <a class="wp-dl" href="${fullUrl}" target="_blank" title="Megnyitás" onclick="event.stopPropagation()"><i class="fa-solid fa-up-right-from-square"></i></a>
+                    </div>
+                `;
+
+                card.addEventListener('click', () => openLightbox(fullUrl));
+                gallery.appendChild(card);
+            });
+
+            loadMoreWrap.style.display = afterToken ? '' : 'none';
+
+        } catch(e) {
+            console.error('Load error:', e);
+            galleryLoading.style.display = 'none';
+            if (!append) {
+                gallery.innerHTML = '<div class="gallery-empty">Hiba a betöltéskor. Próbáld újra!</div>';
+            }
+        }
+
+        loading = false;
+        btnLoad.disabled = false;
+        btnLoad.textContent = 'TOVÁBBI KÉPEK';
+    }
+
+    // ---- TAGS ----
+    document.querySelectorAll('.tag').forEach(tag => {
+        tag.addEventListener('click', () => {
+            document.querySelectorAll('.tag').forEach(t => t.classList.remove('active'));
+            tag.classList.add('active');
+            loadWallpapers(tag.dataset.sub);
+        });
+    });
+
+    // ---- LOAD MORE ----
+    btnLoad.addEventListener('click', () => {
+        loadWallpapers(currentSub, true);
+    });
+
+    // ---- LIGHTBOX ----
+    const lightbox = document.getElementById('lightbox');
+    const lbImg = document.getElementById('lb-img');
+    const lbDl = document.getElementById('lb-dl');
+    const lbClose = document.getElementById('lb-close');
+
+    function openLightbox(url) {
+        lbImg.src = url;
+        lbDl.href = url;
+        lightbox.classList.add('open');
+    }
+
+    lbClose.addEventListener('click', (e) => { e.stopPropagation(); lightbox.classList.remove('open'); });
+    lightbox.addEventListener('click', () => lightbox.classList.remove('open'));
+    document.addEventListener('keydown', e => { if (e.key === 'Escape') lightbox.classList.remove('open'); });
+
+    function escHtml(str) { const d = document.createElement('div'); d.textContent = str || ''; return d.innerHTML; }
+
+    // ---- INIT ----
+    loadWallpapers('wallpaper');
+
+    // ---- PARTICLE BG ----
+    (function() {
+        const canvas = document.getElementById('bg-canvas');
+        if (!canvas || typeof THREE === 'undefined') return;
+        const renderer = new THREE.WebGLRenderer({ canvas, alpha: true, antialias: true });
+        renderer.setSize(window.innerWidth, window.innerHeight);
+        renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+        const scene = new THREE.Scene();
+        const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+        camera.position.z = 5;
+        const count = window.innerWidth < 768 ? 400 : 800;
+        const pos = new Float32Array(count * 3);
+        for (let i = 0; i < count; i++) { pos[i*3]=(Math.random()-0.5)*30; pos[i*3+1]=(Math.random()-0.5)*30; pos[i*3+2]=(Math.random()-0.5)*30; }
+        const geo = new THREE.BufferGeometry();
+        geo.setAttribute('position', new THREE.BufferAttribute(pos, 3));
+        const mat = new THREE.PointsMaterial({ color:0xffffff, size:0.02, transparent:true, opacity:0.35, blending:THREE.AdditiveBlending });
+        const pts = new THREE.Points(geo, mat);
+        scene.add(pts);
+        let mx=0, my=0;
+        document.addEventListener('mousemove', e => { mx=(e.clientX/window.innerWidth-0.5)*2; my=(e.clientY/window.innerHeight-0.5)*2; });
+        function anim() { requestAnimationFrame(anim); pts.rotation.y+=0.0003; pts.rotation.x+=(my*0.05-pts.rotation.x)*0.01; pts.rotation.y+=(mx*0.05-pts.rotation.y)*0.01; renderer.render(scene,camera); }
+        anim();
+        window.addEventListener('resize', () => { camera.aspect=window.innerWidth/window.innerHeight; camera.updateProjectionMatrix(); renderer.setSize(window.innerWidth,window.innerHeight); });
+    })();
+    </script>
+</body>
+</html>

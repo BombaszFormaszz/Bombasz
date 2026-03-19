@@ -187,7 +187,7 @@
         <div class="dropzone" id="dropzone">
             <div class="dropzone-icon"><i class="fa-solid fa-cloud-arrow-up"></i></div>
             <div class="dropzone-text">Húzd ide a fájlt vagy kattints a tallózáshoz</div>
-            <div class="dropzone-hint">Max. 20 MB • Automatikusan törlődik 24 óra után</div>
+            <div class="dropzone-hint">Max. 5 MB • Automatikusan törlődik 24 óra után</div>
             <input type="file" id="file-input">
         </div>
 
@@ -222,11 +222,10 @@
     <script type="module">
     import { initializeApp, getApps, getApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
     import { getDatabase, ref as dbRef, push, onValue, remove, get, child } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
-    import { getStorage, ref as stRef, uploadBytesResumable, getDownloadURL, deleteObject } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-storage.js";
     import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
 
     const ADMIN_EMAILS = ["bartaadikonyv@gmail.com","balazs.hajdu00@gmail.com","hajdub@kkszki.hu","adam070702@gmail.com"];
-    const MAX_SIZE = 20 * 1024 * 1024; // 20MB
+    const MAX_SIZE = 5 * 1024 * 1024; // 5MB (RTDB limit)
     const EXPIRE_MS = 24 * 60 * 60 * 1000; // 24h
 
     const firebaseConfig = {
@@ -241,7 +240,6 @@
 
     const app = getApps().length ? getApp() : initializeApp(firebaseConfig);
     const db = getDatabase(app);
-    const storage = getStorage(app);
     const auth = getAuth(app);
     const filesRef = dbRef(db, 'shared_files');
 
@@ -305,10 +303,10 @@
         fileInput.value = '';
     });
 
-    // ---- UPLOAD ----
+    // ---- UPLOAD (Base64 to RTDB) ----
     async function uploadFile(file) {
         if (!currentUser) { alert('Jelentkezz be a feltöltéshez!'); return; }
-        if (file.size > MAX_SIZE) { alert('Túl nagy fájl! Maximum 20 MB.'); return; }
+        if (file.size > MAX_SIZE) { alert('Túl nagy fájl! Maximum 5 MB.'); return; }
 
         const progressBox = document.getElementById('upload-progress');
         const progressBar = document.getElementById('progress-bar');
@@ -320,64 +318,60 @@
         progressBox.classList.add('visible');
         progressName.textContent = file.name;
         progressBar.style.width = '0%';
-        progressText.textContent = 'Feltöltés...';
+        progressText.textContent = 'Fájl olvasása...';
 
-        // Unique filename
         const timestamp = Date.now();
-        const safeName = file.name.replace(/[^a-zA-Z0-9._-]/g, '_');
-        const storagePath = `shared/${currentUser.uid}_${timestamp}_${safeName}`;
 
-        const storageRef = stRef(storage, storagePath);
-        const uploadTask = uploadBytesResumable(storageRef, file);
-
-        uploadTask.on('state_changed',
-            (snapshot) => {
-                const pct = (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
+        // Read file as base64
+        const reader = new FileReader();
+        reader.onprogress = (e) => {
+            if (e.lengthComputable) {
+                const pct = (e.loaded / e.total) * 50;
                 progressBar.style.width = pct + '%';
-                progressText.textContent = `${Math.round(pct)}% — ${formatSize(snapshot.bytesTransferred)} / ${formatSize(snapshot.totalBytes)}`;
-            },
-            (error) => {
-                console.error('Upload error:', error);
-                progressText.textContent = 'Hiba: ' + error.message;
-                progressBar.style.background = '#ff4444';
-            },
-            async () => {
-                // Upload done
-                progressText.textContent = 'Link generálás...';
-                try {
-                    const downloadURL = await getDownloadURL(uploadTask.snapshot.ref);
-
-                    // Save metadata to RTDB
-                    const entry = await push(filesRef, {
-                        name: file.name,
-                        size: file.size,
-                        type: file.type || 'application/octet-stream',
-                        storagePath,
-                        downloadURL,
-                        uploadedBy: currentUser.uid,
-                        uploadedByName: currentUser.displayName || currentUser.email.split('@')[0],
-                        uploadedAt: timestamp
-                    });
-
-                    progressText.textContent = 'Kész!';
-
-                    // Build share link
-                    const shareUrl = downloadURL;
-                    document.getElementById('share-link').value = shareUrl;
-                    shareBox.classList.add('visible');
-
-                    document.getElementById('btn-copy').onclick = () => {
-                        navigator.clipboard.writeText(shareUrl);
-                        document.getElementById('btn-copy').textContent = 'MÁSOLVA ✓';
-                        setTimeout(() => document.getElementById('btn-copy').textContent = 'MÁSOLÁS', 1500);
-                    };
-
-                } catch(e) {
-                    console.error('Post-upload error:', e);
-                    progressText.textContent = 'Hiba: ' + e.message;
-                }
+                progressText.textContent = `Olvasás... ${Math.round(pct * 2)}%`;
             }
-        );
+        };
+        reader.onerror = () => {
+            progressText.textContent = 'Hiba a fájl olvasásakor!';
+            progressBar.style.background = '#ff4444';
+        };
+        reader.onload = async () => {
+            try {
+                progressBar.style.width = '50%';
+                progressText.textContent = 'Feltöltés...';
+
+                const base64 = reader.result; // data:type;base64,...
+
+                const entry = await push(filesRef, {
+                    name: file.name,
+                    size: file.size,
+                    type: file.type || 'application/octet-stream',
+                    data: base64,
+                    uploadedBy: currentUser.uid,
+                    uploadedByName: currentUser.displayName || currentUser.email.split('@')[0],
+                    uploadedAt: timestamp
+                });
+
+                progressBar.style.width = '100%';
+                progressText.textContent = 'Kész!';
+
+                // Share link = this page with ?dl=ID
+                const shareUrl = `${window.location.origin}${window.location.pathname}?dl=${entry.key}`;
+                document.getElementById('share-link').value = shareUrl;
+                shareBox.classList.add('visible');
+
+                document.getElementById('btn-copy').onclick = () => {
+                    navigator.clipboard.writeText(shareUrl);
+                    document.getElementById('btn-copy').textContent = 'MÁSOLVA ✓';
+                    setTimeout(() => document.getElementById('btn-copy').textContent = 'MÁSOLÁS', 1500);
+                };
+            } catch(e) {
+                console.error('Upload error:', e);
+                progressText.textContent = 'Hiba: ' + e.message;
+                progressBar.style.background = '#ff4444';
+            }
+        };
+        reader.readAsDataURL(file);
     }
 
     // ---- CLEANUP EXPIRED FILES ----
@@ -387,16 +381,34 @@
         for (const [id, item] of Object.entries(data)) {
             if (item.uploadedAt && (now - item.uploadedAt) > EXPIRE_MS) {
                 try {
-                    // Delete from Storage
-                    const sRef = stRef(storage, item.storagePath);
-                    await deleteObject(sRef).catch(() => {}); // ignore if already gone
-                    // Delete from RTDB
                     await remove(dbRef(db, 'shared_files/' + id));
                     console.log('Cleaned up expired file:', item.name);
                 } catch(e) {
                     console.warn('Cleanup error:', e);
                 }
             }
+        }
+    }
+
+    // ---- DIRECT DOWNLOAD via ?dl=ID ----
+    const dlParam = new URLSearchParams(window.location.search).get('dl');
+    if (dlParam) {
+        try {
+            const snap = await get(child(dbRef(db), 'shared_files/' + dlParam));
+            if (snap.exists()) {
+                const f = snap.val();
+                // Trigger download
+                const a = document.createElement('a');
+                a.href = f.data;
+                a.download = f.name;
+                document.body.appendChild(a);
+                a.click();
+                a.remove();
+            } else {
+                alert('Ez a f\u00e1jl m\u00e1r t\u00f6rl\u0151d\u00f6tt vagy nem l\u00e9tezik.');
+            }
+        } catch(e) {
+            console.error('Download error:', e);
         }
     }
 
@@ -438,8 +450,8 @@
                 </div>
                 <div class="file-timer ${timer.urgent ? 'urgent' : ''}">${timer.text}</div>
                 <div class="file-actions">
-                    <a class="file-btn" href="${item.downloadURL}" target="_blank" title="Letöltés"><i class="fa-solid fa-download"></i></a>
-                    ${canDelete ? `<button class="file-btn delete" data-id="${item.id}" data-path="${escHtml(item.storagePath)}" title="Törlés"><i class="fa-solid fa-trash"></i></button>` : ''}
+                    <a class="file-btn" href="${item.data}" download="${escHtml(item.name)}" title="Letöltés"><i class="fa-solid fa-download"></i></a>
+                    ${canDelete ? `<button class="file-btn delete" data-id="${item.id}" title="Törlés"><i class="fa-solid fa-trash"></i></button>` : ''}
                 </div>
             `;
 
@@ -452,8 +464,6 @@
                 e.stopPropagation();
                 if (!confirm('Biztosan törlöd ezt a fájlt?')) return;
                 try {
-                    const sRef = stRef(storage, btn.dataset.path);
-                    await deleteObject(sRef).catch(() => {});
                     await remove(dbRef(db, 'shared_files/' + btn.dataset.id));
                 } catch(e) {
                     alert('Törlési hiba: ' + e.message);

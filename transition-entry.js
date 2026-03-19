@@ -9,8 +9,13 @@
     const isMobile = window.innerWidth < 768;
     
     // === VISSZA GOMB ===
+    // Tools oldalak ahol MINDIG kell a gomb
+    const currentPage = window.location.pathname.split('/').pop() || '';
+    const toolsPages = ['tools.html','countdown.html','playlist.html','paste.html','files.html','soundboard.html','wallpapers.html','tracker.html'];
+    const isToolsPage = toolsPages.includes(currentPage);
+
     function addBackButton() {
-        if (!cameFromHome) return;
+        if (!cameFromHome && !isToolsPage) return;
         if (document.getElementById('stargate-back-btn')) return;
         
         sessionStorage.setItem('came-from-home', 'true');
