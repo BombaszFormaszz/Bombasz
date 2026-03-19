@@ -20,9 +20,7 @@
         
         sessionStorage.setItem('came-from-home', 'true');
 
-        // Ha van user bar, lejjebb kell a gomb
-        const hasBar = document.body.classList.contains('has-user-bar') || document.getElementById('bombasz-user-bar');
-        const topOffset = hasBar ? 54 : (isMobile ? 15 : 20);
+        const topOffset = isMobile ? 15 : 20;
         
         const btn = document.createElement('button');
         btn.id = 'stargate-back-btn';
@@ -537,23 +535,9 @@
         playEntryAnimation();
     }
     
-    // Delay back button to let user-ui.js bar appear first
-    function initBackButton() {
-        // Try immediately, and also after a delay in case bar loads later
-        addBackButton();
-        setTimeout(() => {
-            // Reposition if bar appeared after initial render
-            const existing = document.getElementById('stargate-back-btn');
-            const hasBar = document.body.classList.contains('has-user-bar') || document.getElementById('bombasz-user-bar');
-            if (existing && hasBar) {
-                existing.style.top = '54px';
-            }
-        }, 1500);
-    }
-
     if (document.readyState === 'loading') {
-        document.addEventListener('DOMContentLoaded', initBackButton);
+        document.addEventListener('DOMContentLoaded', addBackButton);
     } else {
-        initBackButton();
+        addBackButton();
     }
 })();
