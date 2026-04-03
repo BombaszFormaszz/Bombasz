@@ -8,13 +8,14 @@ const categories = [
     {
         name: "ALOLDALAK",
         items: [
-            { name: "Bombasz Chat", icon: "fa-comments", url: "social.html" },
             { name: "Könyvek", icon: "fa-book-open", url: "konyv.html" },
             { name: "Vids", icon: "fa-play", url: "vids.html" },
             { name: "UNCS (régi)", icon: "fa-check-double", url: "uncs.html" },
             { name: "UNCS (nagyon régi)", icon: "fa-check-double", url: "old.html" },
             { name: "Történelem", icon: "fa-landmark", url: "tori.html" },
             { name: "CBZ", icon: "fa-book-open", url: "cbz.html" },
+            { name: "Reddit genyo", icon: "fa-comments", url: "redditgeci.html" },
+
         ]
     },
     {
