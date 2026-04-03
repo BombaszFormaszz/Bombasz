@@ -8,16 +8,16 @@ const categories = [
     {
         name: "ALOLDALAK",
         items: [
-            { name: "Bombasz Chat", icon: "fa-comments", url: "social.html" },
             { name: "Könyvek", icon: "fa-book-open", url: "konyv.html" },
             { name: "Vids", icon: "fa-play", url: "vids.html" },
             { name: "Eszközök", icon: "fa-toolbox", url: "tools.html" },
-            { name: "UNCS (régi)", icon: "fa-check-double", url: "uncs.html" },
+            { name: "UNCS (régi)", icon: "fa-check-double", url: "uncs.html" },  
             { name: "UNCS (nagyon régi)", icon: "fa-check-double", url: "old.html" },
             { name: "Történelem", icon: "fa-landmark", url: "tori.html" },
             { name: "Magyar", icon: "fa-landmark", url: "magyar.html" },
             { name: "CBZ", icon: "fa-book-open", url: "cbz.html" },
             { name: "Film Tracker", icon: "fa-book-open", url: "tracker.html" },
+            { name: "Reddit genyo", icon: "fa-comments", url: "redditgeci.html" },
         ]
     },
     {

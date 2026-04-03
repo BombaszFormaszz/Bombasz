@@ -1,0 +1,2415 @@
+<!DOCTYPE html>
+<html lang="hu" data-theme="amoled">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<meta name="theme-color" content="#000000">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black">
+<meta name="apple-mobile-web-app-title" content="Közösség">
+<meta name="mobile-web-app-capable" content="yes">
+<link rel="manifest" href="manifest.json">
+<link rel="apple-touch-icon" href="icon-192.png">
+<title>Közösség</title>
+<style>
+  /* Capacitor / native app feel */
+  body { -webkit-user-select: none; user-select: none; -webkit-tap-highlight-color: transparent; overscroll-behavior: none; }
+  input, textarea { -webkit-user-select: auto; user-select: auto; }
+</style>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+[data-theme=amoled]{--bg:#000;--c1:#0a0a0a;--c2:#111;--c3:#1a1a1a;--c4:#222;--b1:#2a2a2a;--b2:#333;--t1:#e8e8e8;--t2:#888;--t3:#555;--danger:#e55;--ok:#4c4;--nav:#000;--card:#0a0a0a;--inp:#111}
+[data-theme=grey]{--bg:#1a1a1a;--c1:#222;--c2:#2a2a2a;--c3:#333;--c4:#3a3a3a;--b1:#444;--b2:#555;--t1:#ddd;--t2:#999;--t3:#666;--danger:#e55;--ok:#4c4;--nav:#1a1a1a;--card:#222;--inp:#2a2a2a}
+[data-theme=light]{--bg:#f0f0f0;--c1:#fff;--c2:#f5f5f5;--c3:#ebebeb;--c4:#e0e0e0;--b1:#ccc;--b2:#bbb;--t1:#111;--t2:#666;--t3:#999;--danger:#c00;--ok:#060;--nav:#fff;--card:#fff;--inp:#f5f5f5}
+html{font-size:14px;-webkit-text-size-adjust:100%}
+body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--t1);min-height:100vh;overflow-x:hidden}
+button,input,textarea,select{font-family:'Inter',sans-serif;-webkit-appearance:none}
+::-webkit-scrollbar{width:3px}::-webkit-scrollbar-thumb{background:var(--b1)}
+img{display:block;width:100%;height:auto;object-fit:contain}
+video{display:block;width:100%;height:auto}
+
+/* NAV */
+#nav{position:sticky;top:0;z-index:400;background:var(--nav);border-bottom:1px solid var(--b1);display:flex;align-items:center;gap:8px;padding:0 12px;height:48px}
+
+/* HAMBURGER DRAWER */
+#ham-btn{display:none;width:32px;height:32px;border:1px solid var(--b1);background:transparent;color:var(--t2);align-items:center;justify-content:center;cursor:pointer;font-size:16px;flex-shrink:0}
+#ham-btn:hover{color:var(--t1)}
+@media(max-width:900px){#ham-btn{display:flex}}
+#drawer-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.55);z-index:450;backdrop-filter:blur(2px)}
+#drawer-overlay.open{display:block}
+#drawer{
+  position:fixed;top:0;left:0;bottom:0;width:260px;
+  background:var(--c1);border-right:1px solid var(--b2);
+  z-index:460;transform:translateX(-100%);
+  transition:transform .22s cubic-bezier(.4,0,.2,1);
+  display:flex;flex-direction:column;overflow:hidden;
+}
+#drawer.open{transform:translateX(0)}
+#drawer-head{height:48px;padding:0 14px;border-bottom:1px solid var(--b1);display:flex;align-items:center;justify-content:space-between;flex-shrink:0}
+#drawer-head span{font-size:14px;font-weight:700}
+#drawer-close{background:none;border:none;color:var(--t3);font-size:20px;cursor:pointer;line-height:1;padding:0 2px}
+#drawer-close:hover{color:var(--danger)}
+#drawer-body{flex:1;overflow-y:auto;padding:.5rem}
+.drawer-section{margin-bottom:1rem}
+.drawer-section-lbl{font-size:10px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--t3);padding:4px 8px 6px}
+.drawer-item{display:flex;align-items:center;gap:8px;padding:8px 10px;cursor:pointer;font-size:13px;font-weight:500;color:var(--t2);transition:background .1s;border-radius:4px}
+.drawer-item:hover{background:var(--c2);color:var(--t1)}
+.drawer-item.active{background:var(--c3);color:var(--t1)}
+#drawer-foot{padding:10px;border-top:1px solid var(--b1);flex-shrink:0}
+
+/* SEARCH PAGE */
+#pg-search{background:var(--bg)}
+.search-wrap{max-width:700px;margin:0 auto;padding:.75rem 12px 2rem}
+.search-top{display:flex;align-items:center;gap:8px;margin-bottom:1rem;padding-bottom:.75rem;border-bottom:1px solid var(--b1)}
+.search-big{flex:1;background:var(--inp);border:1px solid var(--b1);padding:8px 12px;font-size:14px;color:var(--t1);outline:none}
+.search-big:focus{border-color:var(--b2)}
+.search-tabs{display:flex;border-bottom:1px solid var(--b1);margin-bottom:1rem;background:var(--card)}
+.stab{flex:1;text-align:center;padding:10px 6px;font-size:12px;font-weight:700;letter-spacing:.03em;text-transform:uppercase;cursor:pointer;color:var(--t3);border-bottom:2px solid transparent;transition:all .12s}
+.stab.on{color:var(--t1);border-bottom-color:var(--t1)}
+#search-results{min-height:200px}
+.sr-user{display:flex;align-items:center;gap:10px;padding:10px 12px;background:var(--card);border:1px solid var(--b1);margin-bottom:4px;cursor:pointer;transition:background .1s}
+.sr-user:hover{background:var(--c2)}
+.sr-av{width:36px;height:36px;border-radius:50%;background:var(--c4);border:1px solid var(--b1);display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;overflow:hidden;flex-shrink:0}
+.sr-av img{width:100%;height:100%;object-fit:cover}
+.sr-name{font-size:13px;font-weight:600}
+.sr-sub{font-size:11px;color:var(--t3);margin-top:1px}
+.sr-comm{display:flex;align-items:center;gap:10px;padding:10px 12px;background:var(--card);border:1px solid var(--b1);margin-bottom:4px;cursor:pointer;transition:background .1s}
+.sr-comm:hover{background:var(--c2)}
+.sr-icon{width:36px;height:36px;background:var(--c3);border:1px solid var(--b1);display:flex;align-items:center;justify-content:center;font-size:1.2rem;flex-shrink:0}
+.sr-empty{padding:2rem;text-align:center;color:var(--t3);font-size:13px}
+.logo{font-size:15px;font-weight:700;cursor:pointer;flex-shrink:0;color:var(--t1)}
+#srch{flex:1;max-width:300px;background:var(--inp);border:1px solid var(--b1);padding:6px 10px;color:var(--t1);font-size:13px;outline:none;min-width:0}
+#srch:focus{border-color:var(--b2)}
+#srch::placeholder{color:var(--t3)}
+.nr{display:flex;align-items:center;gap:6px;margin-left:auto;flex-shrink:0}
+.btn{padding:5px 12px;font-size:12px;font-weight:600;border:1px solid var(--b1);cursor:pointer;transition:all .12s;background:transparent;color:var(--t2);white-space:nowrap}
+.btn:hover{color:var(--t1);border-color:var(--b2)}
+.btn-w{background:var(--t1);color:var(--bg);border-color:var(--t1)}
+.btn-w:hover{opacity:.85}
+.btn-sm{padding:4px 10px;font-size:11px}
+.ibtn{width:32px;height:32px;border:1px solid var(--b1);background:transparent;color:var(--t2);display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:14px;position:relative;flex-shrink:0}
+.ibtn:hover{color:var(--t1)}
+.nbadge{position:absolute;top:-3px;right:-3px;min-width:14px;height:14px;background:var(--danger);color:#fff;font-size:9px;font-weight:700;display:none;align-items:center;justify-content:center;padding:0 2px}
+#nav-av{width:28px;height:28px;background:var(--c4);color:var(--t1);font-size:11px;font-weight:700;display:flex;align-items:center;justify-content:center;cursor:pointer;flex-shrink:0;border:1px solid var(--b1)}
+#uchip{display:none;align-items:center;gap:6px}
+
+/* PAGES */
+.page{display:none}
+.page.on{display:block}
+/* pg-msg handled separately with position:fixed */
+
+/* FEED LAYOUT */
+.fw{display:grid;grid-template-columns:200px 1fr 220px;max-width:1100px;margin:0 auto}
+@media(max-width:900px){.fw{grid-template-columns:1fr 200px}#lrail{display:none}}
+@media(max-width:580px){.fw{grid-template-columns:1fr}#rrail{display:none}}
+
+/* LEFT RAIL */
+#lrail{padding:.6rem .4rem;border-right:1px solid var(--b1);position:sticky;top:48px;height:calc(100vh - 48px);overflow-y:auto}
+.grp{margin-bottom:.9rem}
+.grp-lbl{font-size:10px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--t3);padding:0 8px 4px}
+.nl{display:flex;align-items:center;gap:7px;padding:6px 8px;cursor:pointer;font-size:12px;font-weight:500;color:var(--t2);transition:all .1s;margin-bottom:1px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.nl:hover{background:var(--c2);color:var(--t1)}
+.nl.on{background:var(--c3);color:var(--t1)}
+.cdot{width:6px;height:6px;flex-shrink:0}
+
+/* MAIN */
+#mcol{border-right:1px solid var(--b1);min-height:calc(100vh - 48px);overflow:hidden}
+.cbar{display:none;align-items:center;gap:8px;padding:8px 12px;border-bottom:1px solid var(--b1);background:var(--card)}
+.cbar.on{display:flex}
+.cfake{flex:1;background:var(--inp);border:1px solid var(--b1);padding:7px 10px;font-size:13px;color:var(--t3);cursor:pointer;min-width:0}
+.cfake:hover{border-color:var(--b2)}
+.sbar{display:flex;border-bottom:1px solid var(--b1);background:var(--card)}
+.sbtn{padding:10px 12px;font-size:11px;font-weight:700;letter-spacing:.04em;background:transparent;border:none;color:var(--t3);text-transform:uppercase;border-bottom:2px solid transparent;margin-bottom:-1px;cursor:pointer;transition:all .12s}
+.sbtn:hover{color:var(--t1)}
+.sbtn.on{color:var(--t1);border-bottom-color:var(--t1)}
+
+/* POST CARD */
+.pc{display:flex;border-bottom:1px solid var(--b1);background:var(--card);cursor:pointer;transition:background .1s}
+.pc:hover{background:var(--c2)}
+.vs{display:flex;flex-direction:column;align-items:center;gap:2px;padding:10px 6px;background:var(--c2);min-width:38px;flex-shrink:0;border-right:1px solid var(--b1)}
+.vb{background:none;border:none;cursor:pointer;color:var(--t3);font-size:11px;padding:2px 4px;line-height:1;transition:color .1s}
+.vb:hover{color:var(--t1)}
+.vsc{font-size:11px;font-weight:700;color:var(--t1)}
+.pcont{flex:1;padding:10px 11px 8px;min-width:0;overflow:hidden}
+.ptop{display:flex;align-items:center;gap:5px;font-size:11px;color:var(--t3);margin-bottom:4px;flex-wrap:wrap}
+.pcomm{color:var(--t1);font-weight:600;cursor:pointer;white-space:nowrap}
+.pcomm:hover{text-decoration:underline}
+.paut{color:var(--t2);cursor:pointer}
+.paut:hover{color:var(--t1)}
+.ptitle{font-size:13px;font-weight:600;line-height:1.35;margin-bottom:4px;color:var(--t1);word-break:break-word}
+.pbprev{font-size:12px;color:var(--t2);line-height:1.5;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;margin-bottom:6px;word-break:break-word}
+/* RESPONSIVE MEDIA */
+.pmedia{width:100%;margin-bottom:6px}
+.pmedia img{width:100%;max-height:400px;object-fit:contain;background:var(--c2)}
+.pmedia video{width:100%;max-height:400px;object-fit:contain}
+.plink{font-size:11px;color:var(--t2);margin-bottom:6px;word-break:break-all}
+.pacts{display:flex;align-items:center;gap:1px;flex-wrap:wrap}
+.pa{display:flex;align-items:center;gap:3px;padding:4px 7px;border:none;background:transparent;color:var(--t3);font-size:11px;cursor:pointer;transition:all .1s;font-weight:500;white-space:nowrap}
+.pa:hover{background:var(--c3);color:var(--t1)}
+.pa.del:hover{color:var(--danger)}
+
+/* RIGHT RAIL */
+#rrail{padding:.6rem .7rem;position:sticky;top:48px;height:calc(100vh - 48px);overflow-y:auto}
+.wgt{background:var(--card);border:1px solid var(--b1);margin-bottom:.7rem;overflow:hidden}
+.wh{padding:7px 11px;font-size:10px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--t3);border-bottom:1px solid var(--b1)}
+.wb{padding:8px 11px}
+.tri{display:flex;align-items:center;gap:7px;padding:5px 0;border-bottom:1px solid var(--b1);cursor:pointer}
+.tri:last-child{border:none}
+.tri:hover .trname{color:var(--t1)}
+.trn{font-size:15px;font-weight:700;color:var(--b2);min-width:18px}
+.trname{font-size:12px;font-weight:600;color:var(--t2)}
+.trcnt{font-size:10px;color:var(--t3)}
+.theme-row{display:flex;gap:4px;padding:8px 11px}
+.topt{flex:1;padding:4px 0;text-align:center;font-size:11px;font-weight:600;cursor:pointer;border:1px solid var(--b1);color:var(--t3);transition:all .12s}
+.topt:hover{color:var(--t1)}
+.topt.on{background:var(--c4);color:var(--t1);border-color:var(--b2)}
+
+/* COMMUNITY PAGE */
+.cbanner{height:100px;background:var(--c3);position:relative;overflow:hidden}
+.cbanner-inner{position:absolute;inset:0;background-size:cover;background-position:center}
+.chdr{background:var(--card);border-bottom:1px solid var(--b1);padding:10px 14px}
+.cicon-row{display:flex;align-items:center;gap:10px;margin-bottom:8px}
+.cicon{width:44px;height:44px;background:var(--c3);border:1px solid var(--b1);display:flex;align-items:center;justify-content:center;font-size:1.3rem;flex-shrink:0}
+.cname{font-size:16px;font-weight:700}
+.cslug{font-size:11px;color:var(--t3);margin-top:1px}
+.cdesc2{font-size:12px;color:var(--t2);margin:.35rem 0}
+.cstats{display:flex;gap:.9rem;font-size:11px;color:var(--t3)}
+.cstats strong{color:var(--t1);font-weight:700}
+.cacts-row{display:flex;gap:6px;margin-top:.5rem;flex-wrap:wrap}
+.jbtn{padding:5px 14px;font-size:12px;font-weight:700;border:1px solid var(--b1);cursor:pointer;background:var(--t1);color:var(--bg);white-space:nowrap}
+.jbtn.joined{background:transparent;color:var(--t2)}
+.comm-layout{display:grid;grid-template-columns:1fr 210px;max-width:1100px;margin:0 auto}
+@media(max-width:680px){.comm-layout{grid-template-columns:1fr}#comm-sb{display:none}}
+#comm-sb{padding:.6rem .7rem;position:sticky;top:48px;height:calc(100vh - 48px);overflow-y:auto}
+.comm-main-col{border-right:1px solid var(--b1)}
+
+/* PROFILE */
+.pcov{height:100px;background:var(--c3);position:relative;overflow:hidden}
+.pcov-bg{position:absolute;inset:0;background-size:cover;background-position:center}
+.pcov-ebtn{position:absolute;top:6px;right:6px;background:rgba(0,0,0,.7);border:1px solid var(--b1);color:var(--t2);padding:3px 7px;font-size:10px;cursor:pointer;display:none}
+.phdr{background:var(--card);border-bottom:1px solid var(--b1);padding:0 14px 10px}
+.pavw{margin-top:-26px;margin-bottom:.4rem;position:relative;display:inline-block}
+.pav{width:52px;height:52px;border:2px solid var(--card);background:var(--c3);display:flex;align-items:center;justify-content:center;font-size:1.1rem;font-weight:700;color:var(--t1);overflow:hidden;flex-shrink:0}
+.pav img{width:100%;height:100%;object-fit:cover}
+.pav-edit{position:absolute;bottom:0;right:0;width:16px;height:16px;background:var(--c4);border:1px solid var(--b1);display:none;align-items:center;justify-content:center;font-size:9px;cursor:pointer;color:var(--t1)}
+.pname2{font-size:15px;font-weight:700}
+.pbio2{font-size:12px;color:var(--t2);margin:.2rem 0 .4rem;word-break:break-word}
+.pstats{display:flex;gap:.9rem;font-size:11px;color:var(--t3);flex-wrap:wrap}
+.pstats strong{color:var(--t1);font-weight:700}
+.pacts2{display:flex;gap:6px;margin-top:.5rem;flex-wrap:wrap}
+.ptabs{display:flex;border-bottom:1px solid var(--b1);background:var(--card);overflow-x:auto}
+.ptab{flex:1;text-align:center;padding:10px 8px;font-size:11px;font-weight:700;letter-spacing:.03em;text-transform:uppercase;cursor:pointer;color:var(--t3);border-bottom:2px solid transparent;white-space:nowrap;min-width:80px}
+.ptab.on{color:var(--t1);border-bottom-color:var(--t1)}
+
+/* NOTIFICATIONS */
+.notif-page{max-width:580px;margin:0 auto;padding:.6rem 12px}
+
+/* FRIENDS PAGE */
+.friends-page{max-width:700px;margin:0 auto;padding:.75rem 12px 2rem}
+.friends-tabs{display:flex;border-bottom:1px solid var(--b1);background:var(--card);margin-bottom:1rem}
+.ftab2{flex:1;text-align:center;padding:10px 6px;font-size:12px;font-weight:700;letter-spacing:.03em;text-transform:uppercase;cursor:pointer;color:var(--t3);border-bottom:2px solid transparent;transition:all .12s}
+.ftab2.on{color:var(--t1);border-bottom-color:var(--t1)}
+.friends-section{min-height:150px}
+.fr-row{display:flex;align-items:center;gap:10px;padding:10px 12px;background:var(--card);border:1px solid var(--b1);margin-bottom:4px;cursor:pointer;transition:background .1s}
+.fr-row:hover{background:var(--c2)}
+.fr-av2{width:38px;height:38px;border-radius:50%;background:var(--c4);border:1px solid var(--b1);display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:700;overflow:hidden;flex-shrink:0}
+.fr-av2 img{width:100%;height:100%;object-fit:cover}
+.fr-info{flex:1;min-width:0}
+.fr-name{font-size:13px;font-weight:600}
+.fr-sub{font-size:11px;color:var(--t3);margin-top:1px}
+.fr-acts{display:flex;gap:5px;flex-shrink:0}
+.pending-count{display:inline-flex;align-items:center;justify-content:center;background:var(--danger);color:#fff;font-size:9px;font-weight:700;min-width:16px;height:16px;border-radius:8px;padding:0 3px;margin-left:4px}
+.nitem{display:flex;align-items:center;gap:9px;padding:9px 10px;border:1px solid var(--b1);background:var(--card);margin-bottom:3px}
+.nav2{width:30px;height:30px;background:var(--c4);display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:700;flex-shrink:0;border:1px solid var(--b1)}
+.ntxt{flex:1;font-size:12px;color:var(--t2);word-break:break-word}
+.ntxt strong{color:var(--t1)}
+.nacts{display:flex;gap:3px;flex-shrink:0}
+.na{padding:3px 8px;font-size:11px;font-weight:700;border:1px solid var(--b1);cursor:pointer;background:transparent;color:var(--t2)}
+.na:hover{color:var(--t1)}
+.na.acc{background:var(--t1);color:var(--bg);border-color:var(--t1)}
+
+/* MESSAGES – ironclad fixed layout */
+#pg-messages{
+  position:fixed!important;top:48px;left:0;right:0;bottom:0;
+  display:none;overflow:hidden;background:var(--bg);z-index:200;
+}
+#pg-messages.on{display:block}
+.msg-wrap{
+  position:absolute;inset:0;
+  display:flex;flex-direction:row;overflow:hidden;
+}
+#cpanel{
+  width:240px;min-width:240px;max-width:240px;
+  display:flex;flex-direction:column;
+  border-right:1px solid var(--b1);background:var(--card);
+  overflow:hidden;
+  flex-shrink:0;
+}
+@media(max-width:520px){
+  #cpanel{
+    position:absolute;top:0;left:0;bottom:0;width:100%;max-width:100%;
+    z-index:5;transform:translateX(0);transition:transform .22s;
+  }
+  #cpanel.hidden{transform:translateX(-100%)}
+  #chatpanel{position:absolute;inset:0}
+}
+.cph{height:44px;padding:0 11px;border-bottom:1px solid var(--b1);
+  display:flex;align-items:center;justify-content:space-between;flex-shrink:0}
+.cph h3{font-size:13px;font-weight:700}
+#clist{flex:1;overflow-y:auto;overscroll-behavior:contain}
+.citem{padding:9px 11px;border-bottom:1px solid var(--b1);cursor:pointer;
+  display:flex;align-items:center;gap:8px;transition:background .1s}
+.citem:hover,.citem.on{background:var(--c2)}
+.cav{width:32px;height:32px;background:var(--c4);border:1px solid var(--b1);
+  display:flex;align-items:center;justify-content:center;
+  font-size:11px;font-weight:700;flex-shrink:0;overflow:hidden}
+.cav img{width:100%;height:100%;object-fit:cover}
+.cnfo{flex:1;min-width:0}
+.cnm{font-size:12px;font-weight:600}
+.cprev2{font-size:11px;color:var(--t3);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+#chatpanel{
+  flex:1;min-width:0;
+  display:flex;flex-direction:column;overflow:hidden;
+}
+#chath{
+  height:44px;padding:0 13px;border-bottom:1px solid var(--b1);
+  background:var(--card);display:flex;align-items:center;gap:8px;
+  font-size:12px;font-weight:600;flex-shrink:0;
+}
+#back-btn{display:none;background:none;border:none;color:var(--t2);
+  font-size:18px;cursor:pointer;padding:0 8px 0 0;flex-shrink:0;line-height:1}
+@media(max-width:520px){#back-btn{display:block}}
+#chatmsgs{
+  flex:1;overflow-y:auto;overscroll-behavior:contain;
+  padding:.65rem .9rem;display:flex;flex-direction:column;
+  gap:4px;min-height:0;
+}
+.bub{max-width:70%;padding:7px 11px;font-size:12px;line-height:1.55;
+  word-break:break-word;overflow-wrap:break-word}
+.bub.me{background:var(--c4);color:var(--t1);align-self:flex-end;border:1px solid var(--b2)}
+.bub.them{background:var(--c2);color:var(--t1);align-self:flex-start;border:1px solid var(--b1)}
+.bts{font-size:10px;color:var(--t3);margin-top:2px;text-align:right}
+#chatinwrap{
+  height:50px;padding:0 9px;border-top:1px solid var(--b1);
+  display:flex;align-items:center;gap:5px;background:var(--card);flex-shrink:0;
+}
+#chatinp{flex:1;background:var(--inp);border:1px solid var(--b1);
+  padding:6px 10px;font-size:12px;color:var(--t1);outline:none;min-width:0;height:34px}
+#chatinp:focus{border-color:var(--b2)}
+.sndbtn{width:34px;height:34px;background:var(--t1);border:none;color:var(--bg);
+  font-size:14px;display:flex;align-items:center;justify-content:center;
+  cursor:pointer;flex-shrink:0;font-weight:700}
+.sndbtn:hover{opacity:.85}
+
+/* MODALS */
+.veil{position:fixed;inset:0;background:rgba(0,0,0,.82);z-index:500;display:none;align-items:flex-start;justify-content:center;padding:.5rem;overflow-y:auto}
+.veil.open{display:flex}
+.sheet{background:var(--c1);width:100%;max-width:500px;border:1px solid var(--b1);margin:auto}
+.sheet-lg{max-width:660px}
+.sh{display:flex;align-items:center;justify-content:space-between;padding:11px 13px;border-bottom:1px solid var(--b1)}
+.sh h2{font-size:13px;font-weight:700}
+.cx{background:none;border:none;color:var(--t3);font-size:18px;cursor:pointer;padding:2px 4px;line-height:1}
+.cx:hover{color:var(--danger)}
+.sb{padding:13px}
+.sf{padding:9px 13px;border-top:1px solid var(--b1);display:flex;justify-content:flex-end;gap:5px}
+.tabs{display:flex;border-bottom:1px solid var(--b1);margin-bottom:11px}
+.tab{flex:1;text-align:center;padding:8px;font-size:11px;font-weight:700;letter-spacing:.04em;text-transform:uppercase;cursor:pointer;color:var(--t3);border-bottom:2px solid transparent}
+.tab.on{color:var(--t1);border-bottom-color:var(--t1)}
+.f{margin-bottom:9px}
+.f label{display:block;font-size:10px;font-weight:700;letter-spacing:.07em;text-transform:uppercase;color:var(--t3);margin-bottom:3px}
+.f input,.f textarea,.f select{width:100%;background:var(--inp);border:1px solid var(--b1);padding:7px 9px;font-size:13px;color:var(--t1);outline:none}
+.f input:focus,.f textarea:focus,.f select:focus{border-color:var(--b2)}
+.f textarea{resize:vertical;min-height:75px;line-height:1.6}
+.f select option{background:var(--c2)}
+.fhint{font-size:10px;color:var(--t3);margin-top:3px}
+.errmsg{background:rgba(220,0,0,.1);border:1px solid rgba(220,0,0,.3);padding:6px 9px;font-size:12px;color:var(--danger);margin-bottom:9px;display:none}
+.okmsg{background:rgba(0,180,0,.1);border:1px solid rgba(0,180,0,.3);padding:6px 9px;font-size:12px;color:var(--ok);margin-bottom:9px;display:none}
+.rwmsg{background:rgba(180,130,0,.1);border:1px solid rgba(180,130,0,.3);padding:6px 9px;font-size:12px;color:#ca0;margin-bottom:9px;display:none}
+
+/* UPLOAD */
+.uz{border:1px dashed var(--b1);padding:.9rem;text-align:center;cursor:pointer;position:relative;overflow:hidden}
+.uz:hover{border-color:var(--b2);background:var(--c2)}
+.uz input[type=file]{position:absolute;inset:0;opacity:0;cursor:pointer;width:100%;height:100%}
+.uz p{font-size:12px;color:var(--t3)}
+.uprev{display:none;margin-top:.5rem;position:relative}
+.uprev img,.uprev video{max-height:150px;width:auto;max-width:100%}
+.uprev .rm{position:absolute;top:-5px;right:-5px;width:18px;height:18px;background:var(--danger);border:none;color:#fff;font-size:10px;cursor:pointer;display:flex;align-items:center;justify-content:center}
+.uprog{height:2px;background:var(--b1);margin-top:.5rem;overflow:hidden;display:none}
+.uprog .bar{height:100%;background:var(--t1);width:0;transition:width .3s}
+
+/* USER PICKER - for messages and admin */
+.upicker{border:1px solid var(--b1);max-height:200px;overflow-y:auto;background:var(--card);display:none}
+.upicker.open{display:block}
+.upi{display:flex;align-items:center;gap:8px;padding:8px 10px;cursor:pointer;border-bottom:1px solid var(--b1)}
+.upi:last-child{border:none}
+.upi:hover{background:var(--c2)}
+.upi-av{width:26px;height:26px;background:var(--c4);border:1px solid var(--b1);display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:700;flex-shrink:0}
+.upi-name{font-size:12px;font-weight:600}
+.upi-sub{font-size:10px;color:var(--t3)}
+.sel-user{display:flex;align-items:center;gap:7px;padding:6px 8px;background:var(--c3);border:1px solid var(--b1);margin-top:5px}
+.sel-user span{flex:1;font-size:12px;font-weight:600}
+
+/* POST DETAIL PAGE */
+#pg-post{background:var(--bg)}
+.post-page-wrap{max-width:760px;margin:0 auto;padding:.75rem 12px 2rem}
+.post-back-bar{display:flex;align-items:center;gap:8px;padding:.5rem 0 .75rem;border-bottom:1px solid var(--b1);margin-bottom:.75rem}
+.post-back-btn{background:none;border:1px solid var(--b1);color:var(--t2);font-size:12px;font-weight:600;padding:4px 10px;cursor:pointer;display:flex;align-items:center;gap:4px}
+.post-back-btn:hover{color:var(--t1);border-color:var(--b2)}
+.post-comm-tag{font-size:11px;color:var(--t3);font-weight:600;letter-spacing:.04em;text-transform:uppercase}
+.detail-card{background:var(--card);border:1px solid var(--b1);margin-bottom:.75rem}
+.detail-vote-row{display:flex;align-items:center;gap:8px;padding:8px 12px;border-bottom:1px solid var(--b1)}
+.detail-vote-row .vb{font-size:13px;padding:3px 6px}
+.detail-vote-row .vsc{font-size:13px;font-weight:700}
+.detail-body-wrap{padding:12px}
+.detail-meta{display:flex;align-items:center;gap:5px;font-size:11px;color:var(--t3);margin-bottom:.5rem;flex-wrap:wrap}
+.detail-title{font-size:16px;font-weight:700;line-height:1.35;margin-bottom:.5rem;word-break:break-word;color:var(--t1)}
+.detail-text{font-size:13px;line-height:1.75;color:var(--t2);margin-bottom:.75rem;word-break:break-word}
+.det-media{width:100%;margin-bottom:.75rem}
+.det-media img{width:100%;height:auto;max-height:500px;object-fit:contain;background:var(--c2);display:block}
+.det-media video{width:100%;height:auto;max-height:400px;display:block}
+
+/* COMMENTS */
+.cmt-section{background:var(--card);border:1px solid var(--b1)}
+.cmt-header{padding:10px 12px;border-bottom:1px solid var(--b1);font-size:12px;font-weight:700;display:flex;align-items:center;gap:6px}
+.cmt-compose{padding:10px 12px;border-bottom:1px solid var(--b1);background:var(--c2)}
+.cmt-compose textarea{width:100%;background:var(--inp);border:1px solid var(--b1);padding:8px 10px;font-size:12px;line-height:1.6;resize:vertical;min-height:60px;color:var(--t1);outline:none}
+.cmt-compose textarea:focus{border-color:var(--b2)}
+.cmt-compose-foot{display:flex;justify-content:flex-end;margin-top:6px;gap:5px}
+.cmt-list{padding:0}
+
+/* THREAD COMMENTS */
+.thread-item{border-bottom:1px solid var(--b1)}
+.thread-item:last-child{border-bottom:none}
+.cmt-row{display:flex;gap:0;padding:10px 12px 6px}
+.cmt-indent-bar{width:2px;background:var(--b1);flex-shrink:0;margin-right:10px;border-radius:1px;cursor:pointer;transition:background .1s}
+.cmt-indent-bar:hover{background:var(--b2)}
+.cmt-main{flex:1;min-width:0}
+.cmt-head{display:flex;align-items:center;gap:6px;font-size:11px;color:var(--t3);margin-bottom:4px;flex-wrap:wrap}
+.cmt-head strong{color:var(--t1);font-weight:600;cursor:pointer;font-size:12px}
+.cmt-head strong:hover{text-decoration:underline}
+.cmt-body{font-size:12px;line-height:1.6;color:var(--t1);word-break:break-word;margin-bottom:4px}
+.cmt-actions{display:flex;align-items:center;gap:2px}
+.ca{background:none;border:none;font-size:11px;color:var(--t3);padding:2px 7px;cursor:pointer;font-weight:500;transition:all .1s}
+.ca:hover{background:var(--c3);color:var(--t1)}
+.ca.red:hover{color:var(--danger)}
+.ca.active{color:var(--t1)}
+.reply-compose{display:none;padding:8px 12px 8px 24px;background:var(--c2);border-top:1px solid var(--b1)}
+.reply-compose textarea{width:100%;background:var(--inp);border:1px solid var(--b1);padding:6px 8px;font-size:12px;resize:vertical;min-height:48px;color:var(--t1);outline:none;line-height:1.5}
+.reply-compose textarea:focus{border-color:var(--b2)}
+.reply-compose-foot{display:flex;justify-content:flex-end;margin-top:5px;gap:4px}
+.thread-replies{padding-left:22px;border-left:2px solid var(--b1);margin:0 12px 6px}
+.thread-replies .cmt-row{padding:8px 0 4px}
+.thread-replies .cmt-indent-bar{display:none}
+.collapsed .cmt-body,.collapsed .cmt-actions,.collapsed .reply-compose{display:none}
+.collapsed .cmt-head::after{content:' [összecsukva]';color:var(--t3);font-size:10px}
+
+/* old modal detail (keep for compat) */
+.dmeta{display:flex;align-items:center;gap:5px;font-size:11px;color:var(--t3);margin-bottom:.45rem;flex-wrap:wrap}
+.dtitle{font-size:15px;font-weight:700;line-height:1.3;margin-bottom:.45rem;word-break:break-word}
+.dbody2{font-size:12px;line-height:1.7;color:var(--t2);margin-bottom:.7rem;word-break:break-word}
+.det-media2{width:100%;margin-bottom:.7rem}
+.ccmpose{background:var(--c2);border:1px solid var(--b1);padding:.7rem;margin-bottom:.7rem}
+.ccmpose textarea{width:100%;background:transparent;border:none;outline:none;font-size:12px;line-height:1.6;resize:vertical;min-height:55px;color:var(--t1)}
+.ccf{display:flex;justify-content:flex-end;margin-top:.3rem}
+.cm{padding:.55rem;border:1px solid var(--b1);margin-bottom:3px;background:var(--c1)}
+.cm.rep{margin-left:16px;background:var(--c2)}
+.cmeta2{display:flex;align-items:center;gap:5px;font-size:11px;color:var(--t3);margin-bottom:.28rem;flex-wrap:wrap}
+.cmeta2 strong{color:var(--t1);font-weight:600;cursor:pointer}
+.ctxt{font-size:12px;line-height:1.5;word-break:break-word}
+.cacts2{display:flex;gap:1px;margin-top:.28rem}
+.cbtn{background:none;border:none;font-size:11px;color:var(--t3);padding:2px 6px;cursor:pointer}
+.cbtn:hover{background:var(--c3);color:var(--t1)}
+.cbtn.r:hover{color:var(--danger)}
+.rbox{display:none;margin-top:.35rem}
+.rbox input{width:100%;background:var(--inp);border:1px solid var(--b1);padding:5px 8px;font-size:12px;color:var(--t1);outline:none}
+.rbox input:focus{border-color:var(--b2)}
+.rbf{display:flex;justify-content:flex-end;margin-top:.28rem;gap:4px}
+
+/* FRIENDS GRID */
+.friends-grid{padding:.7rem;display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:6px}
+.fr-card{background:var(--card);border:1px solid var(--b1);padding:.65rem;display:flex;align-items:center;gap:7px;cursor:pointer}
+.fr-card:hover{background:var(--c2)}
+.fr-av{width:30px;height:30px;background:var(--c4);border:1px solid var(--b1);display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:700;flex-shrink:0}
+
+/* EMPTY / LOADER */
+.empty{padding:2.5rem 1rem;text-align:center;color:var(--t3)}
+.empty h3{font-size:13px;color:var(--t2);margin-bottom:.3rem;font-weight:600}
+.spw{display:flex;align-items:center;justify-content:center;padding:1.5rem}
+.sp{width:20px;height:20px;border:2px solid var(--b1);border-top-color:var(--t1);animation:rot .6s linear infinite}
+@keyframes rot{to{transform:rotate(360deg)}}
+
+/* TOAST */
+/* NOTIF PERMISSION BANNER */
+#notif-banner{
+  background:var(--c3);border-bottom:1px solid var(--b2);
+  padding:8px 14px;display:none;align-items:center;gap:10px;
+  font-size:12px;color:var(--t2);
+}
+#notif-banner.show{display:flex}
+#notif-banner strong{color:var(--t1)}
+#notif-banner-btns{display:flex;gap:6px;margin-left:auto;flex-shrink:0}
+
+.toast{position:fixed;bottom:.9rem;right:.9rem;z-index:9999;background:var(--c3);color:var(--t1);padding:.55rem .85rem;font-size:12px;font-weight:600;border:1px solid var(--b2);border-left:3px solid var(--t1);animation:tin .18s ease;pointer-events:none;max-width:250px}
+/* In-app notification popup */
+.inotif{
+  position:fixed;bottom:4rem;right:.9rem;z-index:9998;
+  background:var(--c1);border:1px solid var(--b2);
+  max-width:280px;min-width:220px;
+  box-shadow:0 4px 20px rgba(0,0,0,.4);
+  animation:tin .2s ease;cursor:pointer;
+}
+.inotif-head{display:flex;align-items:center;justify-content:space-between;padding:7px 10px;border-bottom:1px solid var(--b1);font-size:11px;font-weight:700;color:var(--t2)}
+.inotif-body{padding:8px 10px}
+.inotif-title{font-size:12px;font-weight:700;color:var(--t1);margin-bottom:2px}
+.inotif-text{font-size:11px;color:var(--t2);line-height:1.4}
+.inotif-close{background:none;border:none;color:var(--t3);cursor:pointer;font-size:14px;padding:0 2px;line-height:1}
+.inotif-close:hover{color:var(--danger)}
+@keyframes tin{from{transform:translateX(6px);opacity:0}to{opacity:1;transform:none}}
+@keyframes fu{from{opacity:0;transform:translateY(3px)}to{opacity:1;transform:none}}
+
+/* CONFIRM DIALOG */
+#confirm-overlay{position:fixed;inset:0;background:rgba(0,0,0,.75);z-index:600;display:none;align-items:center;justify-content:center;padding:1rem}
+#confirm-overlay.open{display:flex;animation:cfin .15s ease}
+@keyframes cfin{from{opacity:0}to{opacity:1}}
+#confirm-box{background:var(--c1);border:1px solid var(--b2);max-width:320px;width:100%;animation:cfbox .15s ease}
+@keyframes cfbox{from{transform:scale(.95) translateY(-8px);opacity:0}to{transform:none;opacity:1}}
+#confirm-msg{padding:18px 16px;font-size:13px;line-height:1.6;color:var(--t1);border-bottom:1px solid var(--b1)}
+#confirm-msg strong{display:block;font-size:14px;font-weight:700;margin-bottom:6px}
+#confirm-acts{display:flex}
+#confirm-acts button{flex:1;padding:11px;font-size:12px;font-weight:700;border:none;cursor:pointer;background:transparent;color:var(--t2);transition:all .12s;border-right:1px solid var(--b1)}
+#confirm-acts button:last-child{border-right:none}
+#confirm-acts button:hover{background:var(--c2);color:var(--t1)}
+#confirm-acts button.danger{color:var(--danger)}
+#confirm-acts button.danger:hover{background:rgba(220,0,0,.1)}
+</style>
+</head>
+<body>
+
+<nav id="nav">
+  <button class="ibtn" id="ham-btn" onclick="openDrawer()" aria-label="Menü">☰</button>
+  <div class="logo" onclick="goPage('feed')">Közösség</div>
+  <input id="srch" type="text" placeholder="Keresés felhasználókra, közösségekre..." onfocus="goPage('search');this.blur();g('search-big').focus()" style="cursor:pointer">
+  <div class="nr">
+    <button class="ibtn" onclick="goPage('notif')" title="Értesítések">🔔<span class="nbadge" id="nbadge">0</span></button>
+    <button class="ibtn" id="btnfr" style="display:none" onclick="goPage('friends')" title="Barátok">👥<span class="nbadge" id="fr-badge" style="display:none">0</span></button>
+    <button class="ibtn" id="btnmsg" style="display:none" onclick="goPage('messages')" title="Üzenetek">✉</button>
+    <button class="btn btn-sm" id="btnli" onclick="openAuth('login')">Belépés</button>
+    <button class="btn btn-w btn-sm" id="btnreg" onclick="openAuth('register')">Regisztráció</button>
+    <div id="uchip"><div id="nav-av" onclick="goMyProf()"></div><button class="btn btn-sm" onclick="doSignOut()">Ki</button></div>
+  </div>
+</nav>
+
+<!-- NOTIFICATION PERMISSION BANNER -->
+<div id="notif-banner">
+  <span>🔔 <strong>Értesítések engedélyezése</strong> — hogy akkor is értesüljél, ha épp nem itt vagy.</span>
+  <div id="notif-banner-btns">
+    <button class="btn btn-w btn-sm" onclick="askNotifPermission()">Engedélyezés</button>
+    <button class="btn btn-sm" onclick="dismissNotifBanner()">Nem kérek</button>
+  </div>
+</div>
+
+<!-- HAMBURGER DRAWER -->
+<div id="drawer-overlay" onclick="closeDrawer()"></div>
+<div id="drawer">
+  <div id="drawer-head">
+    <span>Közösség</span>
+    <button id="drawer-close" onclick="closeDrawer()">×</button>
+  </div>
+  <div id="drawer-body">
+    <div class="drawer-section">
+      <div class="drawer-section-lbl">Navigáció</div>
+      <div class="drawer-item" onclick="closeDrawer();goPage('feed')">🏠 Kezdőlap</div>
+      <div class="drawer-item" onclick="closeDrawer();goPage('notif')">🔔 Értesítések</div>
+      <div class="drawer-item" onclick="closeDrawer();goPage('messages')" id="drawer-msg" style="display:none">✉ Üzenetek</div>
+      <div class="drawer-item" onclick="closeDrawer();goPage('friends')" id="drawer-fr" style="display:none">👥 Barátok</div>
+      <div class="drawer-item" onclick="closeDrawer();goPage('search')">🔍 Keresés</div>
+    </div>
+    <div class="drawer-section">
+      <div class="drawer-section-lbl">Témák</div>
+      <div class="drawer-item" onclick="setTheme('amoled');closeDrawer()">⬛ AMOLED</div>
+      <div class="drawer-item" onclick="setTheme('grey');closeDrawer()">🔲 Szürke</div>
+      <div class="drawer-item" onclick="setTheme('light');closeDrawer()">⬜ Világos</div>
+    </div>
+    <div class="drawer-section">
+      <div class="drawer-section-lbl">Közösségek</div>
+      <div id="drawer-comms"></div>
+      <div class="drawer-item" onclick="closeDrawer();openComm()" style="color:var(--t2)">+ Új közösség</div>
+    </div>
+  </div>
+  <div id="drawer-foot">
+    <div id="drawer-install" style="display:none;margin-bottom:8px">
+      <button class="btn btn-w" style="width:100%;font-size:12px" onclick="installPWA()">📲 App telepítése</button>
+    </div>
+    <div id="drawer-user-area"></div>
+  </div>
+</div>
+
+<!-- SEARCH PAGE -->
+<div id="pg-search" class="page">
+  <div class="search-wrap">
+    <div class="search-top">
+      <button class="post-back-btn" onclick="history.back()">← Vissza</button>
+      <input id="search-big" type="text" class="search-big" placeholder="Keresés..." oninput="runSearch(this.value)" autocomplete="off">
+    </div>
+    <div class="search-tabs">
+      <div class="stab on" id="stab-users" onclick="setSearchTab('users',this)">👤 Felhasználók</div>
+      <div class="stab" id="stab-comms" onclick="setSearchTab('comms',this)">💬 Közösségek</div>
+    </div>
+    <div id="search-results"><div class="sr-empty">Kezdj el gépelni a kereséshez...</div></div>
+  </div>
+</div>
+
+<!-- FEED -->
+<div id="pg-feed" class="page on">
+  <div class="fw">
+    <div id="lrail">
+      <div class="grp">
+        <div class="grp-lbl">Feed</div>
+        <div class="nl on" onclick="setSort('hot',this)">🔥 Trending</div>
+        <div class="nl" onclick="setSort('new',this)">↑ Legújabb</div>
+        <div class="nl" onclick="setSort('top',this)">★ Legjobb</div>
+      </div>
+      <div class="grp"><div class="grp-lbl">Közösségek</div><div id="lcomms"></div></div>
+    </div>
+    <div id="mcol">
+      <div class="cbar" id="cbar">
+        <div id="cbarav" style="width:26px;height:26px;background:var(--c4);border:1px solid var(--b1);display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:700;flex-shrink:0;overflow:hidden"></div>
+        <div class="cfake" onclick="openPost()">Mi jár a fejedben?</div>
+        <button class="btn btn-w btn-sm" onclick="openPost()">+ Poszt</button>
+      </div>
+      <div class="sbar">
+        <button class="sbtn on" onclick="setSort('hot',this)">🔥 Trending</button>
+        <button class="sbtn" onclick="setSort('new',this)">Legújabb</button>
+        <button class="sbtn" onclick="setSort('top',this)">Legjobb</button>
+      </div>
+      <div id="postlist"><div class="spw"><div class="sp"></div></div></div>
+    </div>
+    <div id="rrail">
+      <div class="wgt"><div class="wh">Téma</div><div class="theme-row"><div class="topt on" id="th-amoled" onclick="setTheme('amoled')">AMOLED</div><div class="topt" id="th-grey" onclick="setTheme('grey')">Szürke</div><div class="topt" id="th-light" onclick="setTheme('light')">Világos</div></div></div>
+      <div class="wgt"><div class="wh">Trending</div><div class="wb" id="rcomms"></div><div style="padding:0 11px 9px"><button class="btn btn-w" style="width:100%;font-size:11px;padding:5px" onclick="openComm()">+ Új közösség</button></div></div>
+    </div>
+  </div>
+</div>
+
+<!-- COMMUNITY PAGE -->
+<div id="pg-community" class="page">
+  <div class="cbanner"><div class="cbanner-inner" id="cbanner-inner"></div></div>
+  <div class="chdr">
+    <div class="cicon-row"><div class="cicon" id="cicon-el">💬</div><div><div class="cname" id="cname-el"></div><div class="cslug" id="cslug-el"></div></div></div>
+    <div class="cdesc2" id="cdesc-el"></div>
+    <div class="cstats"><span><strong id="cmembers">0</strong> tag</span><span><strong id="cposts-cnt">0</strong> poszt</span></div>
+    <div class="cacts-row">
+      <button class="jbtn" id="jbtn" onclick="toggleJoin()">Csatlakozás</button>
+      <button class="btn btn-w btn-sm" onclick="openPost()">+ Posztolás</button>
+      <button class="btn btn-sm" id="comm-admin-btn" style="display:none" onclick="openCommAdmin()">⚙️ Kezelés</button>
+      <button class="btn btn-sm" id="comm-mute-btn" style="display:none" onclick="toggleCommMute()" title="Értesítések ki/be"></button>
+    </div>
+  </div>
+  <div class="comm-layout">
+    <div class="comm-main-col">
+      <div style="background:var(--card);border-bottom:1px solid var(--b1);padding:6px 10px;display:flex;gap:6px;align-items:center">
+        <input type="text" id="comm-search" placeholder="Keresés ebben a közösségben..." oninput="filterCommPosts(this.value)" style="flex:1;background:var(--inp);border:1px solid var(--b1);padding:5px 9px;font-size:12px;color:var(--t1);outline:none;min-width:0">
+      </div>
+      <div class="sbar">
+        <button class="sbtn on" onclick="setCommSort('hot',this)">🔥 Hot</button>
+        <button class="sbtn" onclick="setCommSort('new',this)">Új</button>
+        <button class="sbtn" onclick="setCommSort('top',this)">Top</button>
+        <button class="sbtn" onclick="setCommSort('rising',this)">📈 Rising</button>
+        <button class="sbtn" onclick="setCommSort('controversial',this)">🔥 Vitatott</button>
+      </div>
+      <div id="comm-postlist"><div class="spw"><div class="sp"></div></div></div>
+    </div>
+    <div id="comm-sb"><div class="wgt" style="margin-top:.6rem"><div class="wh">A közösségről</div><div class="wb"><div id="comm-about" style="font-size:12px;color:var(--t2);line-height:1.6;margin-bottom:.4rem"></div><div style="font-size:10px;color:var(--t3)">Létrehozva: <span id="comm-created"></span></div></div></div></div>
+  </div>
+</div>
+
+<!-- PROFILE -->
+<div id="pg-profile" class="page">
+  <div class="pcov" id="pcov"><div class="pcov-bg" id="pcov-bg"></div><button class="pcov-ebtn" id="pcov-edit" onclick="uploadCover()">✎ Borító</button></div>
+  <div class="phdr">
+    <div class="pavw"><div class="pav" id="pav"></div><div class="pav-edit" id="pav-edit" onclick="uploadAvatar()">✎</div></div>
+    <div class="pname2" id="pname2">—</div>
+    <div class="pbio2" id="pbio2"></div>
+    <div class="pstats"><span><strong id="ppc">0</strong> poszt</span><span><strong id="pfc">0</strong> barát</span><span><strong id="pkc">0</strong> karma</span></div>
+    <div class="pacts2" id="pacts2"></div>
+  </div>
+  <div class="ptabs">
+    <div class="ptab on" onclick="swPTab('timeline',this)">Idővonal</div>
+    <div class="ptab" onclick="swPTab('posts',this)">Közösségi</div>
+    <div class="ptab" onclick="swPTab('friends',this)">Barátok</div>
+  </div>
+  <div id="pcontent"><div class="spw"><div class="sp"></div></div></div>
+</div>
+
+<!-- NOTIFICATIONS -->
+<div id="pg-notif" class="page">
+  <div class="notif-page">
+    <div style="display:flex;align-items:center;justify-content:space-between;padding:.4rem 0 .6rem">
+      <div style="font-size:13px;font-weight:700">Értesítések</div>
+      <button class="btn btn-sm" onclick="markAllRead()">Mind olvasott</button>
+    </div>
+    <div id="notif-list"><div class="spw"><div class="sp"></div></div></div>
+  </div>
+</div>
+
+<!-- FRIENDS PAGE -->
+<div id="pg-friends" class="page">
+  <div class="friends-page">
+    <div style="display:flex;align-items:center;justify-content:space-between;padding:.4rem 0 .75rem;border-bottom:1px solid var(--b1);margin-bottom:.75rem">
+      <div style="font-size:14px;font-weight:700">Barátok</div>
+      <button class="btn btn-w btn-sm" onclick="openNewMsg()">✉ Üzenet küldése</button>
+    </div>
+    <div class="friends-tabs">
+      <div class="ftab2 on" id="ftab-friends" onclick="setFriendsTab('friends',this)">Barátok</div>
+      <div class="ftab2" id="ftab-pending" onclick="setFriendsTab('pending',this)">Függőben<span class="pending-count" id="pending-count" style="display:none">0</span></div>
+      <div class="ftab2" id="ftab-find" onclick="setFriendsTab('find',this)">Keresés</div>
+    </div>
+    <div id="friends-section"><div class="spw"><div class="sp"></div></div></div>
+  </div>
+</div>
+
+<!-- MESSAGES -->
+<div id="pg-messages" class="page">
+  <div class="msg-wrap">
+    <div id="cpanel">
+      <div class="cph"><h3>Üzenetek</h3><button class="btn btn-w btn-sm" onclick="openNewMsg()">+ Új</button></div>
+      <div id="clist"><div style="padding:10px;font-size:12px;color:var(--t3)">Nincsenek üzenetek.</div></div>
+    </div>
+    <div id="chatpanel">
+      <div id="chath"><button id="back-btn" onclick="showConvList()">←</button><span id="chat-head-name">Válassz egy beszélgetést</span></div>
+      <div id="chatmsgs"><div class="empty"><p>Válassz vagy küldj új üzenetet!</p></div></div>
+      <div id="chatinwrap"><input id="chatinp" type="text" placeholder="Üzenet..." onkeydown="if(event.key==='Enter')sendMsg()"><button class="sndbtn" onclick="sendMsg()">↑</button></div>
+    </div>
+  </div>
+</div>
+
+<!-- AUTH -->
+<div class="veil" id="m-auth">
+  <div class="sheet">
+    <div class="sh"><h2>Belépés / Regisztráció</h2><button class="cx" onclick="closeM('m-auth')">×</button></div>
+    <div class="sb">
+      <div class="tabs"><div class="tab on" id="tli" onclick="authTab('login')">Belépés</div><div class="tab" id="tre" onclick="authTab('register')">Regisztráció</div></div>
+      <div class="errmsg" id="autherr"></div><div class="okmsg" id="authok"></div><div class="rwmsg" id="authrw">Túl sok próbálkozás.</div>
+      <div class="f" id="fgun" style="display:none"><label>Felhasználónév</label><input type="text" id="aun" placeholder="3–20 kar." maxlength="20"><div class="fhint">Betű/szám/aláhúzás, 3–20 karakter.</div></div>
+      <div class="f"><label>Email</label><input type="email" id="aem" placeholder="te@pelda.hu"></div>
+      <div class="f"><label>Jelszó</label><input type="password" id="apw" placeholder="Min. 8 karakter" onkeydown="if(event.key==='Enter')doAuth()"></div>
+      <button class="btn btn-w" style="width:100%;padding:8px;font-size:13px" id="asub" onclick="doAuth()">Belépés</button>
+    </div>
+  </div>
+</div>
+
+<!-- POST -->
+<div class="veil" id="m-post">
+  <div class="sheet">
+    <div class="sh"><h2>Új poszt</h2><button class="cx" onclick="closeM('m-post')">×</button></div>
+    <div class="sb">
+      <div class="errmsg" id="posterr"></div><div class="rwmsg" id="postrw">Max 5 poszt / 10 perc.</div>
+      <div class="f"><label>Hova?</label><select id="pdest"><option value="profile">Saját profilomra</option></select></div>
+      <div class="f"><label>Cím *</label><input type="text" id="ptitle" placeholder="Mi a lényeg?" maxlength="300"></div>
+      <div class="f"><label>Szöveg</label><textarea id="pbody2" placeholder="Részletek..." maxlength="40000"></textarea></div>
+      <div class="f">
+        <label>Kép / Videó</label>
+        <div class="uz"><input type="file" id="filein" accept="image/*,video/*" onchange="handleFile(this.files[0])"><p>📎 Kattints vagy húzd ide</p></div>
+        <div class="uprev" id="uprev"></div>
+        <div class="uprog" id="uprog"><div class="bar" id="ubar"></div></div>
+      </div>
+      <div class="f"><label>Link</label><input type="text" id="purl" placeholder="https://..."></div>
+    </div>
+    <div class="sf"><button class="btn" onclick="closeM('m-post')">Mégse</button><button class="btn btn-w" onclick="submitPost()">Közzétesz</button></div>
+  </div>
+</div>
+
+<!-- COMMUNITY CREATE -->
+<div class="veil" id="m-comm">
+  <div class="sheet">
+    <div class="sh"><h2>Új közösség</h2><button class="cx" onclick="closeM('m-comm')">×</button></div>
+    <div class="sb">
+      <div class="errmsg" id="commerr"></div>
+      <div class="f"><label>Név *</label><input type="text" id="cname2" placeholder="pl. programozas" maxlength="30"><div class="fhint">Kisbetűk, számok, aláhúzás.</div></div>
+      <div class="f"><label>Leírás</label><textarea id="cdesc2" placeholder="Miről szól?" maxlength="500"></textarea></div>
+      <div class="f"><label>Ikon</label><input type="text" id="cicon2" placeholder="💬" maxlength="2"></div>
+    </div>
+    <div class="sf"><button class="btn" onclick="closeM('m-comm')">Mégse</button><button class="btn btn-w" onclick="submitComm()">Létrehozás</button></div>
+  </div>
+</div>
+
+<!-- POST DETAIL PAGE -->
+<div id="pg-post" class="page">
+  <div class="post-page-wrap">
+    <div class="post-back-bar">
+      <button class="post-back-btn" onclick="history.back()">← Vissza</button>
+      <span class="post-comm-tag" id="post-comm-tag"></span>
+    </div>
+    <!-- post content injected here -->
+    <div id="post-detail-content"><div class="spw"><div class="sp"></div></div></div>
+    <!-- comments -->
+    <div id="post-comments-wrap" style="margin-top:.75rem"></div>
+  </div>
+</div>
+
+<!-- DETAIL MODAL (kept for compat, now unused) -->
+<div class="veil" id="m-detail" style="display:none">
+  <div class="sheet sheet-lg">
+    <div class="sh"><span id="dcomm"></span><button class="cx" onclick="closeM('m-detail')">×</button></div>
+    <div class="sb" id="dbody"></div>
+  </div>
+</div>
+
+<!-- NEW MESSAGE - friend picker -->
+<div class="veil" id="m-newmsg">
+  <div class="sheet">
+    <div class="sh"><h2>Új üzenet</h2><button class="cx" onclick="closeM('m-newmsg')">×</button></div>
+    <div class="sb">
+      <div class="errmsg" id="nmerr"></div>
+      <div class="f">
+        <label>Kinek? (barátlista)</label>
+        <div id="msg-friend-picker" class="upicker open"></div>
+        <div id="msg-sel" style="display:none">
+          <div class="sel-user"><span id="msg-sel-name"></span><button onclick="clearMsgSel()" style="background:none;border:none;color:var(--t3);cursor:pointer;font-size:14px">×</button></div>
+        </div>
+      </div>
+      <div class="f"><label>Üzenet</label><textarea id="nmtxt" placeholder="Üzenet..."></textarea></div>
+    </div>
+    <div class="sf"><button class="btn" onclick="closeM('m-newmsg')">Mégse</button><button class="btn btn-w" onclick="startConv()">Küldés</button></div>
+  </div>
+</div>
+
+<!-- COMMUNITY ADMIN -->
+<div class="veil" id="m-comm-admin">
+  <div class="sheet">
+    <div class="sh"><h2>Közösség kezelése ⚙️</h2><button class="cx" onclick="closeM('m-comm-admin')">×</button></div>
+    <div class="sb">
+      <div class="errmsg" id="cadmin-err"></div>
+      <div class="f"><label>Név</label><input type="text" id="cadmin-name" maxlength="30"></div>
+      <div class="f"><label>Leírás</label><textarea id="cadmin-desc" maxlength="500"></textarea></div>
+      <div class="f"><label>Ikon</label><input type="text" id="cadmin-icon" maxlength="2"></div>
+      <div class="f">
+        <label>Borítókép</label>
+        <div class="uz"><input type="file" id="cadmin-cover-in" accept="image/*" onchange="uploadCommCover(this.files[0])"><p>📎 Kép feltöltése</p></div>
+        <div id="cadmin-cov-prev" style="display:none;margin-top:5px"><img id="cadmin-cov-img" style="max-height:70px;width:auto"></div>
+        <div class="uprog" id="cadmin-uprog"><div class="bar" id="cadmin-ubar"></div></div>
+      </div>
+      <div style="border-top:1px solid var(--b1);padding-top:9px;margin-top:4px">
+        <div class="f">
+          <label>Admin jog adása</label>
+          <input type="text" placeholder="Keresés felhasználónév alapján..." oninput="searchAdminUser(this.value)" style="width:100%;background:var(--inp);border:1px solid var(--b1);padding:6px 9px;font-size:12px;color:var(--t1);outline:none;margin-bottom:4px">
+          <div id="admin-friend-picker" class="upicker open" style="max-height:140px"></div>
+          <div id="admin-sel" style="display:none;margin-top:4px">
+            <div class="sel-user"><span id="admin-sel-name"></span><button onclick="clearAdminSel()" style="background:none;border:none;color:var(--t3);cursor:pointer;font-size:14px">×</button></div>
+          </div>
+        </div>
+        <button class="btn btn-w btn-sm" onclick="addCommAdmin()" style="margin-top:4px">Admin jog adása</button>
+        <div id="cadmin-admins" style="font-size:11px;color:var(--t3);margin-top:6px"></div>
+      </div>
+      <div style="border-top:1px solid var(--b1);padding-top:9px;margin-top:6px">
+        <button class="btn btn-sm" style="color:var(--danger);border-color:var(--danger);width:100%" onclick="deleteComm()">🗑 Közösség törlése</button>
+      </div>
+    </div>
+    <div class="sf"><button class="btn" onclick="closeM('m-comm-admin')">Mégse</button><button class="btn btn-w" onclick="saveCommAdmin()">Mentés</button></div>
+  </div>
+</div>
+
+<!-- EDIT PROFILE -->
+<div class="veil" id="m-ep">
+  <div class="sheet">
+    <div class="sh"><h2>Profil szerkesztése</h2><button class="cx" onclick="closeM('m-ep')">×</button></div>
+    <div class="sb">
+      <div class="errmsg" id="eperr"></div>
+      <div class="f"><label>Felhasználónév</label><input type="text" id="epun" maxlength="20"></div>
+      <div class="f"><label>Bio</label><textarea id="epbio" maxlength="200"></textarea></div>
+    </div>
+    <div class="sf"><button class="btn" onclick="closeM('m-ep')">Mégse</button><button class="btn btn-w" onclick="saveProf()">Mentés</button></div>
+  </div>
+</div>
+
+<!-- CONFIRM DIALOG -->
+<div id="confirm-overlay">
+  <div id="confirm-box">
+    <div id="confirm-msg"><strong id="confirm-title">Megerősítés</strong><span id="confirm-text"></span></div>
+    <div id="confirm-acts">
+      <button id="confirm-cancel" onclick="confirmResolve(false)">Mégse</button>
+      <button id="confirm-ok" class="danger" onclick="confirmResolve(true)">Törlés</button>
+    </div>
+  </div>
+</div>
+
+<script type="module">
+import{initializeApp}from"https://www.gstatic.com/firebasejs/11.0.0/firebase-app.js";
+import{getAuth,createUserWithEmailAndPassword,signInWithEmailAndPassword,signOut,onAuthStateChanged}from"https://www.gstatic.com/firebasejs/11.0.0/firebase-auth.js";
+import{getFirestore,collection,doc,getDoc,getDocs,setDoc,addDoc,updateDoc,deleteDoc,query,where,orderBy,limit,onSnapshot,serverTimestamp,increment,runTransaction,arrayUnion,arrayRemove}from"https://www.gstatic.com/firebasejs/11.0.0/firebase-firestore.js";
+
+// Capacitor native push notifications
+let _capacitorPush = null;
+async function initCapacitorPush(){
+  try{
+    const { PushNotifications } = await import('@capacitor/push-notifications');
+    _capacitorPush = PushNotifications;
+    // Request permission
+    const result = await PushNotifications.requestPermissions();
+    if(result.receive === 'granted'){
+      await PushNotifications.register();
+    }
+    // Get FCM token
+    PushNotifications.addListener('registration', token => {
+      console.log('FCM token:', token.value);
+      if(me) updateDoc(doc(db,'users',me.uid),{fcmTokens:arrayUnion(token.value)}).catch(()=>{});
+    });
+    // Foreground notification
+    PushNotifications.addListener('pushNotificationReceived', notif => {
+      pushNotif(notif.title||'Értesítés', notif.body||'', ()=>goPage('notif'));
+    });
+    // Notification tap
+    PushNotifications.addListener('pushNotificationActionPerformed', action => {
+      const data = action.notification.data || {};
+      if(data.type==='message') showPage('messages');
+      else if(data.commId) goCommunity(data.commId);
+      else goPage('notif');
+    });
+  }catch(e){
+    // Not in Capacitor environment (browser), use web notifications
+    console.log('Capacitor not available, using web notifications');
+  }
+}
+
+const app=initializeApp({apiKey:"AIzaSyCYd-cx5aor8Tt4P8YIlUU7SCFPG597Ry8",authDomain:"konyv-93c63.firebaseapp.com",projectId:"konyv-93c63",storageBucket:"konyv-93c63.firebasestorage.app",messagingSenderId:"349471560585",appId:"1:349471560585:web:f1bd8516f005528d540758"});
+const auth=getAuth(app),db=getFirestore(app);
+const CL='dzugkrtwr',CP='bombasz';
+
+let me=null,myName='',myUid=null;
+let sort='hot',currentCommId=null,currentProfUid=null;
+let communities=[],unsubFeed=null,unsubCmts=null,unsubMsgs=null,unsubNotifs=null;
+let activeConvId=null,activeConvPartner='',activeConvUid=null;
+let mediaUrl=null,mediaType=null;
+let selectedMsgUser=null,selectedAdminUser=null;
+let myFriends=[];
+let commAdminCoverUrl=null;
+
+// THEME
+window.setTheme=t=>{document.documentElement.setAttribute('data-theme',t);localStorage.setItem('theme',t);['amoled','grey','light'].forEach(x=>g('th-'+x)?.classList.toggle('on',x===t));};
+(()=>{const t=localStorage.getItem('theme')||'amoled';document.documentElement.setAttribute('data-theme',t);window.addEventListener('DOMContentLoaded',()=>{['amoled','grey','light'].forEach(x=>g('th-'+x)?.classList.toggle('on',x===t));});})();
+
+// UPLOAD
+window.handleFile=async file=>{
+  if(!file)return;const isVid=file.type.startsWith('video/');
+  g('uprog').style.display='block';
+  const fd=new FormData();fd.append('file',file);fd.append('upload_preset',CP);
+  return new Promise(res=>{
+    const xhr=new XMLHttpRequest();xhr.open('POST',`https://api.cloudinary.com/v1_1/${CL}/${isVid?'video':'image'}/upload`);
+    xhr.upload.onprogress=e=>{if(e.lengthComputable)g('ubar').style.width=(e.loaded/e.total*100)+'%';};
+    xhr.onload=()=>{
+      const d=JSON.parse(xhr.responseText);
+      if(d.secure_url){
+        mediaUrl=d.secure_url;mediaType=isVid?'video':'image';
+        const pv=g('uprev');pv.style.display='block';
+        pv.innerHTML=`${isVid?`<video src="${d.secure_url}" controls></video>`:`<img src="${d.secure_url}">`}<button class="rm" onclick="clearUpload()">×</button>`;
+        toast('Feltöltve ✓');
+      }else toast('Cloudinary hiba.','err');
+      g('uprog').style.display='none';res();
+    };
+    xhr.onerror=()=>{toast('Hálózati hiba.','err');g('uprog').style.display='none';res();};
+    xhr.send(fd);
+  });
+};
+window.clearUpload=()=>{mediaUrl=null;mediaType=null;const pv=g('uprev');if(pv){pv.style.display='none';pv.innerHTML='';}const fi=g('filein');if(fi)fi.value='';};
+async function uploadImg(file){
+  const fd=new FormData();fd.append('file',file);fd.append('upload_preset',CP);
+  const r=await fetch(`https://api.cloudinary.com/v1_1/${CL}/image/upload`,{method:'POST',body:fd});
+  const d=await r.json();return d.secure_url||null;
+}
+
+// RATE LIMIT
+const RL={post:{n:5,w:600000,k:'rl_p'},cmt:{n:10,w:300000,k:'rl_c'},msg:{n:20,w:300000,k:'rl_m'},auth:{n:5,w:60000,k:'rl_a'}};
+function rl(t){const{n,w,k}=RL[t],now=Date.now();let d=JSON.parse(localStorage.getItem(k)||'{"c":0,"t":0}');if(now-d.t>w)d={c:0,t:now};if(d.c>=n)return false;d.c++;localStorage.setItem(k,JSON.stringify(d));return true;}
+
+// AUTH
+onAuthStateChanged(auth,async u=>{
+  me=u;myUid=u?.uid||null;
+  if(u){
+    try{const s=await getDoc(doc(db,'users',u.uid));myName=(s.exists()&&s.data().username)?s.data().username:(u.email||'u').split('@')[0];}catch{myName=(u.email||'u').split('@')[0];}
+    const ini=(myName||'?').slice(0,2).toUpperCase();
+    // Try to show avatar image in nav
+    loadAvatar(u.uid).then(url=>{
+      const nav=g('nav-av');
+      if(url&&nav){nav.innerHTML=`<img src="${url}" style="width:100%;height:100%;object-fit:cover">`;}
+      else if(nav){nav.textContent=ini;}
+      const cb=g('cbarav');
+      if(url&&cb){cb.innerHTML=`<img src="${url}" style="width:100%;height:100%;object-fit:cover">`;}
+      else if(cb){cb.textContent=ini;}
+    });
+    showEl('uchip','flex');showEl('btnmsg','inline-flex');showEl('cbar','flex');
+    showEl('btnfr','inline-flex');
+    const dm=g('drawer-msg');if(dm)dm.style.display='flex';
+    const dfr=g('drawer-fr');if(dfr)dfr.style.display='flex';
+    hide('btnli');hide('btnreg');
+    subscribeNotifs();loadMyFriends();subscribeNewMessages();
+    // Try Capacitor native push first, fall back to web
+    initCapacitorPush().catch(()=>{});
+    // Show notification permission banner if needed (web fallback)
+    requestNotifPermission();
+
+    // subscribe notifications for joined communities
+    setTimeout(async()=>{
+      try{
+        const s=await getDoc(doc(db,'users',u.uid));
+        const joined=s.data()?.joinedComms||[];
+        const mutedComms=s.data()?.mutedComms||[];
+        joined.filter(id=>!mutedComms.includes(id)).forEach(async id=>{
+          const cs=await getDoc(doc(db,'communities',id)).catch(()=>null);
+          if(cs?.exists())subscribeCommNotifs(id,cs.data().name);
+        });
+      }catch(e){}
+    },2000);
+  }else{
+    myName='';myFriends=[];hide('uchip');hide('btnmsg');hide('cbar');hide('btnfr');
+    const nb=g('notif-banner');if(nb)nb.classList.remove('show');
+    const dm2=g('drawer-msg');if(dm2)dm2.style.display='none';
+    const dfr2=g('drawer-fr');if(dfr2)dfr2.style.display='none';
+    showEl('btnli','inline-block');showEl('btnreg','inline-block');
+    if(unsubNotifs){unsubNotifs();unsubNotifs=null;}
+    g('nbadge').style.display='none';
+  }
+});
+window.openAuth=t=>{openM('m-auth');authTab(t);};
+window.authTab=t=>{
+  g('tli').classList.toggle('on',t==='login');g('tre').classList.toggle('on',t==='register');
+  g('fgun').style.display=t==='register'?'block':'none';
+  g('asub').textContent=t==='login'?'Belépés':'Regisztráció';g('asub').dataset.m=t;
+  ['autherr','authok','authrw'].forEach(id=>{const e=g(id);if(e)e.style.display='none';});
+};
+window.doAuth=async()=>{
+  if(!rl('auth')){showEl('authrw','block');return;}
+  const m=g('asub').dataset.m||'login',email=(g('aem').value||'').trim(),pass=g('apw').value||'';
+  if(!email||!pass){showErr('autherr','Töltsd ki az összes mezőt.');return;}
+  g('asub').disabled=true;
+  try{
+    if(m==='register'){
+      const un=(g('aun').value||'').trim();
+      if(!/^[a-zA-Z0-9_]{3,20}$/.test(un)){showErr('autherr','Felhasználónév: 3–20 kar., betű/szám/aláhúzás.');return;}
+      const uq=await getDocs(query(collection(db,'users'),where('username','==',un)));
+      if(!uq.empty){showErr('autherr','Ez a felhasználónév már foglalt.');return;}
+      const{user}=await createUserWithEmailAndPassword(auth,email,pass);
+      await setDoc(doc(db,'users',user.uid),{username:un,bio:'',karma:0,friends:[],avatarUrl:'',coverUrl:'',joinedComms:[],createdAt:serverTimestamp()});
+      g('authok').textContent='Regisztráció sikeres!';showEl('authok','block');
+      setTimeout(()=>closeM('m-auth'),900);
+    }else{
+      await signInWithEmailAndPassword(auth,email,pass);
+      closeM('m-auth');toast('Üdv vissza, '+myName+'!');
+    }
+  }catch(e){
+    const M={'auth/email-already-in-use':'Email már regisztrált.','auth/wrong-password':'Hibás jelszó.','auth/user-not-found':'Nem találtuk a fiókot.','auth/weak-password':'Jelszó túl gyenge.','auth/invalid-credential':'Hibás email vagy jelszó.'};
+    showErr('autherr',M[e.code]||e.message);
+  }
+  g('asub').disabled=false;
+};
+window.doSignOut=async()=>{await signOut(auth);toast('Viszlát!');showPage('feed');};
+
+// FRIENDS LOADING
+async function loadMyFriends(){
+  if(!me)return;
+  try{
+    const s=await getDoc(doc(db,'users',me.uid));
+    const ids=s.data()?.friends||[];
+    if(!ids.length){myFriends=[];return;}
+    const rows=await Promise.all(ids.map(async id=>{const fs=await getDoc(doc(db,'users',id)).catch(()=>null);return fs?.exists()?{id,...fs.data()}:null;}));
+    myFriends=rows.filter(Boolean);
+  }catch(e){myFriends=[];}
+}
+
+// NOTIFICATIONS
+function subscribeNotifs(){
+  if(!me||unsubNotifs)return;
+  const q=query(collection(db,'notifications'),where('toUid','==',me.uid),limit(50));
+  const _seenN=new Set();let _initN=false;
+  unsubNotifs=onSnapshot(q,snap=>{
+    const allDocs=snap.docs.map(d=>({id:d.id,...d.data()}));
+    const cnt=allDocs.filter(d=>!d.read).length;
+    const b=g('nbadge');b.textContent=cnt>9?'9+':cnt;b.style.display=cnt>0?'flex':'none';
+    // update pending friend request badge
+    const pendingCnt=allDocs.filter(d=>d.type==='friend_request'&&d.status==='pending'&&!d.read).length;
+    const fb=g('fr-badge');if(fb){fb.textContent=pendingCnt>9?'9+':pendingCnt;fb.style.display=pendingCnt>0?'flex':'none';}
+    const pc=g('pending-count');if(pc){pc.textContent=pendingCnt;pc.style.display=pendingCnt?'inline-flex':'none';}
+    if(!_initN){
+      // On first load, just record existing + count unread
+      snap.docs.forEach(d=>_seenN.add(d.id));
+      _initN=true;
+      // Still update badge
+      return;
+    }
+    snap.docChanges().forEach(ch=>{
+      if(ch.type==='added'&&!_seenN.has(ch.doc.id)){
+        _seenN.add(ch.doc.id);
+        const n=ch.doc.data();
+        if(n.type==='friend_request')
+          pushNotif('👤 Barát kérés',n.fromName+' barát kérést küldött.',()=>goPage('notif'));
+        else if(n.type==='friend_accepted')
+          pushNotif('✅ Barát elfogadva',n.fromName+' elfogadta a kérésedet.',()=>goProfile(n.fromUid));
+      }
+    });
+  });
+}
+
+// Real-time: new message notification
+let unsubMsgNotif=null;
+function subscribeNewMessages(){
+  if(!me||unsubMsgNotif)return;
+  const q=query(collection(db,'messages'),where('recipientId','==',me.uid),limit(50));
+  const startedAt=Date.now();
+  let firstLoad=true;
+  unsubMsgNotif=onSnapshot(q,snap=>{
+    if(firstLoad){firstLoad=false;return;}
+    snap.docChanges().forEach(ch=>{
+      if(ch.type!=='added')return;
+      const m=ch.doc.data();
+      const msgMs=(m.createdAt?.seconds||0)*1000;
+      if(msgMs<startedAt-5000)return;
+      if(!m.read&&activeConvId!==m.conversationId){
+        pushNotif(
+          '💬 '+esc(m.senderName)+' üzenetet küldött',
+          m.text.slice(0,80),
+          ()=>{activeConvId=m.conversationId;activeConvPartner=m.senderName;activeConvUid=m.senderId;showPage('messages');}
+        );
+      }
+    });
+  },err=>{console.warn('msgNotif err:',err.code);});
+}
+
+// ── NOTIFICATION SYSTEM ──
+// Tries real browser Notification first, falls back to in-app popup
+const _notifQueue=[];
+let _notifShowing=false;
+let _notifPermission='default';
+
+function requestNotifPermission(){
+  if(typeof Notification==='undefined')return;
+  if(Notification.permission==='granted'){_notifPermission='granted';return;}
+  if(Notification.permission==='denied'){_notifPermission='denied';return;}
+  if(localStorage.getItem('notif_dismissed'))return;
+  const banner=g('notif-banner');
+  if(banner)banner.classList.add('show');
+}
+
+// Called directly from button click — valid user-generated event
+window.askNotifPermission=async()=>{
+  const banner=g('notif-banner');
+  if(banner)banner.classList.remove('show');
+  if(typeof Notification==='undefined')return;
+  try{
+    const result=await Notification.requestPermission();
+    _notifPermission=result;
+    if(result==='granted'){
+      toast('🔔 Értesítések bekapcsolva!');
+      // Register FCM token for server-side push
+      await registerFCMToken();
+    }
+  }catch(e){console.warn('notif permission:',e);}
+};
+
+window.dismissNotifBanner=()=>{
+  const banner=g('notif-banner');
+  if(banner)banner.classList.remove('show');
+  localStorage.setItem('notif_dismissed','1');
+};
+
+// Register FCM token so Firebase can send push to this device
+async function registerFCMToken(){
+  if(!me||!_swReg)return;
+  try{
+    const {getMessaging,getToken}=await import('https://www.gstatic.com/firebasejs/11.0.0/firebase-messaging.js');
+    const messaging=getMessaging(app);
+    // VAPID key from Firebase Console → Project Settings → Cloud Messaging → Web Push certificates
+    // Replace this with your actual VAPID key:
+    const VAPID_KEY='YOUR_VAPID_KEY_HERE';
+    if(VAPID_KEY==='YOUR_VAPID_KEY_HERE'){
+      console.info('FCM: Add your VAPID key from Firebase Console → Project Settings → Cloud Messaging');
+      return;
+    }
+    const token=await getToken(messaging,{vapidKey:VAPID_KEY,serviceWorkerRegistration:_swReg});
+    if(token){
+      _fcmToken=token;
+      // Save token to Firestore so we can send targeted push later
+      await updateDoc(doc(db,'users',me.uid),{fcmTokens:arrayUnion(token)}).catch(()=>{});
+    }
+  }catch(e){console.warn('FCM token error:',e.message);}
+}
+
+function pushNotif(title,body,onClick){
+  // Try real browser notification (works when page not focused)
+  if(typeof Notification!=='undefined'&&_notifPermission==='granted'){
+    try{
+      const n=new Notification(title,{
+        body,
+        icon:'data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32"><rect width="32" height="32" fill="%23111"/><text y="22" x="6" font-size="20">💬</text></svg>',
+        badge:'data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32"><rect width="32" height="32" rx="6" fill="%237c5cfc"/></svg>',
+        tag:title,
+        requireInteraction:false,
+      });
+      n.onclick=()=>{
+        window.focus();
+        n.close();
+        if(onClick)onClick();
+        else goPage('notif');
+      };
+      return; // browser notif sent, skip in-app
+    }catch(e){}
+  }
+  // Fallback: in-app popup
+  _notifQueue.push({title,body,onClick});
+  if(!_notifShowing)_showNextNotif();
+}
+
+window._showNextNotif=function _showNextNotif(){
+  if(!_notifQueue.length){_notifShowing=false;return;}
+  _notifShowing=true;
+  const {title,body,onClick}=_notifQueue.shift();
+  // remove old if any
+  document.querySelectorAll('.inotif').forEach(e=>e.remove());
+  const el=document.createElement('div');
+  el.className='inotif';
+  el.innerHTML=`
+    <div class="inotif-head">
+      <span>🔔 Értesítés</span>
+      <button class="inotif-close" onclick="event.stopPropagation();this.closest('.inotif').remove();_notifShowing=false;_showNextNotif()">×</button>
+    </div>
+    <div class="inotif-body">
+      <div class="inotif-title">${esc(title)}</div>
+      <div class="inotif-text">${esc(body)}</div>
+    </div>`;
+  el.addEventListener('click',()=>{
+    el.remove();_notifShowing=false;
+    if(onClick)onClick();
+    else goPage('notif');
+    setTimeout(_showNextNotif,300);
+  });
+  document.body.appendChild(el);
+  setTimeout(()=>{
+    el.style.animation='none';
+    el.style.opacity='0';
+    el.style.transition='opacity .4s';
+    setTimeout(()=>{el.remove();_notifShowing=false;_showNextNotif();},400);
+  },5000);
+}
+
+// Subscribe to community new posts
+const _commPostSubs={};
+function subscribeCommNotifs(commId,commName){
+  if(_commPostSubs[commId])return;
+  // Single where() = no composite index needed
+  const q=query(collection(db,'posts'),where('communityId','==',commId),limit(30));
+  // Mark subscription start time - only show notifs for posts created AFTER this
+  const startedAt=Date.now();
+  let firstLoad=true;
+  _commPostSubs[commId]=onSnapshot(q,snap=>{
+    if(firstLoad){
+      // On first snapshot just record what exists, don't notify
+      firstLoad=false;
+      return;
+    }
+    snap.docChanges().forEach(ch=>{
+      if(ch.type!=='added')return;
+      const p=ch.doc.data();
+      // Only notify if post was created after we started listening
+      const postMs=(p.createdAt?.seconds||0)*1000;
+      if(postMs<startedAt-5000)return; // 5s grace
+      if(p.authorId===me?.uid)return; // don't notify own posts
+      pushNotif(
+        'k/'+commName+' — Új poszt',
+        p.title||'(cím nélkül)',
+        ()=>goCommunity(commId)
+      );
+      addDoc(collection(db,'notifications'),{
+        toUid:me.uid,fromUid:p.authorId,fromName:p.authorName||'anon',
+        type:'new_post',text:p.title||'',commId,read:false,createdAt:serverTimestamp()
+      }).catch(()=>{});
+    });
+  },err=>{
+    // If permission denied or index error, silently fail
+    console.warn('commNotif err:',commId,err.code);
+  });
+}
+function unsubCommNotif(commId){
+  if(_commPostSubs[commId]){_commPostSubs[commId]();delete _commPostSubs[commId];}
+}
+// ── FRIENDS PAGE ──
+let friendsTab='friends';
+window.setFriendsTab=(tab,btn)=>{
+  friendsTab=tab;
+  document.querySelectorAll('.ftab2').forEach(b=>b.classList.remove('on'));
+  if(btn)btn.classList.add('on');
+  loadFriendsSection(tab);
+};
+window.loadFriendsPage=async()=>{
+  if(!me){g('friends-section').innerHTML='<div class="empty"><h3>Belépés szükséges.</h3></div>';return;}
+  loadFriendsSection('friends');
+  // count pending
+  const snap=await getDocs(query(collection(db,'notifications'),where('toUid','==',me.uid),limit(50)));
+  const pending=snap.docs.filter(d=>{const n=d.data();return n.type==='friend_request'&&n.status==='pending'&&!n.read;});
+  const pc=g('pending-count');
+  const fb=g('fr-badge');
+  if(pc){pc.textContent=pending.length;pc.style.display=pending.length?'inline-flex':'none';}
+  if(fb){fb.textContent=pending.length>9?'9+':pending.length;fb.style.display=pending.length?'flex':'none';}
+};
+async function loadFriendsSection(tab){
+  const el=g('friends-section');
+  el.innerHTML='<div class="spw"><div class="sp"></div></div>';
+  if(!me)return;
+  if(tab==='friends'){
+    const snap=await getDoc(doc(db,'users',me.uid));
+    const ids=snap.data()?.friends||[];
+    if(!ids.length){el.innerHTML='<div class="empty"><h3>Még nincsenek barátaid.</h3><p>Keress felhasználókat a Keresés fülön!</p></div>';return;}
+    const rows=await Promise.all(ids.map(async id=>{
+      const fs=await getDoc(doc(db,'users',id)).catch(()=>null);
+      return fs?.exists()?{id,...fs.data()}:null;
+    }));
+    await Promise.all(rows.filter(Boolean).map(u=>loadAvatar(u.id)));
+    el.innerHTML=rows.filter(Boolean).map(u=>{
+      const url=_avCache[u.id]||'';
+      const ini=(u.username||'?').slice(0,2).toUpperCase();
+      return`<div class="fr-row" onclick="goProfile('${u.id}')">
+        <div class="fr-av2">${url?`<img src="${url}">`:(ini)}</div>
+        <div class="fr-info">
+          <div class="fr-name">${esc(u.username||'névtelen')}</div>
+          <div class="fr-sub">${u.karma||0} karma</div>
+        </div>
+        <div class="fr-acts">
+          <button class="btn btn-sm" onclick="event.stopPropagation();dmWith('${u.id}','${esc(u.username)}')">✉</button>
+          <button class="btn btn-sm" style="color:var(--danger);border-color:var(--danger)" onclick="event.stopPropagation();removeFriend('${u.id}','${esc(u.username)}')">✕</button>
+        </div>
+      </div>`;
+    }).join('');
+  } else if(tab==='pending'){
+    const snap=await getDocs(query(collection(db,'notifications'),where('toUid','==',me.uid),limit(50)));
+    const pending=snap.docs.filter(d=>{const n=d.data();return n.type==='friend_request'&&n.status==='pending';}).map(d=>({id:d.id,...d.data()}));
+    if(!pending.length){el.innerHTML='<div class="empty"><h3>Nincs függő barát kérés.</h3></div>';return;}
+    el.innerHTML=pending.map(n=>`<div class="fr-row">
+      <div class="fr-av2">${(n.fromName||'?').slice(0,2).toUpperCase()}</div>
+      <div class="fr-info">
+        <div class="fr-name">${esc(n.fromName||'?')}</div>
+        <div class="fr-sub">Barát kérést küldött</div>
+      </div>
+      <div class="fr-acts">
+        <button class="btn btn-w btn-sm" onclick="acceptFR('${n.id}','${n.fromUid}','${esc(n.fromName)}');loadFriendsPage()">✓ Elfogad</button>
+        <button class="btn btn-sm" onclick="declineFR('${n.id}');loadFriendsPage()">✕</button>
+      </div>
+    </div>`).join('');
+  } else if(tab==='find'){
+    el.innerHTML=`<div style="padding:.75rem 0">
+      <input type="text" id="fr-search-inp" placeholder="Keresés felhasználónév alapján..." oninput="searchFriendUser(this.value)"
+        style="width:100%;background:var(--inp);border:1px solid var(--b1);padding:8px 12px;font-size:13px;color:var(--t1);outline:none;margin-bottom:.75rem">
+      <div id="fr-search-results"><div style="padding:.5rem 0;font-size:12px;color:var(--t3)">Írj be legalább 2 karaktert...</div></div>
+    </div>`;
+  }
+}
+
+let _frSearchTimer=null;
+window.searchFriendUser=async val=>{
+  clearTimeout(_frSearchTimer);
+  const res=g('fr-search-results');
+  if(!val||val.length<2){res.innerHTML='<div style="font-size:12px;color:var(--t3);padding:.5rem 0">Írj be legalább 2 karaktert...</div>';return;}
+  res.innerHTML='<div class="spw"><div class="sp"></div></div>';
+  _frSearchTimer=setTimeout(async()=>{
+    try{
+      const snap=await getDocs(query(collection(db,'users'),where('username','>=',val.toLowerCase()),where('username','<=',val.toLowerCase()+''),limit(15)));
+      const users=snap.docs.map(d=>({id:d.id,...d.data()})).filter(u=>u.id!==me?.uid);
+      await Promise.all(users.map(u=>loadAvatar(u.id)));
+      const mySnap=await getDoc(doc(db,'users',me.uid));
+      const myFriendIds=mySnap.data()?.friends||[];
+      if(!users.length){res.innerHTML='<div style="font-size:12px;color:var(--t3);padding:.5rem 0">Nem találtuk.</div>';return;}
+      res.innerHTML=users.map(u=>{
+        const url=_avCache[u.id]||'';
+        const ini=(u.username||'?').slice(0,2).toUpperCase();
+        const isFr=myFriendIds.includes(u.id);
+        return`<div class="fr-row" onclick="goProfile('${u.id}')">
+          <div class="fr-av2">${url?`<img src="${url}">`:(ini)}</div>
+          <div class="fr-info">
+            <div class="fr-name">${esc(u.username)}</div>
+            <div class="fr-sub">${u.karma||0} karma</div>
+          </div>
+          <div class="fr-acts">
+            ${isFr
+              ? `<span style="font-size:11px;color:var(--t3)">✓ Barát</span>`
+              : `<button class="btn btn-w btn-sm" onclick="event.stopPropagation();sendFriendReq('${u.id}','${esc(u.username)}',this)">+ Barát</button>`
+            }
+          </div>
+        </div>`;
+      }).join('');
+    }catch(e){res.innerHTML=`<div style="font-size:12px;color:var(--danger)">Hiba: ${esc(e.message)}</div>`;}
+  },300);
+};
+
+window.sendFriendReq=async(uid,name,btn)=>{
+  if(!me){openAuth('login');return;}
+  await addDoc(collection(db,'notifications'),{toUid:uid,fromUid:me.uid,fromName:myName,type:'friend_request',status:'pending',read:false,createdAt:serverTimestamp()});
+  if(btn){btn.textContent='Elküldve';btn.disabled=true;}
+  toast('Barát kérés elküldve: '+name);
+};
+
+window.removeFriend=async(uid,name)=>{
+  const ok=await showConfirm('Barát eltávolítása',name+' törlése a barátlistádból.');
+  if(!ok)return;
+  await updateDoc(doc(db,'users',me.uid),{friends:arrayRemove(uid)});
+  await loadMyFriends();
+  toast(name+' eltávolítva.');
+  loadFriendsSection('friends');
+};
+
+window.loadNotifs=async()=>{
+  if(!me){g('notif-list').innerHTML='<div class="empty"><h3>Belépés szükséges.</h3></div>';return;}
+  g('notif-list').innerHTML='<div class="spw"><div class="sp"></div></div>';
+  const snap=await getDocs(query(collection(db,'notifications'),where('toUid','==',me.uid),limit(50)));
+  const notifs=snap.docs.map(d=>({id:d.id,...d.data()})).sort((a,b)=>(b.createdAt?.seconds||0)-(a.createdAt?.seconds||0));
+  if(!notifs.length){g('notif-list').innerHTML='<div class="empty"><h3>Nincs értesítés.</h3></div>';return;}
+  g('notif-list').innerHTML=notifs.map(n=>`
+    <div class="nitem" style="${!n.read?'border-left:2px solid var(--t1)':''}">
+      <div class="nav2">${(n.fromName||'?').slice(0,2).toUpperCase()}</div>
+      <div class="ntxt">${n.type==='friend_request'?`<strong>${esc(n.fromName)}</strong> barát kérést küldött.`:n.type==='friend_accepted'?`<strong>${esc(n.fromName)}</strong> elfogadta a barát kérésedet.`:`<strong>${esc(n.fromName)}</strong>: ${esc(n.text||'')}`}</div>
+      <div class="nacts">
+        ${n.type==='friend_request'&&n.status==='pending'?`<button class="na acc" onclick="acceptFR('${n.id}','${n.fromUid}','${n.fromName}')">✓</button><button class="na" onclick="declineFR('${n.id}')">✗</button>`:''}
+        ${!n.read?`<button class="na" onclick="markNotifRead('${n.id}')">·</button>`:''}
+      </div>
+    </div>`).join('');
+};
+window.markAllRead=async()=>{
+  if(!me)return;
+  const snap=await getDocs(query(collection(db,'notifications'),where('toUid','==',me.uid),limit(50)));
+  const unread=snap.docs.filter(d=>!d.data().read);
+  await Promise.all(unread.map(d=>updateDoc(doc(db,'notifications',d.id),{read:true})));
+  loadNotifs();
+};
+window.markNotifRead=async id=>{await updateDoc(doc(db,'notifications',id),{read:true});loadNotifs();};
+window.acceptFR=async(notifId,fromUid,fromName)=>{
+  if(!me)return;
+  await updateDoc(doc(db,'users',me.uid),{friends:arrayUnion(fromUid)});
+  await updateDoc(doc(db,'users',fromUid),{friends:arrayUnion(me.uid)}).catch(()=>{});
+  await updateDoc(doc(db,'notifications',notifId),{read:true,status:'accepted'});
+  await addDoc(collection(db,'notifications'),{toUid:fromUid,fromUid:me.uid,fromName:myName,type:'friend_accepted',text:'elfogadta a barát kérésedet.',read:false,createdAt:serverTimestamp()});
+  await loadMyFriends();
+  toast('Barát elfogadva!');loadNotifs();
+};
+window.declineFR=async id=>{await updateDoc(doc(db,'notifications',id),{read:true,status:'declined'});toast('Elutasítva.');loadNotifs();};
+
+// COMMUNITIES
+async function loadComms(){
+  const snap=await getDocs(query(collection(db,'communities'),orderBy('memberCount','desc'),limit(20)));
+  communities=snap.docs.map(d=>({id:d.id,...d.data()}));
+  renderLC();renderRC();fillDest();
+  if(!communities.length){
+    const seeds=[{name:'programozas',description:'Kód és tech',icon:'💻',memberCount:0},{name:'tudomany',description:'Tudomány',icon:'🔭',memberCount:0},{name:'zene',description:'Zene',icon:'🎵',memberCount:0},{name:'film',description:'Filmek',icon:'🎬',memberCount:0},{name:'vita',description:'Viták',icon:'💬',memberCount:0}];
+    for(const s of seeds)await addDoc(collection(db,'communities'),{...s,createdAt:serverTimestamp()});
+    return loadComms();
+  }
+}
+function renderLC(){
+  g('lcomms').innerHTML=communities.slice(0,10).map(c=>`<div class="nl" onclick="goCommunity('${c.id}')">${c.icon||'💬'} k/${c.name}</div>`).join('');
+  // also update drawer if open
+  renderDrawerComms&&renderDrawerComms();
+}
+function renderRC(){g('rcomms').innerHTML=communities.slice(0,5).map((c,i)=>`<div class="tri" onclick="goCommunity('${c.id}')"><span class="trn">${i+1}</span><div><div class="trname">${c.icon||'💬'} k/${c.name}</div><div class="trcnt">${(c.memberCount||0).toLocaleString()} tag</div></div></div>`).join('');}
+function fillDest(){
+  const s=g('pdest');if(!s)return;
+  s.innerHTML=`<option value="profile">Saját profilomra</option>`+communities.map(c=>`<option value="${c.id}">${c.icon||'💬'} k/${c.name}</option>`).join('');
+  if(currentCommId)for(let o of s.options)if(o.value===currentCommId){o.selected=true;break;}
+}
+window.openComm=()=>{if(!me){openAuth('login');return;}openM('m-comm');};
+window.submitComm=async()=>{
+  if(!me)return;
+  const name=(g('cname2').value||'').trim().toLowerCase().replace(/[^a-z0-9_]/g,'');
+  if(!name||name.length<2){showErr('commerr','Legalább 2 karakteres név kell.');return;}
+  const ex=await getDocs(query(collection(db,'communities'),where('name','==',name)));
+  if(!ex.empty){showErr('commerr','Ez a név már foglalt.');return;}
+  const ref=await addDoc(collection(db,'communities'),{name,description:(g('cdesc2').value||'').trim(),icon:(g('cicon2').value||'').trim()||'💬',createdBy:me.uid,memberCount:1,members:[me.uid],admins:[me.uid],createdAt:serverTimestamp()});
+  closeM('m-comm');toast('Közösség létrehozva!');await loadComms();goCommunity(ref.id);
+};
+
+// COMMUNITY PAGE
+window.goCommunity=async commId=>{
+  currentCommId=commId;
+  history.pushState({page:'community',commId}, '', '#community/'+commId);
+  document.querySelectorAll('.page').forEach(p=>p.classList.remove('on'));
+  g('pg-community')?.classList.add('on');
+  document.body.style.overflow = '';
+  g('comm-postlist').innerHTML='<div class="spw"><div class="sp"></div></div>';
+  const snap=await getDoc(doc(db,'communities',commId));if(!snap.exists())return;
+  const c={id:snap.id,...snap.data()};
+  const hue=(c.name?.charCodeAt(0)*37||0)%360;
+  const bannerEl=g('cbanner-inner');
+  if(c.bannerUrl){bannerEl.style.backgroundImage='url('+c.bannerUrl+')';bannerEl.style.backgroundSize='cover';bannerEl.style.backgroundPosition='center';}
+  else{bannerEl.style.backgroundImage='none';bannerEl.style.background=`linear-gradient(135deg,hsl(${hue},50%,18%),hsl(${(hue+70)%360},45%,22%))`;}
+  g('cicon-el').textContent=c.icon||'💬';
+  g('cname-el').textContent=c.name;
+  g('cslug-el').textContent='k/'+c.name;
+  g('cdesc-el').textContent=c.description||'';
+  g('comm-about').textContent=c.description||'Nincs leírás.';
+  g('cmembers').textContent=(c.memberCount||0).toLocaleString();
+  g('comm-created').textContent=c.createdAt?.toDate?ta(c.createdAt.toDate()):'—';
+  const psnap=await getDocs(query(collection(db,'posts'),where('communityId','==',commId),limit(100)));
+  g('cposts-cnt').textContent=psnap.size;
+  const adminBtn=g('comm-admin-btn');
+  if(me){
+    const mySnap=await getDoc(doc(db,'users',me.uid));
+    const joined=(mySnap.data()?.joinedComms||[]).includes(commId);
+    g('jbtn').textContent=joined?'✓ Tag':'Csatlakozás';
+    g('jbtn').className='jbtn'+(joined?' joined':'');
+    const admins=c.admins||[c.createdBy];
+    adminBtn.style.display=(c.createdBy===me.uid||admins.includes(me.uid))?'inline-block':'none';
+    const muteBtn=g('comm-mute-btn');
+    if(muteBtn){
+      // Show mute btn for all logged-in users (not just joined)
+      muteBtn.style.display='inline-block';
+      const isMuted=(mySnap.data()?.mutedComms||[]).includes(commId);
+      muteBtn.textContent=isMuted?'🔕 Némítva':'🔔 Értesítések';
+      // Auto-subscribe if joined and not muted
+      if(joined&&!isMuted){
+        subscribeCommNotifs(commId,c.name||'');
+      }
+    }
+  }else{g('jbtn').textContent='Csatlakozás';g('jbtn').className='jbtn';adminBtn.style.display='none';}
+  if(unsubFeed){unsubFeed();unsubFeed=null;}
+  const q=query(collection(db,'posts'),orderBy('createdAt','desc'),limit(200));
+  unsubFeed=onSnapshot(q,snap=>{
+    let posts=snap.docs.map(d=>({id:d.id,...d.data()})).filter(p=>p.communityId===commId);
+    if(sort==='hot'||sort==='top')posts.sort((a,b)=>((b.upvotes||0)-(b.downvotes||0))-((a.upvotes||0)-(a.downvotes||0)));
+    renderPostsIn('comm-postlist',posts);
+  },err=>{console.warn(err);g('comm-postlist').innerHTML='<div class="empty"><h3>Hiba töltéskor.</h3><p style="font-size:11px">Ellenőrizd a Firestore Rules-t</p></div>';});
+};
+window.toggleCommMute=async()=>{
+  if(!me||!currentCommId)return;
+  const ref=doc(db,'users',me.uid);
+  const s=await getDoc(ref);
+  const muted=s.data()?.mutedComms||[];
+  const isMuted=muted.includes(currentCommId);
+  await updateDoc(ref,{mutedComms:isMuted?arrayRemove(currentCommId):arrayUnion(currentCommId)});
+  const btn=g('comm-mute-btn');
+  if(isMuted){
+    // Was muted, now unmuting — re-subscribe
+    btn.textContent='🔔 Értesítések';
+    // Remove from _commPostSubs so it can re-subscribe fresh
+    unsubCommNotif(currentCommId);
+    subscribeCommNotifs(currentCommId,g('cname-el')?.textContent||'');
+    toast('🔔 Értesítések bekapcsolva');
+  }else{
+    // Muting — unsubscribe
+    btn.textContent='🔕 Némítva';
+    unsubCommNotif(currentCommId);
+    toast('🔕 Értesítések kikapcsolva');
+  }
+};
+window.toggleJoin=async()=>{
+  if(!me){openAuth('login');return;}if(!currentCommId)return;
+  const myRef=doc(db,'users',me.uid),mySnap=await getDoc(myRef);
+  const joined=(mySnap.data()?.joinedComms||[]).includes(currentCommId);
+  await updateDoc(myRef,{joinedComms:joined?arrayRemove(currentCommId):arrayUnion(currentCommId)});
+  await updateDoc(doc(db,'communities',currentCommId),{memberCount:increment(joined?-1:1)});
+  g('jbtn').textContent=joined?'Csatlakozás':'✓ Tag';
+  g('jbtn').className='jbtn'+(joined?'':' joined');
+  const commName=g('cname-el')?.textContent||'';
+  if(!joined){
+    // Just joined — subscribe unless muted
+    const ms=await getDoc(myRef);
+    const isMuted=(ms.data()?.mutedComms||[]).includes(currentCommId);
+    if(!isMuted)subscribeCommNotifs(currentCommId,commName);
+    const mb=g('comm-mute-btn');if(mb){mb.style.display='inline-block';mb.textContent='🔔 Értesítések';}
+  }else{
+    // Left — unsubscribe
+    unsubCommNotif(currentCommId);
+    const mb=g('comm-mute-btn');if(mb)mb.style.display='none';
+  }
+  toast(joined?'Kilépve.':'Csatlakoztál!');
+};
+
+// COMMUNITY ADMIN
+let currentCommAdminData=null;
+window.openCommAdmin=async()=>{
+  if(!me||!currentCommId)return;
+  const snap=await getDoc(doc(db,'communities',currentCommId));
+  if(!snap.exists())return;
+  currentCommAdminData={id:snap.id,...snap.data()};
+  g('cadmin-name').value=currentCommAdminData.name||'';
+  g('cadmin-desc').value=currentCommAdminData.description||'';
+  g('cadmin-icon').value=currentCommAdminData.icon||'💬';
+  commAdminCoverUrl=currentCommAdminData.bannerUrl||null;
+  if(commAdminCoverUrl){g('cadmin-cov-prev').style.display='block';g('cadmin-cov-img').src=commAdminCoverUrl;}
+  else g('cadmin-cov-prev').style.display='none';
+  // show admin list
+  const admins=currentCommAdminData.admins||[currentCommAdminData.createdBy];
+  const adminNames=await Promise.all(admins.map(async uid=>{const s=await getDoc(doc(db,'users',uid)).catch(()=>null);return s?.exists()?s.data().username:uid.slice(0,8);}));
+  g('cadmin-admins').textContent='Adminok: '+adminNames.join(', ');
+  // fill friend picker for admin
+  // Render member picker: show friends + search
+  renderAdminPicker();
+  hide('cadmin-err');
+  openM('m-comm-admin');
+};
+window.uploadCommCover=async file=>{
+  if(!file)return;toast('Feltöltés...');
+  g('cadmin-uprog').style.display='block';
+  const fd=new FormData();fd.append('file',file);fd.append('upload_preset',CP);
+  const xhr=new XMLHttpRequest();xhr.open('POST',`https://api.cloudinary.com/v1_1/${CL}/image/upload`);
+  xhr.upload.onprogress=e=>{if(e.lengthComputable)g('cadmin-ubar').style.width=(e.loaded/e.total*100)+'%';};
+  xhr.onload=()=>{
+    const d=JSON.parse(xhr.responseText);
+    if(d.secure_url){commAdminCoverUrl=d.secure_url;g('cadmin-cov-prev').style.display='block';g('cadmin-cov-img').src=d.secure_url;toast('Kép feltöltve ✓');}
+    else toast('Cloudinary hiba.','err');
+    g('cadmin-uprog').style.display='none';
+  };xhr.send(fd);
+};
+window.saveCommAdmin=async()=>{
+  if(!me||!currentCommId)return;
+  const name=(g('cadmin-name').value||'').trim().toLowerCase().replace(/[^a-z0-9_]/g,'');
+  const desc=(g('cadmin-desc').value||'').trim();
+  const icon=(g('cadmin-icon').value||'').trim()||'💬';
+  if(!name||name.length<2){showErr('cadmin-err','Legalább 2 karakteres név kell.');return;}
+  const upd={description:desc,icon};
+  if(commAdminCoverUrl)upd.bannerUrl=commAdminCoverUrl;
+  if(name!==currentCommAdminData.name){
+    const ex=await getDocs(query(collection(db,'communities'),where('name','==',name)));
+    if(!ex.empty){showErr('cadmin-err','Ez a név már foglalt.');return;}
+    upd.name=name;
+  }
+  await updateDoc(doc(db,'communities',currentCommId),upd);
+  closeM('m-comm-admin');toast('Mentve!');await loadComms();goCommunity(currentCommId);
+};
+// Admin picker: search all users by username
+window.renderAdminPicker = () => {
+  const el = g('admin-friend-picker');
+  if(!el) return;
+  el.style.display = 'block';
+  if(myFriends.length){
+    el.innerHTML = myFriends.map((f,i) => `<div class="upi" onclick="selectAdminUser(${JSON.stringify({id:f.id,username:f.username})})">
+      <div class="upi-av">${(f.username||'?').slice(0,2).toUpperCase()}</div>
+      <div><div class="upi-name">${esc(f.username)}</div><div class="upi-sub">barát</div></div>
+    </div>`).join('');
+  } else {
+    el.innerHTML = '<div style="padding:8px 10px;font-size:11px;color:var(--t3)">Kereséshez írj a mezőbe.</div>';
+  }
+};
+window.selectAdminUser = user => {
+  selectedAdminUser = user;
+  g('admin-sel').style.display = 'block';
+  g('admin-sel-name').textContent = user.username;
+  g('admin-friend-picker').style.display = 'none';
+};
+
+// Admin search (search all users)
+let _adminSearchTimer = null;
+window.searchAdminUser = async val => {
+  clearTimeout(_adminSearchTimer);
+  const el = g('admin-friend-picker');
+  if(!val || val.length < 2){ renderAdminPicker(); return; }
+  _adminSearchTimer = setTimeout(async () => {
+    try {
+      const snap = await getDocs(query(collection(db,'users'),where('username','>=',val),where('username','<=',val+''),limit(8)));
+      const users = snap.docs.map(d=>({id:d.id,...d.data()})).filter(u=>u.id!==me?.uid);
+      if(!users.length){ el.innerHTML='<div style="padding:8px 10px;font-size:11px;color:var(--t3)">Nem találtuk.</div>'; return; }
+      el.innerHTML = users.map(u=>`<div class="upi" onclick="selectAdminUser(${JSON.stringify({id:u.id,username:u.username})})">
+        <div class="upi-av">${(u.username||'?').slice(0,2).toUpperCase()}</div>
+        <div><div class="upi-name">${esc(u.username)}</div></div>
+      </div>`).join('');
+    } catch(e){ console.warn(e); }
+  }, 300);
+};
+
+window.addCommAdmin=async()=>{
+  if(!me||!currentCommId||!selectedAdminUser)return;
+  await updateDoc(doc(db,'communities',currentCommId),{admins:arrayUnion(selectedAdminUser.id)});
+  clearAdminSel();toast(selectedAdminUser.username+' admin lett!');
+  // refresh admin list
+  const snap=await getDoc(doc(db,'communities',currentCommId));
+  const admins=snap.data()?.admins||[];
+  const names=await Promise.all(admins.map(async uid=>{const s=await getDoc(doc(db,'users',uid)).catch(()=>null);return s?.exists()?s.data().username:uid.slice(0,8);}));
+  g('cadmin-admins').textContent='Adminok: '+names.join(', ');
+};
+window.clearAdminSel=()=>{selectedAdminUser=null;g('admin-sel').style.display='none';g('admin-sel-name').textContent='';renderAdminPicker&&renderAdminPicker();};
+window.deleteComm=async()=>{
+  if(!me||!currentCommId)return;
+  const ok=await showConfirm('Közösség törlése','Ez a közösség és az összes posztja véglegesen törlődik. Ez nem visszavonható!','Igen, törlöm',true);
+  if(!ok)return;
+  const psnap=await getDocs(query(collection(db,'posts'),where('communityId','==',currentCommId),limit(500)));
+  await Promise.all(psnap.docs.map(d=>deleteDoc(doc(db,'posts',d.id))));
+  await deleteDoc(doc(db,'communities',currentCommId));
+  closeM('m-comm-admin');toast('Közösség törölve.');await loadComms();showPage('feed');
+};
+
+// FEED
+// Community-specific sort
+let commSort='hot';
+let _allCommPosts=[];
+window.setCommSort=(s,btn)=>{
+  commSort=s;
+  document.querySelectorAll('#pg-community .sbtn').forEach(b=>b.classList.remove('on'));
+  if(btn)btn.classList.add('on');
+  applyCommFilter();
+};
+window.filterCommPosts=q=>{
+  applyCommFilter(q);
+};
+function applyCommFilter(q){
+  const sq=(q||g('comm-search')?.value||'').toLowerCase();
+  let posts=[..._allCommPosts];
+  if(sq)posts=posts.filter(p=>(p.title||'').toLowerCase().includes(sq)||(p.body||'').toLowerCase().includes(sq));
+  switch(commSort){
+    case 'new': posts.sort((a,b)=>(b.createdAt?.seconds||0)-(a.createdAt?.seconds||0)); break;
+    case 'top': posts.sort((a,b)=>((b.upvotes||0)-(b.downvotes||0))-((a.upvotes||0)-(a.downvotes||0))); break;
+    case 'rising': posts.sort((a,b)=>{
+      const ageA=(Date.now()/1000-(a.createdAt?.seconds||0))/3600;
+      const ageB=(Date.now()/1000-(b.createdAt?.seconds||0))/3600;
+      return ((b.upvotes||0)/Math.max(ageB,1))-((a.upvotes||0)/Math.max(ageA,1));
+    }); break;
+    case 'controversial': posts.sort((a,b)=>{
+      const sA=Math.min(a.upvotes||0,a.downvotes||0)*2;
+      const sB=Math.min(b.upvotes||0,b.downvotes||0)*2;
+      return sB-sA;
+    }); break;
+    default: // hot
+      posts.sort((a,b)=>((b.upvotes||0)-(b.downvotes||0))-((a.upvotes||0)-(a.downvotes||0)));
+  }
+  renderPostsIn('comm-postlist',posts);
+}
+
+window.setSort=(s,btn)=>{
+  sort=s;document.querySelectorAll('.sbtn,.nl').forEach(b=>b.classList.remove('on'));if(btn)btn.classList.add('on');
+  if(currentCommId&&g('pg-community')?.classList.contains('on'))goCommunity(currentCommId);
+  else{if(unsubFeed){unsubFeed();unsubFeed=null;}subFeed();}
+};
+window.doSearch=v=>subFeed();
+
+// ── DRAWER ──
+window.openDrawer=()=>{
+  g('drawer').classList.add('open');
+  g('drawer-overlay').classList.add('open');
+  document.body.style.overflow='hidden';
+  renderDrawerComms();
+  // user area
+  const ua=g('drawer-user-area');
+  if(ua){
+    if(me){
+      const url=_avCache[me.uid]||'';
+      const ini=(myName||'?').slice(0,2).toUpperCase();
+      ua.innerHTML=`<div style="display:flex;align-items:center;gap:8px">
+        <div class="sr-av" style="width:32px;height:32px">${url?`<img src="${url}">`:(ini)}</div>
+        <div style="flex:1;min-width:0"><div style="font-size:12px;font-weight:700;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${esc(myName)}</div><div style="font-size:10px;color:var(--t3)">Saját profil</div></div>
+        <button class="btn btn-sm" onclick="closeDrawer();goMyProf()">Profil</button>
+      </div>`;
+    }else{
+      ua.innerHTML=`<div style="display:flex;gap:6px">
+        <button class="btn btn-sm" style="flex:1" onclick="closeDrawer();openAuth('login')">Belépés</button>
+        <button class="btn btn-w btn-sm" style="flex:1" onclick="closeDrawer();openAuth('register')">Regisztráció</button>
+      </div>`;
+    }
+  }
+  // show msg item if logged in
+  const dm=g('drawer-msg');if(dm)dm.style.display=me?'flex':'none';
+};
+window.closeDrawer=()=>{
+  g('drawer').classList.remove('open');
+  g('drawer-overlay').classList.remove('open');
+  if(!g('pg-messages')?.classList.contains('on'))document.body.style.overflow='';
+};
+function renderDrawerComms(){
+  const el=g('drawer-comms');if(!el)return;
+  if(!communities.length){el.innerHTML='<div style="padding:6px 10px;font-size:11px;color:var(--t3)">Még nincsenek közösségek.</div>';return;}
+  el.innerHTML=communities.slice(0,12).map(c=>`<div class="drawer-item" onclick="closeDrawer();goCommunity('${c.id}')">${c.icon||'💬'} k/${esc(c.name)}</div>`).join('');
+}
+
+// ── SEARCH ──
+let searchTab='users';
+let _searchTimer=null;
+window.setSearchTab=(tab,btn)=>{
+  searchTab=tab;
+  document.querySelectorAll('.stab').forEach(b=>b.classList.remove('on'));
+  if(btn)btn.classList.add('on');
+  const q=(g('search-big')?.value||'').trim();
+  if(q.length>=2)runSearch(q);
+  else g('search-results').innerHTML='<div class="sr-empty">Kezdj el gépelni...</div>';
+};
+window.runSearch=async q=>{
+  clearTimeout(_searchTimer);
+  q=q.trim();
+  if(q.length<2){g('search-results').innerHTML='<div class="sr-empty">Legalább 2 karakter kell.</div>';return;}
+  g('search-results').innerHTML='<div class="spw"><div class="sp"></div></div>';
+  _searchTimer=setTimeout(async()=>{
+    try{
+      if(searchTab==='users'){
+        await searchUsers(q);
+      }else if(searchTab==='comms'){
+        await searchComms(q);
+      }
+    }catch(e){
+      g('search-results').innerHTML=`<div class="sr-empty">Hiba: ${esc(e.message)}</div>`;
+    }
+  },300);
+};
+async function searchUsers(q){
+  const ql=q.toLowerCase();
+  // Search by username prefix
+  const snap=await getDocs(query(
+    collection(db,'users'),
+    where('username','>=',ql),
+    where('username','<=',ql+''),
+    limit(20)
+  ));
+  const users=snap.docs.map(d=>({id:d.id,...d.data()}));
+  // Also load avatars
+  await Promise.all(users.map(u=>loadAvatar(u.id)));
+  if(!users.length){
+    g('search-results').innerHTML='<div class="sr-empty">Nem találtunk ilyen felhasználót.</div>';
+    return;
+  }
+  g('search-results').innerHTML=users.map(u=>{
+    const url=_avCache[u.id]||'';
+    const ini=(u.username||'?').slice(0,2).toUpperCase();
+    return`<div class="sr-user" onclick="goProfile('${u.id}')">
+      <div class="sr-av">${url?`<img src="${url}">`:(ini)}</div>
+      <div>
+        <div class="sr-name">${esc(u.username)}</div>
+        <div class="sr-sub">${u.karma||0} karma · ${(u.friends||[]).length} barát</div>
+      </div>
+    </div>`;
+  }).join('');
+}
+async function searchComms(q){
+  const ql=q.toLowerCase();
+  // Client-side filter from loaded communities + fetch more
+  let results=communities.filter(c=>
+    c.name.toLowerCase().includes(ql)||
+    (c.description||'').toLowerCase().includes(ql)
+  );
+  // Also try prefix search on name
+  try{
+    const snap=await getDocs(query(
+      collection(db,'communities'),
+      where('name','>=',ql),
+      where('name','<=',ql+''),
+      limit(15)
+    ));
+    const fromDB=snap.docs.map(d=>({id:d.id,...d.data()}));
+    // merge dedup
+    const seen=new Set(results.map(r=>r.id));
+    fromDB.forEach(r=>{if(!seen.has(r.id))results.push(r);});
+  }catch(e){}
+  if(!results.length){
+    g('search-results').innerHTML='<div class="sr-empty">Nem találtunk ilyen közösséget.</div>';
+    return;
+  }
+  g('search-results').innerHTML=results.map(cm=>`<div class="sr-comm" onclick="goCommunity('${cm.id}')">
+    <div class="sr-icon">${cm.icon||'💬'}</div>
+    <div>
+      <div class="sr-name">k/${esc(cm.name)}</div>
+      <div class="sr-sub">${(cm.memberCount||0).toLocaleString()} tag · ${esc(cm.description||'')}</div>
+    </div>
+  </div>`).join('');
+}
+function subFeed(){
+  if(unsubFeed){unsubFeed();unsubFeed=null;}
+  g('postlist').innerHTML='<div class="spw"><div class="sp"></div></div>';
+  const q=query(collection(db,'posts'),orderBy('createdAt','desc'),limit(80));
+  unsubFeed=onSnapshot(q,snap=>{
+    let posts=snap.docs.map(d=>({id:d.id,...d.data()})).filter(p=>p.communityId);
+    if(sort==='hot'||sort==='top')posts.sort((a,b)=>((b.upvotes||0)-(b.downvotes||0))-((a.upvotes||0)-(a.downvotes||0)));
+    const sq=(g('srch').value||'').toLowerCase();
+    if(sq)posts=posts.filter(p=>(p.title||'').toLowerCase().includes(sq)||(p.body||'').toLowerCase().includes(sq));
+    posts.forEach(p=>p.authorId&&loadAvatar(p.authorId));
+    renderPostsIn('postlist',posts);
+  },err=>{console.warn(err);g('postlist').innerHTML='<div class="empty"><h3>Hiba. Ellenőrizd Firestore Rules-t.</h3></div>';});
+}
+function renderPostsIn(cid,posts){
+  const c=g(cid);if(!c)return;
+  if(!posts.length){c.innerHTML='<div class="empty"><h3>Még semmi itt.</h3></div>';return;}
+  c.innerHTML=posts.map((p,i)=>{
+    const sc=(p.upvotes||0)-(p.downvotes||0),comm=communities.find(x=>x.id===p.communityId)||{};
+    return`<div class="pc" style="animation:fu .15s ease ${Math.min(i,10)*20}ms both" onclick="openDetail('${p.id}')">
+      <div class="vs" onclick="event.stopPropagation()">
+        <button class="vb" onclick="doVote('${p.id}',1)">▲</button>
+        <span class="vsc">${sc}</span>
+        <button class="vb" onclick="doVote('${p.id}',-1)">▼</button>
+      </div>
+      <div class="pcont">
+        <div class="ptop">
+          ${p.communityId?`<span class="pcomm" onclick="event.stopPropagation();goCommunity('${p.communityId}')">k/${comm.name||'?'}</span> · `:''}
+          <span class="paut" onclick="event.stopPropagation();goProfile('${p.authorId}')" style="display:flex;align-items:center;gap:4px">${avatarHtml(p.authorId,p.authorName,16)}${esc(p.authorName||'anon')}</span> · <span>${ta(p.createdAt?.toDate?.()??new Date())}</span>
+          ${me&&p.authorId===me.uid?`<button class="pa del" onclick="event.stopPropagation();delPost('${p.id}')" style="margin-left:auto">🗑</button>`:''}
+        </div>
+        <div class="ptitle">${esc(p.title)}</div>
+        ${p.body?`<div class="pbprev">${esc(p.body)}</div>`:''}
+        ${p.mediaUrl?`<div class="pmedia">${p.mediaType==='video'?`<video src="${p.mediaUrl}" muted playsinline></video>`:`<img src="${p.mediaUrl}" loading="lazy" alt="">`}</div>`:''}
+        ${p.url?`<div class="plink">🔗 ${esc(domain(p.url))}</div>`:''}
+        <div class="pacts">
+          <button class="pa" onclick="event.stopPropagation();openDetail('${p.id}')">💬 ${p.commentCount||0}</button>
+          <button class="pa" onclick="event.stopPropagation();copyLink('${p.id}')">🔗 Megosztás</button>
+        </div>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+// VOTE
+window.doVote=async(pid,val)=>{
+  if(!me){openAuth('login');return;}
+  const vr=doc(db,'votes',`${me.uid}_${pid}`),pr=doc(db,'posts',pid);
+  await runTransaction(db,async tx=>{
+    const v=await tx.get(vr),prev=v.exists()?v.data().vote:0;
+    if(prev===val){tx.delete(vr);tx.update(pr,{[val===1?'upvotes':'downvotes']:increment(-1),score:increment(-val)});}
+    else{tx.set(vr,{userId:me.uid,postId:pid,vote:val});tx.update(pr,{upvotes:increment(val===1?1:prev===1?-1:0),downvotes:increment(val===-1?1:prev===-1?-1:0),score:increment(val-prev)});}
+  });
+};
+
+// POST
+window.openPost=()=>{if(!me){openAuth('login');return;}fillDest();mediaUrl=null;mediaType=null;const pv=g('uprev');if(pv){pv.style.display='none';pv.innerHTML='';}hide('posterr');hide('postrw');openM('m-post');};
+window.submitPost=async()=>{
+  if(!me)return;if(!rl('post')){showEl('postrw','block');return;}
+  const title=(g('ptitle').value||'').trim();
+  if(!title||title.length<2){showErr('posterr','A cím kötelező.');return;}
+  const dest=g('pdest').value,isProf=dest==='profile';
+  await addDoc(collection(db,'posts'),{title,body:(g('pbody2').value||'').trim(),url:(g('purl').value||'').trim(),communityId:isProf?null:dest,profileUid:isProf?me.uid:null,authorId:me.uid,authorName:myName,mediaUrl:mediaUrl||null,mediaType:mediaType||null,upvotes:0,downvotes:0,score:0,commentCount:0,createdAt:serverTimestamp()});
+  await updateDoc(doc(db,'users',me.uid),{karma:increment(1)}).catch(()=>{});
+  ['ptitle','pbody2','purl'].forEach(id=>{const e=g(id);if(e)e.value='';});clearUpload();
+  closeM('m-post');toast('Poszt közzétéve!');
+};
+window.delPost=async id=>{
+  if(!me)return;
+  const ok=await showConfirm('Poszt törlése','Ez a poszt véglegesen törlődik.');
+  if(!ok)return;
+  const s=await getDoc(doc(db,'posts',id));
+  if(s.exists()&&s.data().authorId===me.uid)await deleteDoc(doc(db,'posts',id));
+  toast('Poszt törölve.');
+};
+
+// DETAIL + REAL-TIME COMMENTS
+// ── POST DETAIL PAGE ──
+let currentPostId = null;
+
+window.openDetail = async pid => {
+  currentPostId = pid;
+  // Navigate to post page
+  history.pushState({page:'post',pid}, '', '#post/'+pid);
+  document.querySelectorAll('.page').forEach(p=>p.classList.remove('on'));
+  g('pg-post')?.classList.add('on');
+  document.body.style.overflow = '';
+  // Load post
+  g('post-detail-content').innerHTML = '<div class="spw"><div class="sp"></div></div>';
+  g('post-comments-wrap').innerHTML = '';
+  const ps = await getDoc(doc(db,'posts',pid));
+  if(!ps.exists()){ g('post-detail-content').innerHTML='<div class="empty"><h3>Poszt nem található.</h3></div>'; return; }
+  const p = {id:ps.id,...ps.data()};
+  const comm = communities.find(c=>c.id===p.communityId)||{};
+  const sc = (p.upvotes||0)-(p.downvotes||0);
+  g('post-comm-tag').textContent = p.communityId ? 'k/'+comm.name : 'Profil';
+
+  g('post-detail-content').innerHTML = `
+    <div class="detail-card">
+      <div class="detail-vote-row">
+        <button class="vb" onclick="doVote('${p.id}',1)">▲</button>
+        <span class="vsc" id="psc-${p.id}">${sc}</span>
+        <button class="vb" onclick="doVote('${p.id}',-1)">▼</button>
+        ${me&&p.authorId===me.uid?`<button class="btn btn-sm" style="margin-left:auto;color:var(--danger);border-color:var(--danger)" onclick="delPost('${p.id}')">🗑 Törlés</button>`:''}
+      </div>
+      <div class="detail-body-wrap">
+        <div class="detail-meta">
+          <span style="font-weight:600;color:var(--t1);cursor:pointer;display:inline-flex;align-items:center;gap:5px" onclick="goProfile('${p.authorId}')">${avatarHtml(p.authorId,p.authorName,18)}${esc(p.authorName||'anon')}</span>
+          · <span>${ta(p.createdAt?.toDate?.()??new Date())}</span>
+          ${p.communityId?`· <span style="color:var(--t1);font-weight:600;cursor:pointer" onclick="goCommunity('${p.communityId}')">k/${comm.name}</span>`:''}
+        </div>
+        <div class="detail-title">${esc(p.title)}</div>
+        ${p.body?`<div class="detail-text">${esc(p.body).replace(/\n/g,'<br>')}</div>`:''}
+        ${p.mediaUrl?`<div class="det-media">${p.mediaType==='video'?`<video src="${p.mediaUrl}" controls></video>`:`<img src="${p.mediaUrl}" alt="">`}</div>`:''}
+        ${p.url?`<a href="${p.url}" target="_blank" rel="noopener" style="font-size:11px;color:var(--t2);display:inline-flex;align-items:center;gap:4px;margin-bottom:.5rem;word-break:break-all">🔗 ${esc(domain(p.url))}</a>`:''}
+      </div>
+    </div>`;
+
+  // Comments section
+  g('post-comments-wrap').innerHTML = `
+    <div class="cmt-section">
+      <div class="cmt-header">
+        Hozzászólások <span id="cmt-count-${pid}" style="color:var(--t3);font-weight:400;margin-left:4px"></span>
+      </div>
+      <div class="cmt-compose" id="top-compose">
+        <textarea id="nc-${pid}" placeholder="${me?'Írj kommentet...':'Belépj a kommenteléshez.'}"></textarea>
+        <div class="cmt-compose-foot">
+          <button class="btn btn-w btn-sm" onclick="subCmt('${pid}',null)">Kommentálás</button>
+        </div>
+      </div>
+      <div class="cmt-list" id="cmtlist-${pid}"><div class="spw"><div class="sp"></div></div></div>
+    </div>`;
+
+  // Real-time comments
+  if(unsubCmts){unsubCmts();unsubCmts=null;}
+  const cq = query(collection(db,'comments'),where('postId','==',pid),limit(300));
+  unsubCmts = onSnapshot(cq, snap => {
+    const all = snap.docs.map(d=>({id:d.id,...d.data()})).sort((a,b)=>(a.createdAt?.seconds||0)-(b.createdAt?.seconds||0));
+    const cnt = g('cmt-count-'+pid);
+    if(cnt) cnt.textContent = all.length ? `(${all.length})` : '';
+    const lst = g('cmtlist-'+pid);
+    if(!lst) return;
+    // Build tree: top level + replies
+    const top = all.filter(c=>!c.parentId);
+    const byParent = {};
+    all.filter(c=>c.parentId).forEach(c=>{if(!byParent[c.parentId])byParent[c.parentId]=[];byParent[c.parentId].push(c);});
+    lst.innerHTML = top.length
+      ? top.map(c=>renderThread(c,byParent,pid,0)).join('')
+      : '<div style="padding:14px 12px;font-size:12px;color:var(--t3)">Még nincs hozzászólás. Légy az első!</div>';
+  }, err => {
+    const lst = g('cmtlist-'+pid);
+    if(lst) lst.innerHTML = '<div style="padding:12px;font-size:11px;color:var(--danger)">Hiba: '+err.code+' — ellenőrizd a Firestore Rules-t.</div>';
+  });
+};
+
+function renderThread(c, byParent, pid, depth){
+  const replies = byParent[c.id] || [];
+  const isDeep = depth >= 4;
+  return `<div class="thread-item" id="ti-${c.id}">
+    <div class="cmt-row">
+      ${depth>0?`<div class="cmt-indent-bar" onclick="toggleCollapse('${c.id}')" title="Összecsukás"></div>`:''}
+      <div class="cmt-main" id="cm-${c.id}">
+        <div class="cmt-head">
+          <strong onclick="goProfile('${c.authorId}')" style="display:inline-flex;align-items:center;gap:4px">${avatarHtml(c.authorId,c.authorName,16)}${esc(c.authorName||'anon')}</strong>
+          · ${ta(c.createdAt?.toDate?.()??new Date())}
+          ${me&&c.authorId===me.uid?`<button class="ca red" onclick="delCmt('${c.id}','${pid}')" style="margin-left:auto">🗑</button>`:''}
+        </div>
+        <div class="cmt-body">${esc(c.text)}</div>
+        <div class="cmt-actions">
+          ${me&&!isDeep?`<button class="ca" onclick="toggleReplyBox('rbox-${c.id}')">↩ Válasz</button>`:''}
+          <button class="ca" onclick="toggleCollapse('${c.id}')">⊟ Összecsuk</button>
+        </div>
+        <div class="reply-compose" id="rbox-${c.id}">
+          <textarea id="rt-${c.id}" placeholder="Válasz ${esc(c.authorName||'anon')}-nek..."></textarea>
+          <div class="reply-compose-foot">
+            <button class="btn btn-sm" onclick="toggleReplyBox('rbox-${c.id}')">Mégse</button>
+            <button class="btn btn-w btn-sm" onclick="subCmt('${pid}','${c.id}')">Küldés</button>
+          </div>
+        </div>
+      </div>
+    </div>
+    ${replies.length?`<div class="thread-replies">${replies.map(r=>renderThread(r,byParent,pid,depth+1)).join('')}</div>`:''}
+  </div>`;
+}
+
+window.toggleReplyBox = id => {
+  const el = g(id);
+  if(!el) return;
+  const open = el.style.display === 'block';
+  el.style.display = open ? 'none' : 'block';
+  if(!open){
+    const ta = el.querySelector('textarea');
+    if(ta) ta.focus();
+  }
+};
+
+window.toggleCollapse = cmtId => {
+  const cm = g('cm-'+cmtId);
+  if(!cm) return;
+  cm.classList.toggle('collapsed');
+  const ti = g('ti-'+cmtId);
+  if(ti){
+    const replies = ti.querySelector('.thread-replies');
+    if(replies) replies.style.display = cm.classList.contains('collapsed') ? 'none' : '';
+  }
+};
+
+window.togRep=id=>{toggleReplyBox(id)};
+window.subCmt=async(pid,parentId)=>{
+  if(!me){openAuth('login');return;}if(!rl('cmt')){toast('Max 10 komment / 5 perc.');return;}
+  // Try new-style IDs first (post page), then fall back to old modal IDs
+  let txt,el;
+  if(parentId){
+    el = g('rt-'+parentId) || g('ri'+parentId);
+  } else {
+    el = g('nc-'+pid) || g('nc');
+  }
+  txt = el?.value?.trim();
+  if(!txt)return;
+  await addDoc(collection(db,'comments'),{postId:pid,parentId:parentId||null,authorId:me.uid,authorName:myName,text:txt,upvotes:0,createdAt:serverTimestamp()});
+  await updateDoc(doc(db,'posts',pid),{commentCount:increment(1)}).catch(()=>{});
+  if(el) el.value='';
+  // Close reply box if open
+  if(parentId){const rb=g('rbox-'+parentId);if(rb)rb.style.display='none';}
+};
+window.delCmt=async(id,pid)=>{
+  if(!me)return;
+  const ok=await showConfirm('Komment törlése','Ez a hozzászólás véglegesen törlődik.');
+  if(!ok)return;
+  const s=await getDoc(doc(db,'comments',id));
+  if(s.exists()&&s.data().authorId===me.uid){
+    await deleteDoc(doc(db,'comments',id));
+    await updateDoc(doc(db,'posts',pid),{commentCount:increment(-1)}).catch(()=>{});
+    // Remove from DOM immediately for instant feedback
+    const ti=g('ti-'+id);if(ti)ti.style.opacity='0.3';
+  }
+};
+
+// PROFILE
+window.goMyProf=()=>{if(me)goProfile(me.uid);};
+window.goProfile=async uid=>{
+  currentProfUid=uid;
+  history.pushState({page:'profile',uid}, '', '#profile/'+uid);
+  document.querySelectorAll('.page').forEach(p=>p.classList.remove('on'));
+  g('pg-profile')?.classList.add('on');
+  document.body.style.overflow = '';
+  const snap=await getDoc(doc(db,'users',uid));if(!snap.exists())return;
+  const u={id:snap.id,...snap.data()},isMe=me&&me.uid===uid;
+  const bg=g('pcov-bg');
+  bg.style.backgroundImage=u.coverUrl?'url('+u.coverUrl+')':'none';
+  bg.style.backgroundSize='cover';bg.style.backgroundPosition='center';
+  g('pcov-edit').style.display=isMe?'block':'none';
+  g('pav-edit').style.display=isMe?'flex':'none';
+  const av=g('pav');av.innerHTML=u.avatarUrl?`<img src="${u.avatarUrl}" alt="">`:(u.username||'?').slice(0,2).toUpperCase();
+  g('pname2').textContent=u.username||'Névtelen';
+  g('pbio2').textContent=u.bio||'';
+  g('pfc').textContent=(u.friends||[]).length;
+  g('pkc').textContent=u.karma||0;
+  const ps=await getDocs(query(collection(db,'posts'),where('authorId','==',uid),limit(50)));
+  g('ppc').textContent=ps.size;
+  const acts=g('pacts2');
+  if(isMe){
+    acts.innerHTML=`<button class="btn btn-sm" onclick="openEditProf()">✏️ Szerkesztés</button><button class="btn btn-w btn-sm" onclick="openPost()">+ Poszt</button>`;
+  }else if(me){
+    const mySnap=await getDoc(doc(db,'users',me.uid));
+    const isFr=(mySnap.data()?.friends||[]).includes(uid);
+    const pendingQ=await getDocs(query(collection(db,'notifications'),where('toUid','==',uid),where('fromUid','==',me.uid),limit(10)));
+    const isPending=pendingQ.docs.some(d=>d.data().type==='friend_request'&&d.data().status==='pending');
+    acts.innerHTML=`<button class="btn ${isFr?'':'btn-w'} btn-sm" id="frbtn" onclick="togFriend('${uid}')">${isFr?'✓ Barát':isPending?'Kérés küldve':'+ Barát'}</button><button class="btn btn-sm" onclick="dmWith('${uid}','${u.username}')">✉ Üzenet</button>`;
+  }else acts.innerHTML='';
+  swPTab('timeline',document.querySelector('.ptab'));
+};
+window.swPTab=(tab,btn)=>{document.querySelectorAll('.ptab').forEach(t=>t.classList.remove('on'));if(btn)btn.classList.add('on');loadPTab(tab,currentProfUid);};
+async function loadPTab(tab,uid){
+  const c=g('pcontent');c.innerHTML='<div class="spw"><div class="sp"></div></div>';
+  if(tab==='timeline'||tab==='posts'){
+    const snap=await getDocs(query(collection(db,'posts'),orderBy('createdAt','desc'),limit(200)));
+    let posts=snap.docs.map(d=>({id:d.id,...d.data()})).filter(p=>p.authorId===uid);
+    if(tab==='posts')posts=posts.filter(p=>p.communityId);
+    if(!posts.length){c.innerHTML='<div class="empty"><h3>Nincsenek posztok.</h3></div>';return;}
+    c.innerHTML=posts.map((p,i)=>{
+      const sc=(p.upvotes||0)-(p.downvotes||0),comm=communities.find(x=>x.id===p.communityId)||{};
+      return`<div class="pc" onclick="openDetail('${p.id}')">
+        <div class="vs" onclick="event.stopPropagation()"><button class="vb" onclick="doVote('${p.id}',1)">▲</button><span class="vsc">${sc}</span><button class="vb" onclick="doVote('${p.id}',-1)">▼</button></div>
+        <div class="pcont">
+          <div class="ptop">${p.communityId?`<span class="pcomm" onclick="event.stopPropagation();goCommunity('${p.communityId}')">k/${comm.name||'?'}</span> · `:'[profil] '}<span>${ta(p.createdAt?.toDate?.()??new Date())}</span>${me&&p.authorId===me.uid?`<button class="pa del" onclick="event.stopPropagation();delPost('${p.id}')" style="margin-left:auto">🗑</button>`:''}</div>
+          <div class="ptitle">${esc(p.title)}</div>
+          ${p.body?`<div class="pbprev">${esc(p.body)}</div>`:''}
+          ${p.mediaUrl?`<div class="pmedia">${p.mediaType==='video'?`<video src="${p.mediaUrl}" muted playsinline></video>`:`<img src="${p.mediaUrl}" loading="lazy" alt="">`}</div>`:''}
+          <div class="pacts"><button class="pa" onclick="event.stopPropagation();openDetail('${p.id}')">💬 ${p.commentCount||0}</button></div>
+        </div>
+      </div>`;
+    }).join('');
+  }else if(tab==='friends'){
+    const snap=await getDoc(doc(db,'users',uid));
+    const friends=snap.data()?.friends||[];
+    if(!friends.length){c.innerHTML='<div class="empty"><h3>Nincsenek barátok.</h3></div>';return;}
+    const rows=await Promise.all(friends.map(async fid=>{const fs=await getDoc(doc(db,'users',fid)).catch(()=>null);return fs?.exists()?{id:fid,...fs.data()}:null;}));
+    c.innerHTML=`<div class="friends-grid">${rows.filter(Boolean).map(f=>`<div class="fr-card" onclick="goProfile('${f.id}')"><div class="fr-av">${(f.username||'?').slice(0,2).toUpperCase()}</div><div><div style="font-weight:600;font-size:12px">${esc(f.username)}</div><div style="font-size:10px;color:var(--t3)">${f.karma||0} karma</div></div></div>`).join('')}</div>`;
+  }
+}
+window.togFriend=async uid=>{
+  if(!me)return;
+  const myRef=doc(db,'users',me.uid),mySnap=await getDoc(myRef);
+  const fr=mySnap.data()?.friends||[],isFr=fr.includes(uid);
+  if(isFr){
+    await updateDoc(myRef,{friends:arrayRemove(uid)});
+    const btn=g('frbtn');if(btn)btn.textContent='+ Barát';
+    await loadMyFriends();toast('Eltávolítva.');
+  }else{
+    await addDoc(collection(db,'notifications'),{toUid:uid,fromUid:me.uid,fromName:myName,type:'friend_request',status:'pending',read:false,createdAt:serverTimestamp()});
+    const btn=g('frbtn');if(btn)btn.textContent='Kérés küldve';
+    toast('Barát kérés elküldve!');
+  }
+};
+window.openEditProf=async()=>{
+  if(!me)return;
+  const s=await getDoc(doc(db,'users',me.uid));
+  if(s.exists()){g('epun').value=s.data().username||'';g('epbio').value=s.data().bio||'';}
+  openM('m-ep');
+};
+window.saveProf=async()=>{
+  if(!me)return;
+  const newUn=(g('epun').value||'').trim(),bio=(g('epbio').value||'').trim();
+  if(newUn&&!/^[a-zA-Z0-9_]{3,20}$/.test(newUn)){showErr('eperr','Felhasználónév: 3–20 kar., betű/szám/aláhúzás.');return;}
+  if(newUn&&newUn!==myName){
+    const uq=await getDocs(query(collection(db,'users'),where('username','==',newUn)));
+    if(!uq.empty){showErr('eperr','Ez a felhasználónév már foglalt.');return;}
+  }
+  const upd={bio};if(newUn)upd.username=newUn;
+  await updateDoc(doc(db,'users',me.uid),upd);
+  if(newUn)myName=newUn;
+  closeM('m-ep');goProfile(me.uid);toast('Profil frissítve!');
+};
+window.uploadAvatar=async()=>{const inp=document.createElement('input');inp.type='file';inp.accept='image/*';inp.onchange=async()=>{if(!inp.files[0])return;toast('Feltöltés...');const url=await uploadImg(inp.files[0]);if(url){await updateDoc(doc(db,'users',me.uid),{avatarUrl:url});toast('Kész!');goProfile(me.uid);}};inp.click();};
+window.uploadCover=async()=>{const inp=document.createElement('input');inp.type='file';inp.accept='image/*';inp.onchange=async()=>{if(!inp.files[0])return;toast('Feltöltés...');const url=await uploadImg(inp.files[0]);if(url){await updateDoc(doc(db,'users',me.uid),{coverUrl:url});toast('Kész!');goProfile(me.uid);}};inp.click();};
+
+// FRIEND PICKER RENDERER
+// Uses data-* and a global handler map to avoid serialization bugs
+const _pickerHandlers = {};
+function renderFriendPicker(containerId, onSelect){
+  const el=g(containerId);if(!el)return;
+  _pickerHandlers[containerId] = onSelect;
+  if(!myFriends.length){
+    el.innerHTML='<div style="padding:8px 10px;font-size:11px;color:var(--t3)">Nincsenek barátaid még. Adj hozzá barátokat a profilokon!</div>';
+    return;
+  }
+  el.innerHTML=myFriends.map((f,i)=>`<div class="upi" onclick="pickerSelect('${containerId}',${i})">
+    <div class="upi-av">${(f.username||'?').slice(0,2).toUpperCase()}</div>
+    <div><div class="upi-name">${esc(f.username)}</div><div class="upi-sub">${f.karma||0} karma</div></div>
+  </div>`).join('');
+}
+window.pickerSelect = (containerId, idx) => {
+  const friend = myFriends[idx];
+  if(!friend) return;
+  const handler = _pickerHandlers[containerId];
+  if(handler) handler(friend);
+};
+
+// MESSAGES - barátlistából
+window.openNewMsg=async()=>{
+  if(!me){openAuth('login');return;}
+  await loadMyFriends();
+  selectedMsgUser=null;g('msg-sel').style.display='none';
+  const picker=g('msg-friend-picker');
+  picker.style.display='block';
+  if(!myFriends.length){picker.innerHTML='<div style="padding:8px 10px;font-size:11px;color:var(--t3)">Nincsenek barátaid. Adj hozzá barátokat a profilokon keresztül!</div>';}
+  else{
+    picker.innerHTML=myFriends.map(f=>`<div class="upi" onclick="selectMsgUser(${JSON.stringify({id:f.id,username:f.username})})">
+      <div class="upi-av">${(f.username||'?').slice(0,2).toUpperCase()}</div>
+      <div><div class="upi-name">${esc(f.username)}</div></div>
+    </div>`).join('');
+  }
+  openM('m-newmsg');
+};
+window.selectMsgUser=user=>{
+  selectedMsgUser=user;
+  g('msg-sel').style.display='block';g('msg-sel-name').textContent=user.username;
+  g('msg-friend-picker').style.display='none';
+};
+window.clearMsgSel=()=>{selectedMsgUser=null;g('msg-sel').style.display='none';g('msg-friend-picker').style.display='block';};
+window.dmWith=async(uid,name)=>{
+  if(!me){openAuth('login');return;}
+  activeConvId=[me.uid,uid].sort().join('__');activeConvPartner=name;activeConvUid=uid;
+  showPage('messages');
+};
+window.startConv=async()=>{
+  if(!me)return;if(!rl('msg')){showErr('nmerr','Túl sok üzenet.');return;}
+  if(!selectedMsgUser){showErr('nmerr','Válassz egy barátot a listából.');return;}
+  const txt=(g('nmtxt').value||'').trim();if(!txt){showErr('nmerr','Írj üzenetet.');return;}
+  const toUid=selectedMsgUser.id,toName=selectedMsgUser.username;
+  const convId=[me.uid,toUid].sort().join('__');
+  await addDoc(collection(db,'messages'),{conversationId:convId,senderId:me.uid,senderName:myName,recipientId:toUid,recipientName:toName,text:txt,read:false,createdAt:serverTimestamp()});
+  closeM('m-newmsg');g('nmtxt').value='';clearMsgSel();
+  activeConvId=convId;activeConvPartner=toName;activeConvUid=toUid;
+  showPage('messages');
+};
+async function loadConvList(){
+  if(!me)return;
+  const[s1,s2]=await Promise.all([getDocs(query(collection(db,'messages'),where('senderId','==',me.uid),limit(50))),getDocs(query(collection(db,'messages'),where('recipientId','==',me.uid),limit(50)))]);
+  // preload avatars for all conversation partners
+  const _partnerSet=new Set();
+  [...s1.docs,...s2.docs].forEach(d=>{const m=d.data();_partnerSet.add(m.senderId===me.uid?m.recipientId:m.senderId);});
+  await Promise.all([..._partnerSet].map(uid=>loadAvatar(uid)));
+  const seen=new Set(),convs=[];
+  const allDocs=[...s1.docs,...s2.docs].sort((a,b)=>(b.data().createdAt?.seconds||0)-(a.data().createdAt?.seconds||0));
+  allDocs.forEach(d=>{const m={id:d.id,...d.data()};if(!seen.has(m.conversationId)){seen.add(m.conversationId);convs.push(m);}});
+  g('clist').innerHTML=convs.length?convs.map(m=>{
+    const partner=m.senderId===me.uid?m.recipientName:m.senderName;
+    const partnerUid=m.senderId===me.uid?m.recipientId:m.senderId;
+    const pAvUrl=_avCache[partnerUid]||'';
+    const pIni=(partner||'?').slice(0,2).toUpperCase();
+    return`<div class="citem${activeConvId===m.conversationId?' on':''}" onclick="openConv('${m.conversationId}','${esc(partner)}','${partnerUid}')">
+      <div class="cav">${pAvUrl?`<img src="${pAvUrl}" style="width:100%;height:100%;object-fit:cover">`:(pIni)}</div>
+      <div class="cnfo"><div class="cnm">${esc(partner)}</div><div class="cprev2">${esc(m.text)}</div></div>
+    </div>`;
+  }).join(''):'<div style="padding:9px;font-size:11px;color:var(--t3)">Nincs üzenet.</div>';
+  if(activeConvId&&activeConvPartner)openConv(activeConvId,activeConvPartner,activeConvUid);
+}
+window.openConv=(convId,partner,partnerUid)=>{
+  activeConvId=convId;activeConvPartner=partner;activeConvUid=partnerUid;
+  const chAv=_avCache[partnerUid]||'';
+  const chIni=(partner||'?').slice(0,2).toUpperCase();
+  g('chath').innerHTML=`<button id="back-btn" onclick="showConvList()" style="display:none;background:none;border:none;color:var(--t2);font-size:18px;cursor:pointer;padding:0 8px 0 0;flex-shrink:0;line-height:1">←</button>
+    <div class="cav" style="width:28px;height:28px;margin-right:2px">${chAv?`<img src="${chAv}" style="width:100%;height:100%;object-fit:cover">`:(chIni)}</div>
+    <span id="chat-head-name" style="font-size:12px;font-weight:600">${esc(partner)}</span>`;
+  // restore back btn visibility
+  const bb=document.getElementById('back-btn');if(bb&&window.innerWidth<=520)bb.style.display='block';
+  // Mobile: hide conv list, show chat
+  g('cpanel').classList.add('hidden');
+  if(unsubMsgs){unsubMsgs();unsubMsgs=null;}
+  const q=query(collection(db,'messages'),where('conversationId','==',convId),limit(200));
+  unsubMsgs=onSnapshot(q,snap=>{
+    const msgs=snap.docs.map(d=>({id:d.id,...d.data()})).sort((a,b)=>(a.createdAt?.seconds||0)-(b.createdAt?.seconds||0));
+    g('chatmsgs').innerHTML=msgs.length?msgs.map(m=>`<div class="bub ${m.senderId===me?.uid?'me':'them'}">${esc(m.text)}<div class="bts">${ta(m.createdAt?.toDate?.()??new Date())}</div></div>`).join(''):'';
+    const b=g('chatmsgs');b.scrollTop=b.scrollHeight;
+    snap.docs.forEach(async d=>{if(!d.data().read&&d.data().recipientId===me?.uid)await updateDoc(doc(db,'messages',d.id),{read:true}).catch(()=>{});});
+  });
+};
+window.sendMsg=async()=>{
+  if(!me||!activeConvId)return;if(!rl('msg')){toast('Lassíts!');return;}
+  const inp=g('chatinp'),txt=inp.value.trim();if(!txt)return;
+  await addDoc(collection(db,'messages'),{conversationId:activeConvId,senderId:me.uid,senderName:myName,recipientId:activeConvUid,recipientName:activeConvPartner,text:txt,read:false,createdAt:serverTimestamp()});
+  inp.value='';
+};
+window.showConvList=()=>{g('cpanel').classList.remove('hidden');};
+
+// PAGE ROUTING with browser history
+let _navigating = false;
+function showPage(name, pushToHistory=true){
+  document.querySelectorAll('.page').forEach(p=>p.classList.remove('on'));
+  const pg=g('pg-'+name);if(pg)pg.classList.add('on');
+  if(name==='messages'&&me){loadConvList();g('cpanel').classList.remove('hidden');}
+  // messages page uses position:fixed, body needs overflow hidden
+  if(name==='messages'){document.body.style.overflow='hidden';}
+  else{document.body.style.overflow='';}
+  if(name==='notif')loadNotifs();
+  if(name==='feed'){if(unsubFeed){unsubFeed();unsubFeed=null;}currentCommId=null;subFeed();}
+  if(name==='search'){
+    history.pushState({page:'search'},'','#search');
+    setTimeout(()=>{const sb=g('search-big');if(sb)sb.focus();},100);
+  }
+  if(name==='friends'){
+    history.pushState({page:'friends'},'','#friends');
+    loadFriendsPage();
+  }
+  // stop comments subscription when leaving post page
+  if(name!=='post'&&unsubCmts){unsubCmts();unsubCmts=null;}
+  if(pushToHistory && !_navigating){
+    history.pushState({page:name}, '', '#'+name);
+  }
+  document.body.style.overflow = name==='messages' ? 'hidden' : '';
+}
+window.goPage = name => showPage(name, true);
+
+// Handle back/forward
+window.addEventListener('popstate', e => {
+  _navigating = true;
+  const state = e.state || {};
+  const page = state.page || 'feed';
+  if(page === 'community' && state.commId){
+    goCommunity(state.commId);
+  } else if(page === 'profile' && state.uid){
+    goProfile(state.uid);
+  } else if(page === 'post' && state.pid){
+    openDetail(state.pid);
+  } else if(page === 'search'){
+    showPage('search', false);
+  } else if(page === 'friends'){
+    showPage('friends', false);
+  } else {
+    showPage(page, false);
+  }
+  _navigating = false;
+});
+
+// Set initial state
+window.addEventListener('DOMContentLoaded', () => {
+  const hash = location.hash.replace('#','') || 'feed';
+  const valid = ['feed','community','profile','notif','messages'];
+  const initial = valid.includes(hash) ? hash : 'feed';
+  history.replaceState({page:initial}, '', '#'+initial);
+});
+
+// CONFIRM DIALOG
+let _confirmResolve = null;
+function showConfirm(title, text, okLabel='Törlés', danger=true){
+  return new Promise(res=>{
+    _confirmResolve = res;
+    g('confirm-title').textContent = title;
+    g('confirm-text').textContent = text;
+    g('confirm-ok').textContent = okLabel;
+    g('confirm-ok').className = danger ? 'danger' : '';
+    g('confirm-overlay').classList.add('open');
+  });
+}
+window.confirmResolve = val => {
+  g('confirm-overlay').classList.remove('open');
+  if(_confirmResolve){ _confirmResolve(val); _confirmResolve=null; }
+};
+g('confirm-overlay').addEventListener('click', e => { if(e.target===g('confirm-overlay')) confirmResolve(false); });
+
+// UTILS
+function g(id){return document.getElementById(id)}
+
+// Avatar cache & helper
+const _avCache = {};
+async function loadAvatar(uid){
+  if(_avCache[uid]!==undefined)return _avCache[uid];
+  try{const s=await getDoc(doc(db,'users',uid));_avCache[uid]=s.data()?.avatarUrl||'';}
+  catch{_avCache[uid]='';}
+  return _avCache[uid];
+}
+function avatarHtml(uid,name,size=28){
+  const url=_avCache[uid]||'';
+  const ini=(name||'?').slice(0,2).toUpperCase();
+  if(url)return `<img src="${url}" style="width:${size}px;height:${size}px;border-radius:50%;object-fit:cover;flex-shrink:0" loading="lazy">`;
+  return `<span style="width:${size}px;height:${size}px;border-radius:50%;background:var(--c4);border:1px solid var(--b1);display:inline-flex;align-items:center;justify-content:center;font-size:${Math.round(size*.38)}px;font-weight:700;flex-shrink:0">${ini}</span>`;
+}
+function showEl(id,d='block'){const e=g(id);if(e)e.style.display=d}
+function hide(id){const e=g(id);if(e)e.style.display='none'}
+function showErr(id,msg){const e=g(id);if(!e)return;e.textContent=msg;e.style.display='block';setTimeout(()=>e.style.display='none',5000)}
+function esc(s){return s?String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'):''}
+function domain(u){try{return new URL(u).hostname}catch{return u}}
+function ta(d){if(!d||!(d instanceof Date)||isNaN(d))return '';const s=Math.floor((Date.now()-d.getTime())/1000);if(s<60)return s+'mp';if(s<3600)return Math.floor(s/60)+'p';if(s<86400)return Math.floor(s/3600)+'ó';if(s<2592000)return Math.floor(s/86400)+'n';return Math.floor(s/2592000)+'hó'}
+window.copyLink=id=>{navigator.clipboard?.writeText(location.href+'#p/'+id);toast('Link másolva!')};
+let _tt;
+window.toast=(msg,type)=>{clearTimeout(_tt);document.querySelector('.toast')?.remove();const t=document.createElement('div');t.className='toast';t.textContent=msg;if(type==='err')t.style.borderLeftColor='var(--danger)';document.body.appendChild(t);_tt=setTimeout(()=>t?.remove(),2500)};
+function openM(id){g(id).classList.add('open')}
+function closeM(id){const el=g(id);if(el)el.classList.remove('open');}
+window.closeM=closeM;
+document.querySelectorAll('.veil').forEach(v=>v.addEventListener('click',e=>{if(e.target===v)closeM(v.id)}));
+
+// INIT
+const saved=localStorage.getItem('theme')||'amoled';
+document.documentElement.setAttribute('data-theme',saved);
+['amoled','grey','light'].forEach(x=>g('th-'+x)?.classList.toggle('on',x===saved));
+loadComms();subFeed();
+registerSW();
+// ── SERVICE WORKER + PWA ──
+let _swReg=null;
+let _deferredInstall=null;
+
+async function registerSW(){
+  if(!('serviceWorker' in navigator))return;
+  try{
+    _swReg=await navigator.serviceWorker.register('firebase-messaging-sw.js',{scope:'/'});
+    console.log('SW registered');
+    // Listen for messages from SW (notif click)
+    navigator.serviceWorker.addEventListener('message',e=>{
+      if(e.data?.type==='NOTIF_CLICK'&&e.data.url){
+        // Parse hash from URL and navigate
+        const hash=(e.data.url.split('#')[1]||'feed');
+        if(hash.startsWith('post/'))openDetail(hash.replace('post/',''));
+        else if(hash.startsWith('community/'))goCommunity(hash.replace('community/',''));
+        else if(hash.startsWith('profile/'))goProfile(hash.replace('profile/',''));
+        else goPage(hash);
+      }
+    });
+    // If already have permission, register FCM
+    if(Notification.permission==='granted'){
+      _notifPermission='granted';
+      registerFCMToken();
+    }
+  }catch(e){console.warn('SW registration failed:',e);}
+}
+
+// PWA install prompt
+window.addEventListener('beforeinstallprompt',e=>{
+  e.preventDefault();
+  _deferredInstall=e;
+  // Show install button in drawer
+  const btn=g('drawer-install');
+  if(btn)btn.style.display='flex';
+});
+
+window.installPWA=async()=>{
+  if(!_deferredInstall)return;
+  _deferredInstall.prompt();
+  const {outcome}=await _deferredInstall.userChoice;
+  if(outcome==='accepted')toast('App telepítve! 🎉');
+  _deferredInstall=null;
+  const btn=g('drawer-install');if(btn)btn.style.display='none';
+};
+
+// Keyboard shortcut: press / to open search
+document.addEventListener('keydown',e=>{
+  if(e.key==='/'&&!['INPUT','TEXTAREA'].includes(document.activeElement?.tagName)){
+    e.preventDefault();goPage('search');
+  }
+  if(e.key==='Escape'){closeDrawer();}
+});
+</script>
+</body>
+</html>
